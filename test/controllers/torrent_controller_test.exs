@@ -2,7 +2,7 @@ defmodule Torr.TorrentControllerTest do
   use Torr.ConnCase
 
   alias Torr.Torrent
-  @valid_attrs %{html: %{}, name: "some content", url: "some content"}
+  @valid_attrs %{html: "some content", json: %{}, name: "some content", url: "some content"}
   @invalid_attrs %{}
 
   test "lists all entries on index", %{conn: conn} do

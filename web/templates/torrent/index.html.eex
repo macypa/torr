@@ -6,6 +6,7 @@
       <th>Name</th>
       <th>Url</th>
       <th>Html</th>
+      <th>Json</th>
 
       <th></th>
     </tr>
@@ -16,6 +17,7 @@
       <td><%= torrent.name %></td>
       <td><%= torrent.url %></td>
       <td><%= torrent.html %></td>
+      <td><%= torrent.json %></td>
 
       <td class="text-right">
         <%= link "Show", to: torrent_path(@conn, :show, torrent), class: "btn btn-default btn-xs" %>
@@ -27,3 +29,4 @@
   </tbody>
 </table>
 
+<%= link "New torrent", to: torrent_path(@conn, :new) %>

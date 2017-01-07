@@ -17,7 +17,7 @@ defmodule Torr.Router do
     pipe_through :browser # Use the default browser stack
 
     #get "/", TorrentController, :index
-    resources "/torrents", TorrentController, only: [:index, :show]
+    resources "/torrents", TorrentController#, only: [:index, :show]
 
     get "/*path", RedirectController, :redirector
   end

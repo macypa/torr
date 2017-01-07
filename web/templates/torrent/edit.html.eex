@@ -1,0 +1,6 @@
+<h2>Edit torrent</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: torrent_path(@conn, :update, @torrent) %>
+
+<%= link "Back", to: torrent_path(@conn, :index) %>

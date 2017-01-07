@@ -3,7 +3,7 @@ defmodule Torr.TorrentTest do
 
   alias Torr.Torrent
 
-  @valid_attrs %{html: %{}, name: "some content", url: "some content"}
+  @valid_attrs %{html: "some content", json: %{}, name: "some content", url: "some content"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do

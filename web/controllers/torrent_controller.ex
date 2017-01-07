@@ -1,4 +1,5 @@
 defmodule Torr.TorrentController do
+  require Logger
   use Torr.Web, :controller
 
   alias Torr.Torrent
@@ -16,6 +17,7 @@ defmodule Torr.TorrentController do
   def create(conn, %{"torrent" => torrent_params}) do
     changeset = Torrent.changeset(%Torrent{}, torrent_params)
 
+    Logger.debug "torrent_params: #{inspect(torrent_params)}" 
     case Repo.insert(changeset) do
       {:ok, _torrent} ->
         conn
@@ -28,6 +30,8 @@ defmodule Torr.TorrentController do
 
   def show(conn, %{"id" => id}) do
     torrent = Repo.get!(Torrent, id)
+    Logger.debug "torrent: #{inspect(torrent)}" 
+
     render(conn, "show.html", torrent: torrent)
   end
 
@@ -38,8 +42,14 @@ defmodule Torr.TorrentController do
   end
 
   def update(conn, %{"id" => id, "torrent" => torrent_params}) do
+
+    torrent_params = Map.drop(torrent_params, ["json"])
+    |> Map.put("json", Poison.decode!(torrent_params["json"]))
+    Logger.debug "torrent_params updated: #{inspect(torrent_params)}" 
+
     torrent = Repo.get!(Torrent, id)
     changeset = Torrent.changeset(torrent, torrent_params)
+    Logger.debug "changeset: #{inspect(changeset)}" 
 
     case Repo.update(changeset) do
       {:ok, torrent} ->
@@ -62,4 +72,8 @@ defmodule Torr.TorrentController do
     |> put_flash(:info, "Torrent deleted successfully.")
     |> redirect(to: torrent_path(conn, :index))
   end
+end
+
+defimpl Phoenix.HTML.Safe, for: Map do
+  def to_iodata(data), do: data |> Poison.encode! |> Plug.HTML.html_escape
 end

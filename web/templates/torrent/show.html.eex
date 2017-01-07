@@ -17,6 +17,11 @@
     <%= @torrent.html %>
   </li>
 
+  <li>
+    <strong>Json:</strong>
+    <%= @torrent.json %>
+  </li>
+
 </ul>
 
 <%= link "Edit", to: torrent_path(@conn, :edit, @torrent) %>

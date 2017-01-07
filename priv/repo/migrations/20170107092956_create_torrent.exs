@@ -5,7 +5,8 @@ defmodule Torr.Repo.Migrations.CreateTorrent do
     create table(:torrents) do
       add :name, :string
       add :url, :string
-      add :html, :map
+      add :html, :text
+      add :json, :map
 
       timestamps()
     end
