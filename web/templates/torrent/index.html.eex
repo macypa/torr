@@ -1,0 +1,29 @@
+<h2>Listing torrents</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Url</th>
+      <th>Html</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for torrent <- @torrents do %>
+    <tr>
+      <td><%= torrent.name %></td>
+      <td><%= torrent.url %></td>
+      <td><%= torrent.html %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: torrent_path(@conn, :show, torrent), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: torrent_path(@conn, :edit, torrent), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: torrent_path(@conn, :delete, torrent), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+

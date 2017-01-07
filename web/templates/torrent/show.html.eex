@@ -1,0 +1,23 @@
+<h2>Show torrent</h2>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @torrent.name %>
+  </li>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @torrent.url %>
+  </li>
+
+  <li>
+    <strong>Html:</strong>
+    <%= @torrent.html %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: torrent_path(@conn, :edit, @torrent) %>
+<%= link "Back", to: torrent_path(@conn, :index) %>
