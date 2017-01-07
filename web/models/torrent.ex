@@ -16,6 +16,6 @@ defmodule Torr.Torrent do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :url, :html, :json])
-    |> validate_required([:name, :url, :html, :json])
+    |> validate_required([:name, :url, :html])
   end
 end

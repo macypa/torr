@@ -15,9 +15,13 @@ defmodule Torr.TorrentController do
   end
 
   def create(conn, %{"torrent" => torrent_params}) do
+
+    torrent_params = Map.drop(torrent_params, ["json"])
+    |> Map.put("json", Poison.decode!(torrent_params["json"]))
+    Logger.debug "torrent_params updated: #{inspect(torrent_params)}" 
+
     changeset = Torrent.changeset(%Torrent{}, torrent_params)
 
-    Logger.debug "torrent_params: #{inspect(torrent_params)}" 
     case Repo.insert(changeset) do
       {:ok, _torrent} ->
         conn
@@ -72,6 +76,10 @@ defmodule Torr.TorrentController do
     |> put_flash(:info, "Torrent deleted successfully.")
     |> redirect(to: torrent_path(conn, :index))
   end
+
+#SELECT DISTINCT json->'somethingelse'->>'genres' as genres from torrents;
+
+
 end
 
 defimpl Phoenix.HTML.Safe, for: Map do
