@@ -12,7 +12,11 @@ defmodule Torr.TorrentChannel do
   def handle_in("new_msg", %{"body" => body}, socket) do
     Logger.debug "handle_in body: #{inspect(body)}"
     Logger.debug "handle_in socket: #{inspect(socket)}"
-    broadcast! socket, "new_msg", %{body: body, "html": "\<b\>"  <> body  <> "\</b\>"}
+
+    torrents = Torr.Repo.all(Torr.Torrent)
+    Logger.debug "torrent: #{inspect(torrents)}"
+
+    broadcast! socket, "new_msg", %{body: body, torrents: to_map(torrents)}
     {:noreply, socket}
   end
 
@@ -24,5 +28,12 @@ defmodule Torr.TorrentChannel do
 #    push socket, "new_msg", payload
 #    {:noreply, socket}
 #  end
+
+    defp to_map(torr) do
+      %{
+        "name" => torr.name,
+        "html" => torr.http
+      }
+    end
 
 end

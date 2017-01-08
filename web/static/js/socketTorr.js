@@ -72,7 +72,12 @@ channel.on("new_msg", payload => {
 //  torrentItem.innerText = `${payload.body}`
 //  torrentsContainer.appendChild(torrentItem)
   torrentsContainer.innerHTML = '';
-  torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
+
+    `${payload.torrents}`.forEach(function(element) {
+        console.log(element);
+    });
+
+//  torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
 })
 
 
