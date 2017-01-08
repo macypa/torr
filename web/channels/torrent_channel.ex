@@ -29,11 +29,12 @@ defmodule Torr.TorrentChannel do
 #    {:noreply, socket}
 #  end
 
-    defp to_map(torr) do
-      %{
-        "name" => torr.name,
-        "html" => torr.http
-      }
+    defp to_map(torrs) do
+        torrents = Enum.reduce torrs, %{}, fn torrent, acc ->
+            Map.put(acc, torrent.name, %{"name" => torrent.name, "html" => torrent.html})
+        end
+        Logger.debug "to_map torrents: #{inspect(torrents)}"
+        torrents
     end
 
 end

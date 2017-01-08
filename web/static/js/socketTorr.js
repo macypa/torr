@@ -71,11 +71,19 @@ channel.on("new_msg", payload => {
 //  let torrentItem = document.createElement("li");
 //  torrentItem.innerText = `${payload.body}`
 //  torrentsContainer.appendChild(torrentItem)
-  torrentsContainer.innerHTML = '';
+    torrentsContainer.innerHTML = '';
 
-    `${payload.torrents}`.forEach(function(element) {
-        console.log(element);
-    });
+    for(var name in payload.torrents) {
+        let torrentItem = document.createElement("div")
+        let torrentName = document.createElement("b")
+        let torrentHtml = document.createElement("pre")
+
+        torrentName.innerText = payload.torrents[name]["name"]
+        torrentHtml.innerText = `${payload.torrents[name]["html"]}`
+        torrentItem.appendChild(torrentName)
+        torrentItem.appendChild(torrentHtml)
+        torrentsContainer.appendChild(torrentItem)
+    }
 
 //  torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
 })

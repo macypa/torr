@@ -3,7 +3,7 @@
 <input id="searchTerm" type="text"></input>
 <div id="torrents"></div>
 
-
+<!--
 <table class="table">
   <thead>
     <tr>
@@ -34,3 +34,4 @@
 </table>
 
 <%= link "New torrent", to: torrent_path(@conn, :new) %>
+-->
