@@ -4,7 +4,8 @@ defmodule Torr.TorrentController do
 
   alias Torr.Torrent
 
-  def index(conn, _params) do
+  def index(conn, params) do
+    Logger.debug "index params: #{inspect(params)}"
     torrents = Repo.all(Torrent)
     render(conn, "index.html", torrents: torrents)
   end
@@ -18,7 +19,7 @@ defmodule Torr.TorrentController do
 
     torrent_params = Map.drop(torrent_params, ["json"])
     |> Map.put("json", Poison.decode!(torrent_params["json"]))
-    Logger.debug "torrent_params updated: #{inspect(torrent_params)}" 
+    Logger.debug "create torrent_params updated: #{inspect(torrent_params)}"
 
     changeset = Torrent.changeset(%Torrent{}, torrent_params)
 

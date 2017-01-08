@@ -1,7 +1,7 @@
 defmodule Torr.Endpoint do
   use Phoenix.Endpoint, otp_app: :torr
 
-  socket "/socket", Torr.UserSocket
+  socket "/socketTorr", Torr.TorrentSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #

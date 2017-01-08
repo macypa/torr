@@ -1,5 +1,9 @@
 <h2>Listing torrents</h2>
 
+<input id="searchTerm" type="text"></input>
+<div id="torrents"></div>
+
+
 <table class="table">
   <thead>
     <tr>

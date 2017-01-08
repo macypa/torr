@@ -5,7 +5,7 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
+let socket = new Socket("/socketTorr", {params: {token: window.userToken}})
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -50,11 +50,32 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 //
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
-
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
+let channel = socket.channel("torrent:"+window.userToken, {})
+
+let searchTerm         = document.querySelector("#searchTerm")
+let torrentsContainer = document.querySelector("#torrents")
+
+searchTerm.addEventListener("keypress", event => {
+  if(event.keyCode === 13){
+    channel.push("new_msg", {body: searchTerm.value})
+//    document.location.hash = searchTerm.value
+    history.pushState(searchTerm.value, '', '/torrents?search=' + searchTerm.value);
+    searchTerm.value = ""
+  }
+})
+
+channel.on("new_msg", payload => {
+//  let torrentItem = document.createElement("li");
+//  torrentItem.innerText = `${payload.body}`
+//  torrentsContainer.appendChild(torrentItem)
+  torrentsContainer.innerHTML = '';
+  torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
+})
+
+
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
