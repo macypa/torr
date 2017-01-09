@@ -7,6 +7,7 @@ defmodule Torr.TorrentController do
   def index(conn, params) do
     Logger.debug "index params: #{inspect(params)}"
     torrents = Repo.all(Torrent)
+#    Torr.TorrentChannel.broadcast_change(conn.assigns.user_id, torrents)
     render(conn, "index.html", torrents: torrents)
   end
 

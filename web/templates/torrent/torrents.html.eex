@@ -1,0 +1,23 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Url</th>
+      <th>Html</th>
+      <th>Json</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for torrent <- @torrents do %>
+    <tr>
+      <td><%= torrent.name %></td>
+      <td><%= torrent.url %></td>
+      <td><%= torrent.html %></td>
+      <td><%= torrent.json %></td>
+
+    </tr>
+<% end %>
+  </tbody>
+</table>

@@ -1,5 +1,6 @@
 defmodule Torr.Torrent do
   use Torr.Web, :model
+  import Ecto.Query
 
   schema "torrents" do
     field :name, :string
@@ -8,6 +9,17 @@ defmodule Torr.Torrent do
     field :json, :map
 
     timestamps()
+  end
+
+  def search(query, searchTerm) do
+    from p in query,
+    where: fragment("? ILIKE ?", "name", ^searchTerm) or
+            fragment("? ILIKE ?", "html", ^searchTerm)
+  end
+
+  def sorted(query) do
+    from p in query,
+    order_by: [desc: p.name]
   end
 
   @doc """
