@@ -9,6 +9,7 @@
   "gettext": {:hex, :gettext, "0.13.0", "daafbddc5cda12738bb93b01d84105fe75b916a302f1c50ab9fb066b95ec9db4", [:mix], []},
   "hackney": {:hex, :hackney, "1.6.5", "8c025ee397ac94a184b0743c73b33b96465e85f90a02e210e86df6cbafaa5065", [:rebar3], [{:certifi, "0.7.0", [hex: :certifi, optional: false]}, {:idna, "1.2.0", [hex: :idna, optional: false]}, {:metrics, "1.0.1", [hex: :metrics, optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, optional: false]}, {:ssl_verify_fun, "1.1.1", [hex: :ssl_verify_fun, optional: false]}]},
   "httpoison": {:hex, :httpoison, "0.10.0", "4727b3a5e57e9a4ff168a3c2883e20f1208103a41bccc4754f15a9366f49b676", [:mix], [{:hackney, "~> 1.6.3", [hex: :hackney, optional: false]}]},
+  "ibrowse": {:hex, :ibrowse, "4.2.2", "b32b5bafcc77b7277eff030ed32e1acc3f610c64e9f6aea19822abcadf681b4b", [:rebar3], []},
   "idna": {:hex, :idna, "1.2.0", "ac62ee99da068f43c50dc69acf700e03a62a348360126260e87f2b54eced86b2", [:rebar3], []},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mime": {:hex, :mime, "1.0.1", "05c393850524767d13a53627df71beeebb016205eb43bfbd92d14d24ec7a1b51", [:mix], []},
@@ -23,4 +24,5 @@
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "postgrex": {:hex, :postgrex, "0.13.0", "e101ab47d0725955c5c8830ae8812412992e02e4bd9db09e17abb0a5d82d09c7", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
-  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []}}
+  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
+  "tesla": {:hex, :tesla, "0.5.2", "614297046c638b8c1695e8b6e63e6bffd107c07a67e4cb8cc4bb46598be735f1", [:mix], [{:exjsx, ">= 0.1.0", [hex: :exjsx, optional: true]}, {:hackney, "~> 1.6.0", [hex: :hackney, optional: true]}, {:ibrowse, "~> 4.2", [hex: :ibrowse, optional: true]}, {:poison, ">= 1.0.0", [hex: :poison, optional: true]}]}}
