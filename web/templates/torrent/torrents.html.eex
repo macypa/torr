@@ -3,7 +3,7 @@
   <li onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
     <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>
 
-    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>"><%= raw(torrent.html) %></div>
+    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>"><%= raw(torrent.url) %></div>
   </li>
 <% end %>
 
