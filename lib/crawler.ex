@@ -58,15 +58,16 @@ defmodule Torr.Crawler do
                       |> Enum.at(0)
                       |> Floki.text
                       |> String.trim
+                      |> HtmlEntities.decode
 
-    htmlTree = htmlString |> Floki.find("h1 ~ table") |> Enum.at(0)
-    contentHtml = htmlTree |> Enum.at(0) |> Floki.text
+    htmlTree = htmlString |> Floki.find("h1 ~ table") |> Enum.at(0) |> Floki.text |> String.trim |> HtmlEntities.decode
+    contentHtml = htmlTree #|> Enum.at(0) |> Floki.text |> String.trim |> HtmlEntities.decode
 
     %{
       url: url,
       name: name,
       html: contentHtml,
-      json: Enum.at(htmlTree, 0) # %{}
+      json: %{} #Enum.at(htmlTree, 0)
     }
 
   end
@@ -104,7 +105,7 @@ defmodule Torr.Crawler do
 #              "Cookie": "PHPSESSID=km3bv5kllmfl023hsb2hmo2r26; uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
 #              "Connection": "keep-alive"
 #            ]
-    options = [hackney: [{:follow_redirect, true}]]
+    options = [hackney: [{:follow_redirect, true}], timeout: :infinity, recv_timeout: :infinity]
     download(url, headers, options)
   end
 
@@ -117,8 +118,8 @@ defmodule Torr.Crawler do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         IO.puts "Error: #{url} is 404."
         nil
-      {:error, %HTTPoison.Error{reason: _}} ->
-        IO.puts "Error: #{url} just ain't workin."
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.puts "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
         nil
     end
 #    File.write("body.html", htmlString)
@@ -130,6 +131,7 @@ defmodule Torr.Crawler do
       z = :zlib.open
       :zlib.inflateInit(z, 31)
       res = :zlib.inflate(z, body)
-      Enum.join(res, "")
+      joined = Enum.join(res, "")
+      :iconv.convert("windows-1251", "utf-8", joined)
   end
 end
