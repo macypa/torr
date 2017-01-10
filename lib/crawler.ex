@@ -18,22 +18,27 @@ defmodule Torr.Crawler do
 
     pageListUrl = "#{url}bananas"
 #    pageListUrl = "#{url}browse.php"
-#    Logger.debug "pageListUrl: #{inspect(pageListUrl)}"
     torrentUrls = collectTorrentUrls(pageListUrl)
-#    Logger.debug "torrentUrls: #{inspect(torrentUrls)}"
+
     Enum.each torrentUrls, fn torrentUrl ->
       torrUrl = "#{url}#{torrentUrl}"
       torrentMap = fetchTorrentData(torrUrl)
-#      Logger.debug "torrentMap: #{inspect(torrentMap)}"
 
-      case Torr.Repo.insert(Torr.Torrent.changeset(%Torr.Torrent{}, torrentMap)) do
-        {:ok, torrent} ->
-          Logger.debug "torrent: #{inspect(torrent)}"
-        {:error, changeset} ->
-          Logger.debug "can't save torrent with changeset: #{inspect(changeset)}"
+      result =
+        case Torr.Repo.get_by(Torr.Torrent, url: torrUrl) do
+          nil  -> %Torr.Torrent{url: torrUrl} # Post not found, we build one
+          torrent -> torrent          # Post exists, let's use it
+        end
+        |> Torr.Torrent.changeset(torrentMap)
+        |> Torr.Repo.insert_or_update
+
+Logger.debug "got from db result: #{inspect(result)}"
+
+      case result do
+        {:ok, struct}       -> Logger.debug "torrent: #{inspect(struct)}"# Inserted or updated with success
+        {:error, changeset} -> Logger.debug "can't save torrent with changeset: #{inspect(changeset)}"# Something went wrong
       end
     end
-#      File.write("body.html", Enum.join(banans, "\n"))
   end
 
   def collectTorrentUrls(url) do
@@ -44,10 +49,8 @@ defmodule Torr.Crawler do
            |> Enum.filter(fn(url) -> String.starts_with?(url, "banan?id=") end)
 #           |> Enum.filter(fn(url) -> String.starts_with?(url, "details.php?id=") end)
 
-#    Logger.debug "collectTorrentUrls banans: #{inspect(banans)}"
     banans = for torrUrl <- banans, do: String.replace(torrUrl,  ~r/&hit.*/u, "")
 
-#    File.write("body.html", Enum.join(banans, "\n"))
     banans
   end
 
@@ -110,8 +113,6 @@ defmodule Torr.Crawler do
   end
 
   def download(url, headers, options) do
-
-
     htmlString = case HTTPoison.get(url, headers, options) do
       {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
         unzip(body)
