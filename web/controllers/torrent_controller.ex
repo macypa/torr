@@ -6,9 +6,12 @@ defmodule Torr.TorrentController do
 
   def index(conn, params) do
     Logger.debug "index params: #{inspect(params)}"
-    torrents = Repo.all(Torrent)
-#    Torr.TorrentChannel.broadcast_change(conn.assigns.user_id, torrents)
-    render(conn, "index.html", torrents: torrents)
+
+    torrents = Torrent
+               |> Torrent.search(params["search"])
+               |> Torr.Repo.all
+
+    render(conn, "index.html", search: params["search"], torrents: torrents)
   end
 
   def new(conn, _params) do

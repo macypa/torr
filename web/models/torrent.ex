@@ -12,9 +12,10 @@ defmodule Torr.Torrent do
   end
 
   def search(query, searchTerm) do
+    searchTerm = searchTerm |> String.replace(~r/\s/u, "%")
     from p in query,
-    where: fragment("? ILIKE ?", "name", ^searchTerm) or
-            fragment("? ILIKE ?", "html", ^searchTerm)
+    where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
+            fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%"))
   end
 
   def sorted(query) do

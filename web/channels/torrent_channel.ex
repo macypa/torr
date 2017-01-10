@@ -21,9 +21,7 @@ defmodule Torr.TorrentChannel do
 
     torrents = Torrent
                |> Torrent.search(body)
-               |> Torr.Repo.all(Torrent)
-
-
+               |> Torr.Repo.all
     Logger.debug "torrent: #{inspect(torrents)}"
 
     torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", torrents: torrents)

@@ -13,7 +13,7 @@ defmodule Torr do
       # Start the endpoint when the application starts
       supervisor(Torr.Endpoint, []),
       # Start your own worker by calling: Torr.Worker.start_link(arg1, arg2, arg3)
-      # worker(Torr.Worker, [arg1, arg2, arg3]),
+      worker(Torr.Crawler, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

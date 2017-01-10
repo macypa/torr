@@ -1,6 +1,6 @@
 <h2>Listing torrents</h2>
 
-<input id="searchTerm" type="text"></input>
+<input id="searchTerm" type="text" value="<%= @search %>"></input>
 
 
 <div id="torrents">
