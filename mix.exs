@@ -19,7 +19,7 @@ defmodule Torr.Mixfile do
   def application do
     [mod: {Torr, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :httpoison]]
+                    :phoenix_ecto, :postgrex, :httpoison, :gen_retry]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,7 +39,9 @@ defmodule Torr.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:httpoison, "~> 0.10.0"}]
+     {:httpoison, "~> 0.10.0"},
+     {:floki, "~> 0.11.0"},
+     {:gen_retry, "~> 1.0.1"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
