@@ -11,5 +11,6 @@ defmodule Torr.Repo.Migrations.CreateTorrent do
       timestamps()
     end
 
+    create unique_index(:torrents, [:url])
   end
 end

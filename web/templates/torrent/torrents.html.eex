@@ -1,23 +1,10 @@
-<table class="table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Url</th>
-      <th>Html</th>
-      <th>Json</th>
-
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
+<ul>
 <%= for torrent <- @torrents do %>
-    <tr>
-      <td><%= torrent.name %></td>
-      <td><%= torrent.url %></td>
-      <td><%= torrent.html %></td>
-      <td><%= torrent.json %></td>
+  <li onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
+    <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>
 
-    </tr>
+    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>"><%= raw(torrent.html) %></div>
+  </li>
 <% end %>
-  </tbody>
-</table>
+
+</ul>

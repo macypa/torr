@@ -1,7 +1,17 @@
 <h2>Listing torrents</h2>
 
 <input id="searchTerm" type="text" value="<%= @search %>"></input>
-
+<script type="text/javascript">
+<!--
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+//-->
+</script>
 
 <div id="torrents">
 <%= render "torrents.html", torrents: @torrents %>

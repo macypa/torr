@@ -4,7 +4,7 @@ defmodule Torr.Torrent do
 
   schema "torrents" do
     field :name, :string
-    field :url, :string
+    field :url, :string, unique: true
     field :html, :string
     field :json, :map
 
@@ -29,6 +29,7 @@ defmodule Torr.Torrent do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :url, :html, :json])
+    |> unique_constraint(:url)
     |> validate_required([:name, :url, :html])
   end
 end

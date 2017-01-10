@@ -60,8 +60,8 @@ defmodule Torr.Crawler do
                       |> String.trim
                       |> HtmlEntities.decode
 
-    htmlTree = htmlString |> Floki.find("h1 ~ table") |> Enum.at(0) |> Floki.text |> String.trim |> HtmlEntities.decode
-    contentHtml = htmlTree #|> Enum.at(0) |> Floki.text |> String.trim |> HtmlEntities.decode
+    htmlTree = htmlString |> Floki.find("h1 ~ table")
+    contentHtml = htmlTree |> Floki.raw_html
 
     %{
       url: url,
