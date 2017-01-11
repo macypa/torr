@@ -8,7 +8,7 @@ defmodule Torr.TorrentController do
     Logger.debug "index params: #{inspect(params)}"
 
     torrents = Torrent
-               |> Torrent.search(params["search"])
+               |> Torrent.search(params)
                |> Torr.Repo.all
 
     render(conn, "index.html", search: params["search"], torrents: torrents)

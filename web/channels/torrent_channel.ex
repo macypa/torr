@@ -15,12 +15,12 @@ defmodule Torr.TorrentChannel do
     {:ok, socket}
   end
 
-  def handle_in("new_msg", %{"body" => body}, socket) do
-    Logger.debug "handle_in body: #{inspect(body)}"
+  def handle_in("new_msg", params, socket) do
+    Logger.debug "handle_in body: #{inspect(params)}"
     Logger.debug "handle_in socket: #{inspect(socket)}"
 
     torrents = Torrent
-               |> Torrent.search(body)
+               |> Torrent.search(params)
                |> Torr.Repo.all
     Logger.debug "torrent: #{inspect(torrents)}"
 
@@ -39,11 +39,11 @@ defmodule Torr.TorrentChannel do
 #    {:noreply, socket}
 #  end
 
-  def broadcast_change(user_id, torrents) do
-    Logger.debug "broadcast_change user_id: #{inspect(user_id)}"
-#    broadcast! "torrent:" <> user_id, "new_msg", %{torrents: to_map(torrents)}
-    Torr.Endpoint.broadcast("torrent:#{user_id}", "new_msg", %{torrents: to_map(torrents)})
-  end
+#  def broadcast_change(user_id, torrents) do
+#    Logger.debug "broadcast_change user_id: #{inspect(user_id)}"
+##    broadcast! "torrent:" <> user_id, "new_msg", %{torrents: to_map(torrents)}
+#    Torr.Endpoint.broadcast("torrent:#{user_id}", "new_msg", %{torrents: to_map(torrents)})
+#  end
 
   def to_map(torrs) do
     torrents = Enum.reduce torrs, %{}, fn torrent, acc ->

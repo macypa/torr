@@ -12,8 +12,12 @@ defmodule Torr.Torrent do
     timestamps()
   end
 
-  def search(query, searchTerm) do
-    searchTerm = searchTerm |> String.replace(~r/\s/u, "%")
+#  def search(query, nil) do from p in query end
+#  def search(query, "") do from p in query end
+#  def search(query, %{}) do from p in query end
+  def search(query, searchParams) do
+    Logger.debug "search searchParams: #{inspect(searchParams)}"
+    searchTerm = searchParams["search"] |> String.replace(~r/\s/u, "%")
     from p in query,
     where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
             fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%"))

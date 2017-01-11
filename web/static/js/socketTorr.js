@@ -60,9 +60,10 @@ let torrentsContainer = document.querySelector("#torrents")
 
 searchTerm.addEventListener("keypress", event => {
   if(event.keyCode === 13){
-    channel.push("new_msg", {body: searchTerm.value})
+    var params = replaceUrlParams("search", searchTerm.value)
+    channel.push("new_msg", params)
 //    document.location.hash = searchTerm.value
-    history.pushState(searchTerm.value, '', '/torrents?search=' + searchTerm.value);
+    history.pushState(searchTerm.value, '', '/torrents' + params["locationUrl"]);
   }
 })
 
@@ -82,3 +83,23 @@ channel.join()
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 export default socket
+
+function replaceUrlParams(key, value) {
+  var params = {};
+  if (location.search) {
+      var oldvalue = ""
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+          var nv = parts[i].split('=');
+          if (!nv[0]) continue;
+          if (nv[0] == key) {
+            oldvalue = nv[1]
+            params[key] = value || true;
+          } else {
+            params[nv[0]] = nv[1] || true;
+          }
+      }
+      params["locationUrl"] = location.search.replace(key+"="+oldvalue, key+"="+value) || true;
+  }
+  return params
+}
