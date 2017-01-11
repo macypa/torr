@@ -4,10 +4,10 @@ defmodule Torr.Torrent do
   import Ecto.Query
 
   schema "torrents" do
-    field :name, :string
+    field :name, :string, default: ""
     field :url, :string, unique: true
-    field :html, :string
-    field :json, :map
+    field :html, :string, default: ""
+    field :json, :map, default: %{}
 
     timestamps()
   end
@@ -19,6 +19,13 @@ defmodule Torr.Torrent do
             fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%"))
   end
 
+  def allUrlWithEmptyName(query, trackerUrl) do
+    from p in query,
+#    select: {p.name, p.url},
+    where: fragment("? ILIKE ?", p.url, ^("%#{trackerUrl}%")) and
+            fragment("? = ?", p.name, ^(""))
+  end
+
   def sorted(query) do
     from p in query,
     order_by: [desc: p.name]
@@ -27,17 +34,15 @@ defmodule Torr.Torrent do
   def save(torrentMap) do
       result =
         case Torr.Repo.get_by(Torr.Torrent, url: torrentMap.url) do
-          nil  -> %Torr.Torrent{url: torrentMap.url} # Post not found, we build one
-          torrent -> torrent          # Post exists, let's use it
+          nil  -> %Torr.Torrent{url: torrentMap.url}
+          torrent -> torrent
         end
         |> Torr.Torrent.changeset(torrentMap)
         |> Torr.Repo.insert_or_update
 
       case result do
-        {:ok, _struct}  -> {:ok, _struct}  #Logger.debug "torrent: #{inspect(struct)}"# Inserted or updated with success
-        {:error, changeset} ->
-          Logger.debug "can't save torrent with changeset: #{inspect(changeset)}"# Something went wrong
-          {:error, changeset}
+        {:ok, struct}  -> {:ok, struct}
+        {:error, changeset} -> {:error, changeset}
       end
   end
 
@@ -48,6 +53,6 @@ defmodule Torr.Torrent do
     struct
     |> cast(params, [:name, :url, :html, :json])
     |> unique_constraint(:url)
-    |> validate_required([:name, :url, :html])
+    |> validate_required([:url])
   end
 end
