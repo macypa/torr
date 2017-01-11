@@ -15,6 +15,6 @@ defmodule Torr.Repo.Migrations.CreateTracker do
       timestamps()
     end
 
-    create unique_index(:torrents, [:url])
+    create unique_index(:trackers, [:url])
   end
 end
