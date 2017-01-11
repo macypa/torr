@@ -1,4 +1,5 @@
 defmodule Torr.Torrent do
+  require Logger
   use Torr.Web, :model
   import Ecto.Query
 
@@ -21,6 +22,23 @@ defmodule Torr.Torrent do
   def sorted(query) do
     from p in query,
     order_by: [desc: p.name]
+  end
+
+  def save(torrentMap) do
+      result =
+        case Torr.Repo.get_by(Torr.Torrent, url: torrentMap.url) do
+          nil  -> %Torr.Torrent{url: torrentMap.url} # Post not found, we build one
+          torrent -> torrent          # Post exists, let's use it
+        end
+        |> Torr.Torrent.changeset(torrentMap)
+        |> Torr.Repo.insert_or_update
+
+      case result do
+        {:ok, _struct}  -> {:ok, _struct}  #Logger.debug "torrent: #{inspect(struct)}"# Inserted or updated with success
+        {:error, changeset} ->
+          Logger.debug "can't save torrent with changeset: #{inspect(changeset)}"# Something went wrong
+          {:error, changeset}
+      end
   end
 
   @doc """

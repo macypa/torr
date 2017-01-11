@@ -14,44 +14,33 @@ defmodule Torr.Crawler do
 
   def doWork() do
     url = "http://zamunda.net/"
+    startPageUrl = "#{url}bananas?sort=6&type=asc&page="
 #    url = "http://zelka.org/"
+#    pageListUrl = "#{url}browse.php?sort=6&type=asc&page="
 
-    pageListUrl = "#{url}bananas"
-#    pageListUrl = "#{url}browse.php"
-    torrentUrls = collectTorrentUrls(pageListUrl)
+    torrentUrls = collectTorrentUrls(startPageUrl, 0)
+    collectTorrents(url, torrentUrls)
+  end
+
+  def collectTorrentUrls(url, pageNum) do
+    banans = Torr.Crawler.download("#{url}#{pageNum}")
+
+    banans = banans |> Floki.find("a")
+           |> Floki.attribute("href")
+           |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, ~r/(\/|javascript)banan\?id=/) end)
+#           |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, "details.php?id=") end)
+
+    banans = for torrUrl <- banans, do: String.replace(torrUrl,  ~r/&hit.*/u, "")
+    banans = for torrUrl <- banans, do: String.replace(torrUrl,  ~r/.*banan\?id=/u, "banan?id=")
+    banans
+  end
+
+  def collectTorrents(url, torrentUrls) do
 
     Enum.each torrentUrls, fn torrentUrl ->
       torrUrl = "#{url}#{torrentUrl}"
-      torrentMap = fetchTorrentData(torrUrl)
-
-      result =
-        case Torr.Repo.get_by(Torr.Torrent, url: torrUrl) do
-          nil  -> %Torr.Torrent{url: torrUrl} # Post not found, we build one
-          torrent -> torrent          # Post exists, let's use it
-        end
-        |> Torr.Torrent.changeset(torrentMap)
-        |> Torr.Repo.insert_or_update
-
-Logger.debug "got from db result: #{inspect(result)}"
-
-      case result do
-        {:ok, struct}       -> Logger.debug "torrent: #{inspect(struct)}"# Inserted or updated with success
-        {:error, changeset} -> Logger.debug "can't save torrent with changeset: #{inspect(changeset)}"# Something went wrong
-      end
+      Torr.Torrent.save(fetchTorrentData(torrUrl))
     end
-  end
-
-  def collectTorrentUrls(url) do
-    banans = Torr.Crawler.download(url)
-#    File.write("body.html", Enum.join(banans, "\n"))
-    banans = banans |> Floki.find("a")
-           |> Floki.attribute("href")
-           |> Enum.filter(fn(url) -> String.starts_with?(url, "banan?id=") end)
-#           |> Enum.filter(fn(url) -> String.starts_with?(url, "details.php?id=") end)
-
-    banans = for torrUrl <- banans, do: String.replace(torrUrl,  ~r/&hit.*/u, "")
-
-    banans
   end
 
   def fetchTorrentData(url) do
@@ -70,10 +59,11 @@ Logger.debug "got from db result: #{inspect(result)}"
       url: url,
       name: name,
       html: contentHtml,
-      json: %{} #Enum.at(htmlTree, 0)
+#      json: %{} #Enum.at(htmlTree, 0)
     }
 
   end
+
 
   def handle_info(:work, state) do
     doWork()
@@ -85,7 +75,6 @@ Logger.debug "got from db result: #{inspect(result)}"
   defp schedule_work() do
     Process.send_after(self(), :work, 1 * 60 * 60 * 1000) # In 1 hours
   end
-
 
   def download(url) do
     headers = [
