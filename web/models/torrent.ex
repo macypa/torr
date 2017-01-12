@@ -17,7 +17,10 @@ defmodule Torr.Torrent do
 #  def search(query, %{}) do from p in query end
   def search(query, searchParams) do
     Logger.debug "search searchParams: #{inspect(searchParams)}"
-    searchTerm = searchParams["search"] |> String.replace(~r/\s/u, "%")
+    searchTerm = searchParams["search"]
+    if searchTerm do
+       searchTerm = String.replace(searchTerm,~r/\s/u, "%")
+    end
     from p in query,
     where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
             fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%")),
