@@ -1,5 +1,5 @@
 
-<%= pagination_links @torrents, page_size: @params["page_size"] %>
+<%= pagination_links @torrents%>
 
 <ul>
 <%= for torrent <- @torrents do %>

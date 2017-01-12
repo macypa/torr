@@ -66,12 +66,15 @@ searchTerm.addEventListener("keypress", event => {
     history.pushState(searchTerm.value, '', '/torrents' + params["locationUrl"]);
   }
 })
-
+window.onload = function() {
+    replacePaginationUrls();
+}
 export var Torrents = {
     show: function(payload) {
         torrentsContainer.innerHTML = '';
-        console.log(payload)
         torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
+
+        replacePaginationUrls();
     }
 }
 
@@ -89,18 +92,46 @@ function replaceUrlParams(key, value) {
   var params = {};
   if (location.search) {
       var oldvalue = ""
+
       var parts = location.search.substring(1).split('&');
-      for (var i = 0; i < parts.length; i++) {
-          var nv = parts[i].split('=');
-          if (!nv[0]) continue;
-          if (nv[0] == key) {
-            oldvalue = nv[1]
-            params[key] = value || true;
-          } else {
-            params[nv[0]] = nv[1] || true;
-          }
+      var locatUrl = location.search
+      if (locatUrl.includes(key+"=")) {
+
+        for (var i = 0; i < parts.length; i++) {
+            var nv = parts[i].split('=');
+            if (!nv[0]) continue;
+            if (nv[0] == key) {
+              oldvalue = nv[1]
+              params[key] = value || true;
+            } else {
+              params[nv[0]] = nv[1] || true;
+            }
+        }
+      } else {
+        if (locatUrl.includes("?")) {
+          locatUrl = locatUrl + "&" + key+"="+value
+        } else {
+          locatUrl = locatUrl + "?" + key+"="+value
+        }
       }
-      params["locationUrl"] = location.search.replace(key+"="+oldvalue, key+"="+value) || true;
+      params["locationUrl"] = locatUrl.replace(key+"="+oldvalue, key+"="+value)
+
+      if (value == "") {
+        params["locationUrl"] = params["locationUrl"].replace("&"+key+"=", "")
+        params["locationUrl"] = params["locationUrl"].replace("?"+key+"=", "")
+      }
   }
   return params
+}
+
+function replacePaginationUrls() {
+  var anchors = document.getElementsByTagName("a");
+
+  for (var i = 0; i < anchors.length; i++) {
+      if (anchors[i].href.includes("page=")) {
+        var locationWithNewPageNum = location.search.replace(/page=\d*/i,
+                                              /(page=\d*)/.exec(anchors[i].href)[1])
+        anchors[i].href = anchors[i].href.replace(/\?page=.*/i, locationWithNewPageNum)
+      }
+  }
 }
