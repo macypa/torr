@@ -20,7 +20,8 @@ defmodule Torr.Torrent do
     searchTerm = searchParams["search"] |> String.replace(~r/\s/u, "%")
     from p in query,
     where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
-            fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%"))
+            fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%")),
+    limit: ^searchParams["limit"]
   end
 
   def allUrlWithEmptyName(query, trackerUrl) do
