@@ -21,12 +21,14 @@ defmodule Torr.TorrentChannel do
 
     torrents = Torrent
                |> Torrent.search(params)
-               |> Torr.Repo.all
+               |> Torr.Repo.paginate(page: params["page"], page_size: params["page_size"])
     Logger.debug "torrent: #{inspect(torrents)}"
 
-    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", torrents: torrents)
+    Logger.debug "handle_in torrents: #{inspect(torrents)}"
+    Logger.debug "handle_in params: #{inspect(params)}"
+    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
     Logger.debug "handle_in torrentsHtml: #{inspect(torrentsHtml)}"
-    broadcast! socket, "new_msg", %{html: torrentsHtml, torrents: to_map(torrents)}
+    broadcast! socket, "new_msg", %{html: torrentsHtml, params: params, torrents: to_map(torrents)}
     {:noreply, socket}
   end
 

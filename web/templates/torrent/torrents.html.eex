@@ -1,3 +1,6 @@
+
+<%= pagination_links @torrents, page_size: @params["page_size"] %>
+
 <ul>
 <%= for torrent <- @torrents do %>
   <li onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
@@ -8,3 +11,5 @@
 <% end %>
 
 </ul>
+
+<%= pagination_links @torrents %>

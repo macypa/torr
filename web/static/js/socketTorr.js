@@ -70,6 +70,7 @@ searchTerm.addEventListener("keypress", event => {
 export var Torrents = {
     show: function(payload) {
         torrentsContainer.innerHTML = '';
+        console.log(payload)
         torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
     }
 }

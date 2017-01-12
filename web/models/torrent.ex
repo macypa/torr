@@ -1,7 +1,7 @@
 defmodule Torr.Torrent do
   require Logger
-  use Torr.Web, :model
   import Ecto.Query
+  use Torr.Web, :model
 
   schema "torrents" do
     field :name, :string, default: ""
@@ -18,10 +18,9 @@ defmodule Torr.Torrent do
   def search(query, searchParams) do
     Logger.debug "search searchParams: #{inspect(searchParams)}"
     searchTerm = searchParams["search"]
-    if searchTerm do
-       searchTerm = String.replace(searchTerm,~r/\s/u, "%")
-    end
+    searchTerm = if searchTerm do String.replace(searchTerm,~r/\s/u, "%") end
     from p in query,
+#    select: {p.name, p.url},
     where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
             fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%")),
     limit: ^searchParams["limit"]

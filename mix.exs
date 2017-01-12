@@ -19,7 +19,12 @@ defmodule Torr.Mixfile do
   def application do
     [mod: {Torr, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :httpoison, :iconv]]
+                    :phoenix_ecto, :postgrex,
+                     :httpoison,
+                     :scrivener,
+                     :scrivener_ecto,
+                     :scrivener_html,
+                     :iconv]]
   end
 
   # Specifies which paths to compile per environment.
@@ -43,6 +48,10 @@ defmodule Torr.Mixfile do
      {:floki, "~> 0.11.0"},
 #     {:gen_retry, "~> 1.0.1"},
      {:html_entities, "~> 0.3"},
+     {:scrivener, "~> 2.0"},
+     {:scrivener_ecto, "~> 1.0"},
+     {:scrivener_html, "~> 1.1"},
+#     {:kerosene, "~> 0.5.0"},
      {:iconv, "~> 1.0"}]
   end
 

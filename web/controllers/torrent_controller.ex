@@ -9,9 +9,11 @@ defmodule Torr.TorrentController do
 
     torrents = Torrent
                |> Torrent.search(params)
-               |> Torr.Repo.all
+               |> Torr.Repo.paginate(page: params["page"], page_size: params["page_size"])
+#              |> Torr.Repo.all
 
-    render(conn, "index.html", search: params["search"], torrents: torrents)
+    Logger.debug "index torrent: #{inspect(torrents)}"
+    render(conn, "index.html", params: params, torrents: torrents)
   end
 
   def new(conn, _params) do
