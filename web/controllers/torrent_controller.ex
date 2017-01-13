@@ -27,10 +27,7 @@ defmodule Torr.TorrentController do
 
   def create(conn, %{"torrent" => torrent_params}) do
 
-    torrent_params = Map.drop(torrent_params, ["json"])
-    |> Map.put("json", Poison.decode!(torrent_params["json"]))
-    Logger.debug "create torrent_params updated: #{inspect(torrent_params)}"
-
+    torrent_params = Torr.EncodeHelper.decode(torrent_params, "json")
     changeset = Torrent.changeset(%Torrent{}, torrent_params)
 
     case Repo.insert(changeset) do
@@ -58,13 +55,10 @@ defmodule Torr.TorrentController do
 
   def update(conn, %{"id" => id, "torrent" => torrent_params}) do
 
-    torrent_params = Map.drop(torrent_params, ["json"])
-    |> Map.put("json", Poison.decode!(torrent_params["json"]))
-    Logger.debug "torrent_params updated: #{inspect(torrent_params)}" 
+    torrent_params = Torr.EncodeHelper.decode(torrent_params, "json")
 
     torrent = Repo.get!(Torrent, id)
     changeset = Torrent.changeset(torrent, torrent_params)
-    Logger.debug "changeset: #{inspect(changeset)}" 
 
     case Repo.update(changeset) do
       {:ok, torrent} ->
@@ -91,8 +85,4 @@ defmodule Torr.TorrentController do
 #SELECT DISTINCT json->'somethingelse'->>'genres' as genres from torrents;
 
 
-end
-
-defimpl Phoenix.HTML.Safe, for: Map do
-  def to_iodata(data), do: data |> Poison.encode! |> Plug.HTML.html_escape
 end

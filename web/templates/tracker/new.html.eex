@@ -1,0 +1,6 @@
+<h2>New tracker</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: tracker_path(@conn, :create) %>
+
+<%= link "Back", to: tracker_path(@conn, :index) %>

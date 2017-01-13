@@ -1,0 +1,53 @@
+<h2>Show tracker</h2>
+
+<ul>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @tracker.url %>
+  </li>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @tracker.name %>
+  </li>
+
+  <li>
+    <strong>Lastpagenumber:</strong>
+    <%= @tracker.lastPageNumber %>
+  </li>
+
+  <li>
+    <strong>Pagepattern:</strong>
+    <%= @tracker.pagePattern %>
+  </li>
+
+  <li>
+    <strong>Urlpattern:</strong>
+    <%= @tracker.urlPattern %>
+  </li>
+
+  <li>
+    <strong>Namepattern:</strong>
+    <%= @tracker.namePattern %>
+  </li>
+
+  <li>
+    <strong>Htmlpattern:</strong>
+    <%= @tracker.htmlPattern %>
+  </li>
+
+  <li>
+    <strong>Cookie:</strong>
+    <%= @tracker.cookie %>
+  </li>
+
+  <li>
+    <strong>Patterns:</strong>
+    <%= @tracker.patterns %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: tracker_path(@conn, :edit, @tracker) %>
+<%= link "Back", to: tracker_path(@conn, :index) %>

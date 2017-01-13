@@ -1,0 +1,42 @@
+<h2>Listing trackers</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Url</th>
+      <th>Name</th>
+      <th>Lastpagenumber</th>
+      <th>Pagepattern</th>
+      <th>Urlpattern</th>
+      <th>Namepattern</th>
+      <th>Htmlpattern</th>
+      <th>Cookie</th>
+      <th>Patterns</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for tracker <- @trackers do %>
+    <tr>
+      <td><%= tracker.url %></td>
+      <td><%= tracker.name %></td>
+      <td><%= tracker.lastPageNumber %></td>
+      <td><%= tracker.pagePattern %></td>
+      <td><%= tracker.urlPattern %></td>
+      <td><%= tracker.namePattern %></td>
+      <td><%= tracker.htmlPattern %></td>
+      <td><%= tracker.cookie %></td>
+      <td><%= tracker.patterns %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: tracker_path(@conn, :show, tracker), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: tracker_path(@conn, :edit, tracker), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: tracker_path(@conn, :delete, tracker), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New tracker", to: tracker_path(@conn, :new) %>
