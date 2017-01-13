@@ -93,13 +93,13 @@ defmodule Torr.Crawler do
 
   def collectTorrentUrls(tracker) do
     try do
-      for _ <- Stream.cycle([:ok]) do
+#      for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
-        case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber) do
+        case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+1) do
           [] -> throw :break
           _ -> Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
         end
-      end
+#      end
     catch
       :break -> :ok
     end
@@ -146,6 +146,9 @@ defmodule Torr.Crawler do
     htmlString = case HTTPoison.get(url, headers, options) do
       {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
         unzip(body)
+      {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
+              IO.puts "Error: #{url} is 502."
+              nil
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         IO.puts "Error: #{url} is 404."
         nil
@@ -170,7 +173,7 @@ defmodule Torr.Crawler do
       [Tracker.save(%{
         url: "http://zamunda.net/",
         name: "zamunda.net",
-        lastPageNumber: 0,
+        lastPageNumber: -1,
         pagePattern: "bananas?sort=6&type=asc&page=",
         urlPattern: "(\/|javascript)(?<url>banan\\?id=\\d+)",
         namePattern: "h1",
@@ -181,7 +184,7 @@ defmodule Torr.Crawler do
       Tracker.save(%{
         url: "http://zelka.org/",
         name: "zelka.org",
-        lastPageNumber: 0,
+        lastPageNumber: -1,
         pagePattern: "browse.php?sort=6&type=asc&page=",
         urlPattern: "(\/|javascript)(?<url>details.php\\?id=\\d+)",
         namePattern: "h1",

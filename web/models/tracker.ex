@@ -4,7 +4,7 @@ defmodule Torr.Tracker do
   schema "trackers" do
     field :url, :string, unique: true
     field :name, :string, default: ""
-    field :lastPageNumber, :integer, default: 0
+    field :lastPageNumber, :integer, default: -1
     field :pagePattern, :string, default: ""
     field :urlPattern, :string, default: ""
     field :namePattern, :string, default: ""
