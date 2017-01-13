@@ -142,7 +142,7 @@ function updatePaginationUrls(urlParams) {
   }
   for (var i = 0; i < anchors.length; i++) {
       if (anchors[i].href.includes("page=")) {
-          anchors[i].href = anchors[i].href + "&" + urlParamsWoutPage
+          anchors[i].href = anchors[i].href.replace("page=", urlParamsWoutPage + "&page=")
       }
   }
 }
