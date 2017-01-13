@@ -28,16 +28,56 @@ defmodule Torr.Crawler do
     end
   end
 
-  def collectTorrentUrls(tracker) do
-  collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber)
-#    Enum.each torrentUrls, fn torrentUrls ->
-#      case collectTorrentUrlsFromPage(tracker.lastPageNumber) do
-#
-#      end
-#      Tracker.save(%{url: tracker.lastPageNumber-1})
-#      tracker.lastPageNumber = tracker.lastPageNumber+1
-#    end
+  def fetchTorrentData(tracker, url) do
+    htmlString = download(tracker, url)
 
+    name = htmlString |> Floki.find(tracker.namePattern)
+                      |> Enum.at(0)
+                      |> Floki.text
+                      |> String.trim
+                      |> HtmlEntities.decode
+
+    Logger.debug "collectTorrentUrls from #{url} name: #{name}"
+
+    htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
+    contentHtml = htmlTree |> Floki.raw_html
+
+     Logger.debug "fetchTorrentData contentHtml: #{inspect(contentHtml)}"
+
+#tracker = Torr.Repo.get(Torr.Tracker, 3)
+#url = "http://zamunda.net/banan?id=500346"
+#contentHtml = Torr.Crawler.download(tracker, url) |> Floki.find(tracker.htmlPattern)
+#require Ecto.Query
+#Torr.Repo.one(Ecto.Query.from p in Torr.Torrent, limit: 1)
+
+    torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
+                              |> Enum.group_by(&(&1 |> Floki.find(tracker.patterns["torrentDescNamePattern"]) |> Floki.raw_html),
+                                            &(&1 |> Floki.find(tracker.patterns["torrentDescValuePattern"]) |> Floki.raw_html))
+#                              |> Enum.group_by(&(&1 |> Floki.find("tr ~ td") |> Floki.raw_html),
+#                                            &(&1 |> Floki.find("tr ~ td + td") |> Floki.raw_html))
+
+#    list = [{"td",  [{"class", "td_clear td_newborder"}, {"valign", "top"}, {"align", "right"}],  ["Added"]}, {"td",  [{"valign", "top"}, {"class", "td_clear td_newborder"}, {"align", "left"}],   ["2005-04-01 23:42:42"]}]
+#
+#    list |> Enum.group_by(&Torr.Crawler.torrentDescName/1, &Torr.Crawler.torrentDescValue/1)
+
+
+     Logger.debug "fetchTorrentData torrentInfo: #{inspect(torrentInfo)}"
+
+    %{
+      url: url,
+      name: name,
+      html: contentHtml,
+      json: torrentInfo
+    }
+
+  end
+
+  def torrentDescName(descriptionNameValuePair) do
+    descriptionNameValuePair |> Floki.find("tr ~ td") |> Floki.raw_html
+  end
+
+  def torrentDescValue(descriptionNameValuePair) do
+    descriptionNameValuePair |> Floki.find("tr ~ td + td") |> Floki.raw_html
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
@@ -62,6 +102,18 @@ defmodule Torr.Crawler do
     banans
   end
 
+  def collectTorrentUrls(tracker) do
+  collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber)
+#    Enum.each torrentUrls, fn torrentUrls ->
+#      case collectTorrentUrlsFromPage(tracker.lastPageNumber) do
+#
+#      end
+#      Tracker.save(%{url: tracker.lastPageNumber-1})
+#      tracker.lastPageNumber = tracker.lastPageNumber+1
+#    end
+
+  end
+
   def collectTorrents(tracker) do
     torrentUrls = Torrent
                   |> Torrent.allUrlWithEmptyName(tracker.url)
@@ -71,27 +123,6 @@ defmodule Torr.Crawler do
     Enum.each torrentUrls, fn torrentUrls ->
       Torrent.save(fetchTorrentData(tracker, torrentUrls.url))
     end
-  end
-
-  def fetchTorrentData(tracker, url) do
-    htmlString = download(tracker, url)
-
-    name = htmlString |> Floki.find(tracker.namePattern)
-                      |> Enum.at(0)
-                      |> Floki.text
-                      |> String.trim
-                      |> HtmlEntities.decode
-
-    htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
-    contentHtml = htmlTree |> Floki.raw_html
-
-    %{
-      url: url,
-      name: name,
-      html: contentHtml,
-#      json: %{} #Enum.at(htmlTree, 0)
-    }
-
   end
 
 
@@ -153,9 +184,9 @@ defmodule Torr.Crawler do
         pagePattern: "bananas?sort=6&type=asc&page=",
         urlPattern: "(\/|javascript)(?<url>banan\\?id=\\d+)",
         namePattern: "h1",
-        htmlPattern: "h1 ~ table",
+        htmlPattern: "h1 ~ table ~ table",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
-        patterns: %{ "torrentDescNamePattern": "tr ~ td", "torrentDescValuePattern": "tr ~ td  + td" }
+        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "tr ~ td", "torrentDescValuePattern": "tr ~ td  + td" }
       }) |> elem(1),
       Tracker.save(%{
         url: "http://zelka.org/",
@@ -164,9 +195,9 @@ defmodule Torr.Crawler do
         pagePattern: "browse.php?sort=6&type=asc&page=",
         urlPattern: "(\/|javascript)(?<url>details.php\\?id=\\d+)",
         namePattern: "h1",
-        htmlPattern: "h1 ~ table",
+        htmlPattern: "h1 ~ table ~ table",
         cookie: "PHPSESSID=km3bv5kllmfl023hsb2hmo2r26; uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
-        patterns: %{ "torrentDescNamePattern": "tr ~ td", "torrentDescValuePattern": "tr ~ td  + td" }
+        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "tr ~ td", "torrentDescValuePattern": "tr ~ td  + td" }
       }) |> elem(1)]
   end
 end
