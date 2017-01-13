@@ -37,12 +37,8 @@ defmodule Torr.Crawler do
                       |> String.trim
                       |> HtmlEntities.decode
 
-    Logger.debug "collectTorrentUrls from #{url} name: #{name}"
-
     htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
     contentHtml = htmlTree |> Floki.raw_html
-
-     Logger.debug "fetchTorrentData contentHtml: #{inspect(contentHtml)}"
 
     torrentInfo = %{}
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
@@ -84,12 +80,11 @@ defmodule Torr.Crawler do
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
     startPageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
-    Logger.debug "collectTorrentUrls startPageUrl: #{inspect(startPageUrl)}"
     banans = Torr.Crawler.download(tracker, startPageUrl)
 
     urlReg = case Regex.compile(tracker.urlPattern, "u") do
       {:ok, urlRexgex} -> urlRexgex
-      {:error, error} -> {:error, error}#Logger.debug "collectTorrentUrls can't compile regex #{inspect(tracker.urlPattern)} error: #{inspect(error)}"
+      {:error, error} -> {:error, error}
     end
 
     banans = banans |> Floki.find("a")
