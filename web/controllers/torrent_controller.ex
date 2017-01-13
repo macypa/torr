@@ -11,10 +11,10 @@ defmodule Torr.TorrentController do
 #    params = unless (Map.has_key?(params, :page_size)) do Map.put(params, :page_size, "5") end
 #    Logger.debug "index params: #{inspect(params)}"
 
-    torrents = Torrent
-               |> Torrent.search(params)
-               |> Torr.Repo.paginate(params)
-#               |> Torr.Repo.all
+    torrents = Torrent.request(params)
+#    torrents = Torrent
+#           |> Torrent.search(params)
+#           |> Torr.Repo.paginate(params)
 
     Logger.debug "index torrent: #{inspect(torrents)}"
     render(conn, "index.html", params: params, torrents: torrents)

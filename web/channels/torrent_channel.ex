@@ -18,9 +18,10 @@ defmodule Torr.TorrentChannel do
   def handle_in("new_msg", params, socket) do
     Logger.debug "handle_in body: #{inspect(params)}"
 
-    torrents = Torrent
-               |> Torrent.search(params)
-               |> Torr.Repo.paginate(params)
+    torrents = Torrent.request(params)
+#    torrents = Torrent
+#           |> Torrent.search(params)
+#           |> Torr.Repo.paginate(params)
 
     torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
     broadcast! socket, "new_msg", %{html: torrentsHtml, params: params, torrents: to_map(torrents)}

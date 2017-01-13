@@ -3,6 +3,8 @@ defmodule Torr.Torrent do
   import Ecto.Query
   use Torr.Web, :model
 
+  alias Torr.Torrent
+
   schema "torrents" do
     field :name, :string, default: ""
     field :url, :string, unique: true
@@ -10,6 +12,12 @@ defmodule Torr.Torrent do
     field :json, :map, default: %{}
 
     timestamps()
+  end
+
+  def request(params) do
+    Torr.Torrent
+           |> search(params)
+           |> Torr.Repo.paginate(params)
   end
 
 #  def search(query, nil) do from p in query end
