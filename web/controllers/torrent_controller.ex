@@ -17,7 +17,7 @@ defmodule Torr.TorrentController do
 #               |> Torr.Repo.all
 
     Logger.debug "index torrent: #{inspect(torrents)}"
-    render(conn, "index.html", torrents: torrents)
+    render(conn, "index.html", params: params, torrents: torrents)
   end
 
   def new(conn, _params) do

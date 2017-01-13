@@ -56,18 +56,31 @@ socket.connect()
 let channel = socket.channel("torrent:"+window.userToken, {})
 
 let searchTerm         = document.querySelector("#searchTerm")
+let pageSize         = document.querySelector("#page_size")
 let torrentsContainer = document.querySelector("#torrents")
 
-searchTerm.addEventListener("keypress", event => {
-  if(event.keyCode === 13){
-    var params = getUrlParams({})
-    params["search"] = searchTerm.value
-    params["page"] = 1
-    channel.push("new_msg", params)
-//    document.location.hash = searchTerm.value
-    history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
-  }
-})
+function keyEvent(event) {
+    if(event.keyCode === 13){
+        var params = getUrlParams({})
+        params["search"] = searchTerm.value
+        params["page_size"] = pageSize.value
+        params["page"] = 1
+        channel.push("new_msg", params)
+    //    document.location.hash = searchTerm.value
+        history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
+      }
+}
+
+addEvent(document.querySelector("#searchTerm"), "keypress", keyEvent );
+addEvent(document.querySelector("#page_size"), "keypress", keyEvent );
+function addEvent(element, eventName, callback) {
+    if (element.addEventListener) {
+        element.addEventListener(eventName, callback, false);
+    } else if (element.attachEvent) {
+        element.attachEvent("on" + eventName, callback);
+    }
+}
+
 
 window.onload = function() {
   updatePaginationUrls(composeUrlParams(getUrlParams({})));
@@ -82,6 +95,7 @@ export var Torrents = {
 }
 
 channel.on("new_msg", payload => {
+  console.log(payload)
     Torrents.show(payload);
 })
 
@@ -111,15 +125,17 @@ function composeUrlParams(params) {
   var urlParams = ""
   for (var key in params) {
     if (params.hasOwnProperty(key)) {
-      urlParams = urlParams + "&" + key + "=" + params[key];
+      if (params[key] != "") {
+        urlParams = urlParams + "&" + key + "=" + params[key];
+      }
     }
   }
-  return urlParams
+  return urlParams.substring(1)
 }
 
 function updatePaginationUrls(urlParams) {
   var anchors = document.getElementsByTagName("a");
-  var urlParamsWoutPage = urlParams.replace(/page=\d*/i, "")
+  var urlParamsWoutPage = urlParams.replace(/(&|^)page=\d*/i, "").replace(/^&/i, "")
 
   if (urlParamsWoutPage == "") {
     return
