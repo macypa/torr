@@ -60,21 +60,24 @@ let torrentsContainer = document.querySelector("#torrents")
 
 searchTerm.addEventListener("keypress", event => {
   if(event.keyCode === 13){
-    var params = replaceUrlParams("search", searchTerm.value)
+    var params = getUrlParams({})
+    params["search"] = searchTerm.value
+    params["page"] = 1
     channel.push("new_msg", params)
 //    document.location.hash = searchTerm.value
-    history.pushState(searchTerm.value, '', '/torrents' + params["locationUrl"]);
+    history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
   }
 })
+
 window.onload = function() {
-    replacePaginationUrls();
+  updatePaginationUrls(composeUrlParams(getUrlParams({})));
 }
 export var Torrents = {
     show: function(payload) {
         torrentsContainer.innerHTML = '';
         torrentsContainer.insertAdjacentHTML( 'beforeend', `${payload.html}` );
 
-        replacePaginationUrls();
+        updatePaginationUrls(composeUrlParams(getUrlParams(payload)));
     }
 }
 
@@ -88,50 +91,42 @@ channel.join()
 
 export default socket
 
-function replaceUrlParams(key, value) {
+
+function getUrlParams(payload) {
   var params = {};
-  if (location.search) {
-      var oldvalue = ""
+  var locatUrl = location.search
 
-      var parts = location.search.substring(1).split('&');
-      var locatUrl = location.search
-      if (locatUrl.includes(key+"=")) {
-
-        for (var i = 0; i < parts.length; i++) {
-            var nv = parts[i].split('=');
-            if (!nv[0]) continue;
-            if (nv[0] == key) {
-              oldvalue = nv[1]
-              params[key] = value || true;
-            } else {
-              params[nv[0]] = nv[1] || true;
-            }
-        }
-      } else {
-        if (locatUrl.includes("?")) {
-          locatUrl = locatUrl + "&" + key+"="+value
-        } else {
-          locatUrl = locatUrl + "?" + key+"="+value
-        }
-      }
-      params["locationUrl"] = locatUrl.replace(key+"="+oldvalue, key+"="+value)
-
-      if (value == "") {
-        params["locationUrl"] = params["locationUrl"].replace("&"+key+"=", "")
-        params["locationUrl"] = params["locationUrl"].replace("?"+key+"=", "")
-      }
+  if (locatUrl) {
+    var parts = location.search.substring(1).split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var nv = parts[i].split('=');
+      if (!nv[0]) continue;
+      params[nv[0]] = nv[1];
+    }
   }
   return params
 }
 
-function replacePaginationUrls() {
-  var anchors = document.getElementsByTagName("a");
+function composeUrlParams(params) {
+  var urlParams = ""
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      urlParams = urlParams + "&" + key + "=" + params[key];
+    }
+  }
+  return urlParams
+}
 
+function updatePaginationUrls(urlParams) {
+  var anchors = document.getElementsByTagName("a");
+  var urlParamsWoutPage = urlParams.replace(/page=\d*/i, "")
+
+  if (urlParamsWoutPage == "") {
+    return
+  }
   for (var i = 0; i < anchors.length; i++) {
       if (anchors[i].href.includes("page=")) {
-        var locationWithNewPageNum = location.search.replace(/page=\d*/i,
-                                              /(page=\d*)/.exec(anchors[i].href)[1])
-        anchors[i].href = anchors[i].href.replace(/\?page=.*/i, locationWithNewPageNum)
+          anchors[i].href = anchors[i].href + "&" + urlParamsWoutPage
       }
   }
 }

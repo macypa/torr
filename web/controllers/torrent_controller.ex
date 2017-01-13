@@ -7,13 +7,17 @@ defmodule Torr.TorrentController do
   def index(conn, params) do
     Logger.debug "index params: #{inspect(params)}"
 
+#    params = unless (Map.has_key?(params, :page)) do Map.put(params, :page, "1") end
+#    params = unless (Map.has_key?(params, :page_size)) do Map.put(params, :page_size, "5") end
+#    Logger.debug "index params: #{inspect(params)}"
+
     torrents = Torrent
                |> Torrent.search(params)
-               |> Torr.Repo.paginate(page: params["page"], page_size: params["page_size"])
-#              |> Torr.Repo.all
+               |> Torr.Repo.paginate(params)
+#               |> Torr.Repo.all
 
     Logger.debug "index torrent: #{inspect(torrents)}"
-    render(conn, "index.html", params: params, torrents: torrents)
+    render(conn, "index.html", torrents: torrents)
   end
 
   def new(conn, _params) do
