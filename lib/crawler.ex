@@ -70,14 +70,6 @@ defmodule Torr.Crawler do
 
   end
 
-  def torrentDescName(descriptionNameValuePair) do
-    descriptionNameValuePair |> Floki.find("tr ~ td") |> Floki.raw_html
-  end
-
-  def torrentDescValue(descriptionNameValuePair) do
-    descriptionNameValuePair |> Floki.find("tr ~ td + td") |> Floki.raw_html
-  end
-
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
     startPageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
     banans = Torr.Crawler.download(tracker, startPageUrl)
@@ -100,15 +92,17 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrls(tracker) do
-  collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber)
-#    Enum.each torrentUrls, fn torrentUrls ->
-#      case collectTorrentUrlsFromPage(tracker.lastPageNumber) do
-#
-#      end
-#      Tracker.save(%{url: tracker.lastPageNumber-1})
-#      tracker.lastPageNumber = tracker.lastPageNumber+1
-#    end
-
+    try do
+      for _ <- Stream.cycle([:ok]) do
+        tracker = Tracker |> Repo.get(tracker.id)
+        case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber) do
+          [] -> throw :break
+          _ -> Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
+        end
+      end
+    catch
+      :break -> :ok
+    end
   end
 
   def collectTorrents(tracker) do
