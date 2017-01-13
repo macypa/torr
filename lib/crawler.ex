@@ -154,7 +154,8 @@ defmodule Torr.Crawler do
         urlPattern: "(\/|javascript)(?<url>banan\\?id=\\d+)",
         namePattern: "h1",
         htmlPattern: "h1 ~ table",
-        cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)"
+        cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
+        patterns: %{ "torrentDescNamePattern": "tr ~ td", "torrentDescNamePattern": "tr ~ td  + td" }
       }) |> elem(1),
       Tracker.save(%{
         url: "http://zelka.org/",
@@ -164,7 +165,8 @@ defmodule Torr.Crawler do
         urlPattern: "(\/|javascript)(?<url>details.php\\?id=\\d+)",
         namePattern: "h1",
         htmlPattern: "h1 ~ table",
-        cookie: "PHPSESSID=km3bv5kllmfl023hsb2hmo2r26; uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5"
+        cookie: "PHPSESSID=km3bv5kllmfl023hsb2hmo2r26; uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
+        patterns: %{ "torrentDescNamePattern": "tr ~ td", "torrentDescNamePattern": "tr ~ td  + td" }
       }) |> elem(1)]
   end
 end

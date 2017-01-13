@@ -10,6 +10,7 @@ defmodule Torr.Tracker do
     field :namePattern, :string, default: ""
     field :htmlPattern, :string, default: ""
     field :cookie, :string, default: ""
+    field :patterns, :map, default: %{}
 
     timestamps()
   end
@@ -34,8 +35,8 @@ defmodule Torr.Tracker do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie])
-    |> validate_required([:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie])
+    |> cast(params, [:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns])
+    |> validate_required([:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns])
     |> unique_constraint(:url)
   end
 end

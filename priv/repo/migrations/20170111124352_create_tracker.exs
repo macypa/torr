@@ -11,6 +11,7 @@ defmodule Torr.Repo.Migrations.CreateTracker do
       add :namePattern, :string
       add :htmlPattern, :string
       add :cookie, :text
+      add :patterns, :map
 
       timestamps()
     end
