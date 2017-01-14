@@ -8,7 +8,8 @@ defmodule Torr.Torrent do
   schema "torrents" do
     field :name, :string, default: ""
     field :url, :string, unique: true
-    field :pageUrl, :string, default: ""
+    field :trackerId, :integer, default: 1
+    field :page, :integer, default: 1
     field :html, :string, default: ""
     field :json, :map, default: %{}
 
@@ -68,7 +69,7 @@ defmodule Torr.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :pageUrl, :url, :html, :json])
+    |> cast(params, [:name, :page, :trackerId, :url, :html, :json])
     |> unique_constraint(:url)
     |> validate_required([:url])
   end

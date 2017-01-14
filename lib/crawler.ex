@@ -41,6 +41,16 @@ defmodule Torr.Crawler do
     contentHtml = htmlTree |> Floki.raw_html |> HtmlEntities.decode
     contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
+    %{
+      url: url,
+      name: name,
+      html: contentHtml,
+      json: updateJson(contentHtml, tracker)
+    }
+  end
+
+  def updateJson(contentHtml, tracker) do
+
     torrentInfo = %{}
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
@@ -62,13 +72,7 @@ defmodule Torr.Crawler do
                                         Map.put(acc, "video", "https://youtu.be/#{x}")
                                   end)
 
-    %{
-      url: url,
-      name: name,
-      html: contentHtml,
-      json: torrentInfo
-    }
-
+    torrentInfo
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
@@ -84,13 +88,13 @@ defmodule Torr.Crawler do
             |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
             |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
             |> Enum.uniq
-            |> Enum.map(fn(torrUrl) -> Torrent.save(%{pageUrl: pageUrl, url: "#{tracker.url}#{torrUrl}"}) end)
+            |> Enum.map(fn(torrUrl) -> Torrent.save(%{trackerId: tracker.id, page: pageNumber, url: "#{tracker.url}#{torrUrl}"}) end)
   end
 
   def collectTorrentUrls(tracker) do
     Logger.info "collectTorrentUrls from: #{tracker.url}#{tracker.pagePattern}#{tracker.lastPageNumber+1}"
     try do
-      for _ <- Stream.cycle([:ok]) do
+#      for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
         case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+1) do
           [] -> throw :break
@@ -98,7 +102,7 @@ defmodule Torr.Crawler do
                 collectTorrents(tracker)
                 Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
         end
-      end
+#      end
     catch
       :break -> :ok
     end
