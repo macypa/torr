@@ -73,29 +73,22 @@ defmodule Torr.Crawler do
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
     pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
-    banans = Torr.Crawler.download(tracker, pageUrl)
-    Logger.debug "banans html: #{inspect(banans)}"
 
     urlReg = case Regex.compile(tracker.urlPattern, "u") do
       {:ok, urlRexgex} -> urlRexgex
       {:error, error} -> {:error, error}
     end
 
-    banans = banans |> Floki.find("a")
-           |> Floki.attribute("href")
-    banans = banans |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
-                    |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-                    |> Enum.uniq
-    Logger.debug "banans uniq links: #{inspect(banans)}"
-
-    banans = banans |> Enum.map(fn(torrUrl) -> Torrent.save(%{pageUrl: pageUrl, url: "#{tracker.url}#{torrUrl}"}) end)
-    #Logger.debug "collectTorrentUrls banans: #{inspect(banans)}"
-
-    banans
+    Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
+            |> Floki.attribute("href")
+            |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
+            |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+            |> Enum.uniq
+            |> Enum.map(fn(torrUrl) -> Torrent.save(%{pageUrl: pageUrl, url: "#{tracker.url}#{torrUrl}"}) end)
   end
 
   def collectTorrentUrls(tracker) do
-    Logger.debug "collectTorrentUrls url: #{inspect(tracker.url)}#{tracker.lastPageNumber+1}"
+    Logger.info "collectTorrentUrls from: #{tracker.url}#{tracker.pagePattern}#{tracker.lastPageNumber+1}"
     try do
       for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
@@ -150,7 +143,7 @@ defmodule Torr.Crawler do
 
   def download(url, headers, options) do
     my_future_function = fn ->
-      htmlString = case HTTPoison.get(url, headers, options) do
+      case HTTPoison.get(url, headers, options) do
           {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
             unzip(body)
           {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
@@ -165,10 +158,7 @@ defmodule Torr.Crawler do
           other ->
             Logger.debug "Error: #{url} just ain't workin. reason: #{inspect(other)}"
             raise "Error: #{url} just ain't workin. reason: #{inspect(other)}"
-        end
-    #    File.write("body.html", htmlString)
-        Logger.debug "dwonloaded html: #{inspect(htmlString)}"
-        htmlString
+      end
     end
     t = GenRetry.Task.async(my_future_function, retries: :infinity, delay: 5000, jitter: 0.1)
     Task.await(t)  # may raise exception
