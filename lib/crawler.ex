@@ -24,7 +24,6 @@ defmodule Torr.Crawler do
 
     for tracker <- trackers do
       collectTorrentUrls(tracker)
-      collectTorrents(tracker)
     end
   end
 
@@ -36,9 +35,11 @@ defmodule Torr.Crawler do
                       |> Floki.text
                       |> String.trim
                       |> HtmlEntities.decode
+    name = :iconv.convert("utf-8", "utf-8", name)
 
     htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
-    contentHtml = htmlTree |> Floki.raw_html
+    contentHtml = htmlTree |> Floki.raw_html |> HtmlEntities.decode
+    contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
     torrentInfo = %{}
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
@@ -92,12 +93,15 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrls(tracker) do
+    Logger.debug "collectTorrentUrls url: #{inspect(tracker.url)}#{tracker.lastPageNumber+1}"
     try do
 #      for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
         case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+1) do
           [] -> throw :break
-          _ -> Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
+          _ ->
+                collectTorrents(tracker)
+                Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
         end
 #      end
     catch
@@ -143,22 +147,26 @@ defmodule Torr.Crawler do
   end
 
   def download(url, headers, options) do
-    htmlString = case HTTPoison.get(url, headers, options) do
-      {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
-        unzip(body)
-      {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
-              IO.puts "Error: #{url} is 502."
-              nil
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        IO.puts "Error: #{url} is 404."
-        nil
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        IO.puts "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
-        nil
+    my_future_function = fn ->
+      htmlString = case HTTPoison.get(url, headers, options) do
+          {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
+            unzip(body)
+          {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
+            IO.puts "Error: #{url} is 502."
+            raise "Error: #{url} is 502."
+          {:ok, %HTTPoison.Response{status_code: 404}} ->
+            IO.puts "Error: #{url} is 404."
+            raise "Error: #{url} is 404."
+          {:error, %HTTPoison.Error{reason: reason}} ->
+            IO.puts "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
+            raise "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
+        end
+    #    File.write("body.html", htmlString)
+    #    Logger.debug "dwonloaded html: #{inspect(htmlString)}"
+        htmlString
     end
-#    File.write("body.html", htmlString)
-#    Logger.debug "dwonloaded html: #{inspect(htmlString)}"
-    htmlString
+    t = GenRetry.Task.async(my_future_function, retries: 3)
+    Task.await(t)  # may raise exception
   end
 
   def unzip(body) do
@@ -180,17 +188,19 @@ defmodule Torr.Crawler do
         htmlPattern: "h1 ~ table ~ table",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "td.td_newborder[align=right]", "torrentDescValuePattern": "td.td_newborder+td.td_newborder" }
-      }) |> elem(1),
-      Tracker.save(%{
-        url: "http://zelka.org/",
-        name: "zelka.org",
-        lastPageNumber: -1,
-        pagePattern: "browse.php?sort=6&type=asc&page=",
-        urlPattern: "(\/|javascript)(?<url>details.php\\?id=\\d+)",
-        namePattern: "h1",
-        htmlPattern: "h1 ~ table ~ table",
-        cookie: "PHPSESSID=km3bv5kllmfl023hsb2hmo2r26; uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
-        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "td.td_newborder[align=right]", "torrentDescValuePattern": "td.td_newborder+td.td_newborder" }
-      }) |> elem(1)]
+      }) |> elem(1)
+#      ,
+#      Tracker.save(%{
+#        url: "http://zelka.org/",
+#        name: "zelka.org",
+#        lastPageNumber: -1,
+#        pagePattern: "browse.php?sort=6&type=asc&page=",
+#        urlPattern: "(\/|javascript)(?<url>details.php\\?id=\\d+)",
+#        namePattern: "h1",
+#        htmlPattern: "h1 ~ table ~ table",
+#        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
+#        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "td.td_newborder[align=right]", "torrentDescValuePattern": "td.td_newborder+td.td_newborder" }
+#      }) |> elem(1)
+      ]
   end
 end

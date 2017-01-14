@@ -24,6 +24,7 @@ defmodule Torr.Mixfile do
                      :scrivener,
                      :scrivener_ecto,
                      :scrivener_html,
+                     :gen_retry,
                      :iconv]]
   end
 
@@ -46,12 +47,11 @@ defmodule Torr.Mixfile do
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.10.0"},
      {:floki, "~> 0.11.0"},
-#     {:gen_retry, "~> 1.0.1"},
+     {:gen_retry, "~> 1.0.1"},
      {:html_entities, "~> 0.3"},
      {:scrivener, "~> 2.0"},
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_html, "~> 1.1"},
-#     {:kerosene, "~> 0.5.0"},
      {:iconv, "~> 1.0"}]
   end
 

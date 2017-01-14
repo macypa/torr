@@ -17,9 +17,6 @@ config :torr, Torr.Endpoint,
   pubsub: [name: Torr.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
-#config :kerosene,
-#    theme: :foundation
-
 config :scrivener_html,
   routes_helper: MyApp.Router.Helpers
 
