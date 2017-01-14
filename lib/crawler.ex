@@ -97,7 +97,7 @@ defmodule Torr.Crawler do
   def collectTorrentUrls(tracker) do
     Logger.debug "collectTorrentUrls url: #{inspect(tracker.url)}#{tracker.lastPageNumber+1}"
     try do
-#      for _ <- Stream.cycle([:ok]) do
+      for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
         case collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+1) do
           [] -> throw :break
@@ -105,7 +105,7 @@ defmodule Torr.Crawler do
                 collectTorrents(tracker)
                 Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+1})
         end
-#      end
+      end
     catch
       :break -> :ok
     end
