@@ -8,6 +8,7 @@ defmodule Torr.Torrent do
   schema "torrents" do
     field :name, :string, default: ""
     field :url, :string, unique: true
+    field :pageUrl, :string, default: ""
     field :html, :string, default: ""
     field :json, :map, default: %{}
 
@@ -15,7 +16,7 @@ defmodule Torr.Torrent do
   end
 
   def request(params) do
-    Torr.Torrent
+    Torrent
            |> search(params)
            |> Torr.Repo.paginate(params)
   end
@@ -67,7 +68,7 @@ defmodule Torr.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :url, :html, :json])
+    |> cast(params, [:name, :pageUrl, :url, :html, :json])
     |> unique_constraint(:url)
     |> validate_required([:url])
   end

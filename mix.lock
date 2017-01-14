@@ -18,6 +18,7 @@
   "iconv": {:hex, :iconv, "1.0.3", "f5c159f7e0ad2a3b55c6b5528ce71d7926f206df2f9bf83201a77cf1bc91c6f0", [:rebar3], [{:p1_utils, "1.0.6", [hex: :p1_utils, optional: false]}]},
   "idna": {:hex, :idna, "1.2.0", "ac62ee99da068f43c50dc69acf700e03a62a348360126260e87f2b54eced86b2", [:rebar3], []},
   "kerosene": {:hex, :kerosene, "0.5.0", "1e2c4c20b711b7f1a25b08b07f66fe8bc5c08c17276ac9dc5f25648440362de4", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, optional: false]}, {:phoenix_html, "~> 2.7", [hex: :phoenix_html, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}]},
+  "logger_file_backend": {:hex, :logger_file_backend, "0.0.9", "5c2f7d4a28431e695cdf94d191523dbafe609321a67bb654254897f546c393db", [:mix], []},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mime": {:hex, :mime, "1.0.1", "05c393850524767d13a53627df71beeebb016205eb43bfbd92d14d24ec7a1b51", [:mix], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},

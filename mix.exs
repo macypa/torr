@@ -52,6 +52,7 @@ defmodule Torr.Mixfile do
      {:scrivener, "~> 2.0"},
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_html, "~> 1.1"},
+     {:logger_file_backend, "0.0.9"},
      {:iconv, "~> 1.0"}]
   end
 

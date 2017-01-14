@@ -20,6 +20,12 @@ config :torr, Torr.Endpoint,
 config :scrivener_html,
   routes_helper: MyApp.Router.Helpers
 
+config :logger,
+  backends: [{LoggerFileBackend, :file_log}, :console]
+config :logger, :file_log,
+  path: "debug.log",
+  level: :debug
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
