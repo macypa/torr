@@ -60,15 +60,15 @@ let pageSize         = document.querySelector("#page_size")
 let torrentsContainer = document.querySelector("#torrents")
 
 function keyEvent(event) {
-    if(event.keyCode === 13){
-        var params = getUrlParams({})
-        params["search"] = searchTerm.value
-        params["page_size"] = pageSize.value
-        params["page"] = 1
-        channel.push("new_msg", params)
-    //    document.location.hash = searchTerm.value
-        history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
-      }
+//  if(event.keyCode === 13){
+      var params = getUrlParams({})
+      params["search"] = searchTerm.value
+      params["page_size"] = pageSize.value
+      params["page"] = 1
+      channel.push("new_msg", params)
+  //    document.location.hash = searchTerm.value
+      history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
+//    }
 }
 
 addEvent(document.querySelector("#searchTerm"), "keypress", keyEvent );

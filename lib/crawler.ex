@@ -28,6 +28,7 @@ defmodule Torr.Crawler do
   end
 
   def fetchTorrentData(tracker, url) do
+    Logger.info "collectTorrent from: #{url}"
     htmlString = download(tracker, "#{url}&filelist=1")
 
     name = htmlString |> Floki.find(tracker.namePattern)
@@ -69,7 +70,7 @@ defmodule Torr.Crawler do
     torrentInfo = contentHtml |> Floki.find("#youtube_video")
                               |> Floki.attribute("code")
                               |> Enum.reduce(torrentInfo, fn x, acc ->
-                                        Map.put(acc, "video", "https://youtu.be/#{x}")
+                                        Map.put(acc, "video", "https://www.youtube.com/embed/#{x}")
                                   end)
 
     torrentInfo
@@ -98,15 +99,17 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrls(tracker) do
-    try do
-      for _ <- Stream.cycle([:ok]) do
-        tracker = Tracker |> Repo.get(tracker.id)
-        Enum.each(1..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
-        collectTorrents(tracker)
-        Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
+    if tracker.pagesAtOnce > 0 do 
+      try do
+        for _ <- Stream.cycle([:ok]) do
+          tracker = Tracker |> Repo.get(tracker.id)
+          Enum.each(1..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
+          collectTorrents(tracker)
+          Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
+        end
+      catch
+        :break -> :ok
       end
-    catch
-      :break -> :ok
     end
   end
 

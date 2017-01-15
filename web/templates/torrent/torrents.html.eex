@@ -3,10 +3,43 @@
 
 <ul>
 <%= for torrent <- @torrents do %>
-  <li onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
-    <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>
+  <li>
+    <div class="link" onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
+      <%= torrent.name %>
+    </div>
+    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>">
+      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>  from page <a href="http://zamunda.net/bananas?sort=6&type=asc&page=<%= torrent.page %>" target="_blank"><%= torrent.page %></a>
 
-    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>"><%= raw(torrent.url) %></div>
+      <div>
+        <div>
+          <%= unless is_nil torrent.json["images"] do %>
+            <%= for img <- (torrent.json["images"] |> String.trim |> String.split(" ")) do %>
+              <img src="<%= img %>" width="240" />
+            <% end %>
+          <% end %>
+        </div>
+        <%= unless is_nil torrent.json["video"] do %>
+          <img src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="toggle_visibility('video<%= Enum.at(String.split(torrent.url, "="), 1) %>');" />
+          <div style="display: none;" id="video<%= Enum.at(String.split(torrent.url, "="), 1) %>">
+            <iframe width="420" height="315" src="<%= torrent.json["video"] %>"></iframe>
+          </div>
+        <% end %>
+      </div>
+
+      <div>
+        <div>
+          <div><%= torrent.json["Type"] %></div>
+          <div><%= torrent.json["Genre"] %></div>
+          <div><%= torrent.json["Added"] %></div>
+          <div><%= torrent.json["Size"] %></div>
+          <div><%= torrent.json["Rating"] %></div>
+          <div><%= torrent.json["Peers"] %></div>
+          <div><%= torrent.json["Genre"] %></div>
+        </div>
+
+        <div class="pre"><%= torrent.json["Description"] %></div>
+      </div>
+    </div>
   </li>
 <% end %>
 
