@@ -23,6 +23,16 @@
   </li>
 
   <li>
+    <strong>PagesAtOnce:</strong>
+    <%= @tracker.pagesAtOnce %>
+  </li>
+
+  <li>
+    <strong>DelayOnFail:</strong>
+    <%= @tracker.delayOnFail %>
+  </li>
+
+  <li>
     <strong>Urlpattern:</strong>
     <%= @tracker.urlPattern %>
   </li>

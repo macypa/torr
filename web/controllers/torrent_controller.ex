@@ -82,7 +82,6 @@ defmodule Torr.TorrentController do
     |> redirect(to: torrent_path(conn, :index))
   end
 
-#SELECT DISTINCT json->'somethingelse'->>'genres' as genres from torrents;
-
+#SELECT * from torrents where (json#>>'{Genre}') ILIKE '%rock%';
 
 end

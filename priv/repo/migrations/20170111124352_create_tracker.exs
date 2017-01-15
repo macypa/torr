@@ -6,6 +6,8 @@ defmodule Torr.Repo.Migrations.CreateTracker do
       add :url, :string
       add :name, :string
       add :lastPageNumber, :integer
+      add :pagesAtOnce, :integer
+      add :delayOnFail, :integer
       add :pagePattern, :string
       add :urlPattern, :string
       add :namePattern, :string

@@ -30,6 +30,18 @@
   </div>
 
   <div class="form-group">
+    <%= label f, :pagesAtOnce, class: "control-label" %>
+    <%= text_input f, :pagesAtOnce, class: "form-control" %>
+    <%= error_tag f, :pagesAtOnce %>
+  </div>
+
+  <div class="form-group">
+    <%= label f, :delayOnFail, class: "control-label" %>
+    <%= text_input f, :delayOnFail, class: "form-control" %>
+    <%= error_tag f, :delayOnFail %>
+  </div>
+
+  <div class="form-group">
     <%= label f, :urlPattern, class: "control-label" %>
     <%= text_input f, :urlPattern, class: "form-control" %>
     <%= error_tag f, :urlPattern %>

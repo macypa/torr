@@ -5,6 +5,8 @@ defmodule Torr.Tracker do
     field :url, :string, unique: true
     field :name, :string, default: ""
     field :lastPageNumber, :integer, default: -1
+    field :pagesAtOnce, :integer, default: 1
+    field :delayOnFail, :integer, default: 1000
     field :pagePattern, :string, default: ""
     field :urlPattern, :string, default: ""
     field :namePattern, :string, default: ""
@@ -35,8 +37,8 @@ defmodule Torr.Tracker do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns])
-    |> validate_required([:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns])
+    |> cast(params, [:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns, :pagesAtOnce])
+    |> validate_required([:url, :name, :lastPageNumber, :pagePattern, :urlPattern, :namePattern, :htmlPattern, :cookie, :patterns, :pagesAtOnce])
     |> unique_constraint(:url)
   end
 end

@@ -7,6 +7,8 @@
       <th>Name</th>
       <th>Lastpagenumber</th>
       <th>Pagepattern</th>
+      <th>PagesAtOnce</th>
+      <th>delayOnFail</th>
       <th>Urlpattern</th>
       <th>Namepattern</th>
       <th>Htmlpattern</th>
@@ -23,6 +25,8 @@
       <td><%= tracker.name %></td>
       <td><%= tracker.lastPageNumber %></td>
       <td><%= tracker.pagePattern %></td>
+      <td><%= tracker.pagesAtOnce %></td>
+      <td><%= tracker.delayOnFail %></td>
       <td><%= tracker.urlPattern %></td>
       <td><%= tracker.namePattern %></td>
       <td><%= tracker.htmlPattern %></td>
