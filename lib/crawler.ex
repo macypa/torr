@@ -60,15 +60,22 @@ defmodule Torr.Crawler do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text)
                                   end)
 
-    torrentInfo = contentHtml |> Floki.find("#description img")
-                              |> Floki.attribute("src")
+    imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
+      {:ok, imgRexgex} -> imgRexgex
+      {:error, error} -> {:error, error}
+    end
+
+    torrentInfo = contentHtml |> Floki.find(tracker.patterns["imgSelector"])
+                              |> Floki.attribute(tracker.patterns["imgAttrPattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
                                         value = String.replace(x, ~r/thumbs\//, "")
+                                        value = String.replace(value, imgReg, "")
                                         Map.put(acc, "images", "#{acc["images"]} #{value}")
                                   end)
+                              |> Enum.uniq
 
-    torrentInfo = contentHtml |> Floki.find("#youtube_video")
-                              |> Floki.attribute("code")
+    torrentInfo = contentHtml |> Floki.find(tracker.patterns["videoSelector"])
+                              |> Floki.attribute(tracker.patterns["imgAttrPattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
                                         Map.put(acc, "video", "https://www.youtube.com/embed/#{x}")
                                   end)
@@ -99,17 +106,17 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrls(tracker) do
-    if tracker.pagesAtOnce > 0 do 
-      try do
-        for _ <- Stream.cycle([:ok]) do
-          tracker = Tracker |> Repo.get(tracker.id)
+    try do
+      for _ <- Stream.cycle([:ok]) do
+        tracker = Tracker |> Repo.get(tracker.id)
+        if tracker.pagesAtOnce > 0 do
           Enum.each(1..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
           collectTorrents(tracker)
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
         end
-      catch
-        :break -> :ok
       end
+    catch
+      :break -> :ok
     end
   end
 
@@ -193,7 +200,15 @@ defmodule Torr.Crawler do
         namePattern: "h1",
         htmlPattern: "h1 ~ table ~ table",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
-        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "td.td_newborder[align=right]", "torrentDescValuePattern": "td.td_newborder+td.td_newborder" }
+        patterns: %{ "torrentDescNameValuePattern": "table > tr",
+                      "torrentDescNamePattern": "td.td_newborder[align=right]",
+                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                      "imgSelector": "#description img",
+                      "imgAttrPattern": "src",
+                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png).*",
+                      "videoSelector": "#youtube_video",
+                      "imgAttrPattern": "code"
+                       }
       }) |> elem(1)
 #      ,
 #      Tracker.save(%{

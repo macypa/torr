@@ -34,6 +34,7 @@ defmodule Torr.Torrent do
     where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
             fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%")),
     order_by: p.inserted_at,
+#    select:  {p.id, p.url, p.name, p.trackerId, p.inserted_at, p.json},
     limit: ^searchParams["limit"]
   end
 
