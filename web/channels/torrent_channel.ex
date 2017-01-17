@@ -23,8 +23,8 @@ defmodule Torr.TorrentChannel do
 #           |> Torrent.search(params)
 #           |> Torr.Repo.paginate(params)
 
-    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
-    broadcast! socket, "new_msg", %{html: torrentsHtml, params: params, torrents: to_map(torrents)}
+#    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
+    broadcast! socket, "new_msg", %{params: params, torrents: to_map(torrents)}
     {:noreply, socket}
   end
 
@@ -45,7 +45,7 @@ defmodule Torr.TorrentChannel do
 
   def to_map(torrs) do
     torrents = Enum.reduce torrs, %{}, fn torrent, acc ->
-      Map.put(acc, torrent.name, %{"name" => torrent.name, "html" => torrent.html})
+      Map.put(acc, torrent.name, %{"name" => torrent.name, "json" => torrent.json})
     end
     Logger.debug "to_map torrents: #{inspect(torrents)}"
       torrents

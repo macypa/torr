@@ -18,12 +18,6 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :html, class: "control-label" %>
-    <%= textarea f, :html, class: "form-control" %>
-    <%= error_tag f, :html %>
-  </div>
-
-  <div class="form-group">
     <%= label f, :json, class: "control-label" %>
     <%= text_input f, :json, class: "form-control" %>
     <%= error_tag f, :json %>

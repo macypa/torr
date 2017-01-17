@@ -7,10 +7,8 @@ defmodule Torr.Torrent do
 
   schema "torrents" do
     field :name, :string, default: ""
-    field :url, :string, unique: true
-    field :trackerId, :integer, default: 1
-    field :page, :integer, default: 1
-    field :html, :string, default: ""
+    belongs_to :tracker, Tracker
+    field :torrent_id, :string, default: ""
     field :json, :map, default: %{}
 
     timestamps()
@@ -18,8 +16,9 @@ defmodule Torr.Torrent do
 
   def request(params) do
     Torrent
-           |> search(params)
-           |> Torr.Repo.paginate(params)
+#            |> Map.from_struct
+            |> search(params)
+            |> Torr.Repo.paginate(params)
   end
 
 #  def search(query, nil) do from p in query end
@@ -29,20 +28,11 @@ defmodule Torr.Torrent do
     Logger.debug "search searchParams: #{inspect(searchParams)}"
     searchTerm = searchParams["search"]
     searchTerm = if searchTerm do String.replace(searchTerm,~r/\s/u, "%") end
-    from p in query,
-#    select: {p.name, p.url},
-    where: fragment("? ILIKE ?", p.name, ^("%#{searchTerm}%")) or
-            fragment("? ILIKE ?", p.html, ^("%#{searchTerm}%")),
-    order_by: p.inserted_at,
-#    select:  {p.id, p.url, p.name, p.trackerId, p.inserted_at, p.json},
-    limit: ^searchParams["limit"]
-  end
 
-  def allUrlWithEmptyName(query, trackerUrl) do
-    from p in query,
-#    select: {p.name, p.url},
-    where: fragment("? ILIKE ?", p.url, ^("%#{trackerUrl}%")) and
-            fragment("? = ?", p.name, ^(""))
+    query
+          |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
+          |> order_by([t], t.inserted_at)
+          |> limit(^searchParams["limit"])
   end
 
   def sorted(query) do
@@ -52,8 +42,8 @@ defmodule Torr.Torrent do
 
   def save(torrentMap) do
       result =
-        case Torr.Repo.get_by(Torr.Torrent, url: torrentMap.url) do
-          nil  -> %Torr.Torrent{url: torrentMap.url}
+        case Torr.Repo.get_by(Torr.Torrent, [tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id]) do
+          nil  -> %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}
           torrent -> torrent
         end
         |> Torr.Torrent.changeset(torrentMap)
@@ -70,8 +60,9 @@ defmodule Torr.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :page, :trackerId, :url, :html, :json])
-    |> unique_constraint(:url)
-    |> validate_required([:url])
+    |> cast(params, [:name, :tracker_id, :torrent_id, :json])
+    |> unique_constraint(:torrent_id)
+    |> foreign_key_constraint(:tracker_id)
+    |> validate_required([:tracker_id, :torrent_id])
   end
 end

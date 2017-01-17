@@ -20,6 +20,8 @@ defmodule Torr.Router do
 
     #get "/", TorrentController, :index
     resources "/trackers", TrackerController
+    resources "/zamunda_torrents", ZamundaTorrentController
+
     resources "/torrents", TorrentController#, only: [:index, :show]
 
     get "/*path", RedirectController, :redirector

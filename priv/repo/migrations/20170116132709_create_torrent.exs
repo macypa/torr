@@ -4,15 +4,13 @@ defmodule Torr.Repo.Migrations.CreateTorrent do
   def change do
     create table(:torrents) do
       add :name, :string
-      add :url, :string
-      add :trackerId, :integer
-      add :page, :integer
-      add :html, :text
+      add :tracker_id, references(:trackers)
+      add :torrent_id, :string
       add :json, :map
 
       timestamps()
     end
 
-    create unique_index(:torrents, [:url])
+    create unique_index(:torrents, [:tracker_id, :torrent_id])
   end
 end

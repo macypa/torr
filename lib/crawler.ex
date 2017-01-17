@@ -1,7 +1,6 @@
 defmodule Torr.Crawler do
   require Logger
   use GenServer
-  alias Torr.Torrent
   alias Torr.Tracker
   alias Torr.Repo
 
@@ -25,11 +24,13 @@ defmodule Torr.Crawler do
     for tracker <- trackers do
       collectTorrentUrls(tracker)
     end
+    Logger.info "Crawler done"
   end
 
-  def fetchTorrentData(tracker, url) do
-    Logger.info "collectTorrent from: #{url}"
-    htmlString = download(tracker, "#{url}&filelist=1")
+  def fetchTorrentData(tracker, torrent_id) do
+    torrent_info_url = tracker.patterns["torrent_info_url"]
+    Logger.info "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
+    htmlString = download(tracker, "#{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1")
 
     name = htmlString |> Floki.find(tracker.namePattern)
                       |> Enum.at(0)
@@ -43,10 +44,11 @@ defmodule Torr.Crawler do
     contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
     %{
-      url: url,
       name: name,
-      html: contentHtml,
-      json: updateJson(contentHtml, tracker)
+      tracker_id: tracker.id,
+      torrent_id: torrent_id,
+      content_html: contentHtml,
+#      json: updateJson(contentHtml, tracker)
     }
   end
 
@@ -85,7 +87,7 @@ defmodule Torr.Crawler do
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
     pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
-    Logger.info "collectTorrentUrls from: #{pageUrl}"
+    Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
 
     urlReg = case Regex.compile(tracker.urlPattern, "u") do
       {:ok, urlRexgex} -> urlRexgex
@@ -101,7 +103,12 @@ defmodule Torr.Crawler do
     case banans do
       [] -> throw :break
       _ -> banans
-            |> Enum.map(fn(torrUrl) -> Torrent.save(%{trackerId: tracker.id, page: pageNumber, url: "#{tracker.url}#{torrUrl}"}) end)
+            |> Enum.map(fn(torrUrl) ->
+                            case tracker.url do
+                              _ -> Torr.ZamundaTorrent.save(%{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
+
+                            end
+                         end)
     end
   end
 
@@ -115,19 +122,27 @@ defmodule Torr.Crawler do
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
         end
       end
+    rescue
+      e -> Logger.error "collectTorrentUrls error: #{inspect(e)}"
+            e
     catch
       :break -> :ok
+      e -> e
     end
   end
 
   def collectTorrents(tracker) do
-    Torrent
-          |> Torrent.allUrlWithEmptyName(tracker.url)
-          |> Repo.all
-#                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-          |> Enum.each(fn torrentUrls ->
-                          Torrent.save(fetchTorrentData(tracker, torrentUrls.url))
-                        end)
+    case tracker.url do
+      _ -> Torr.ZamundaTorrent.allWithEmptyName()
+                |> Repo.all
+      #                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+                |> Enum.each(fn torrent ->
+                                case tracker.url do
+                                  _ -> Torr.ZamundaTorrent.save(fetchTorrentData(tracker, torrent.torrent_id))
+                                end
+                              end)
+    end
+
   end
 
 
@@ -163,16 +178,16 @@ defmodule Torr.Crawler do
           {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
             unzip(body)
           {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
-            Logger.debug "Error: #{url} is 502."
+            Logger.error "Error: #{url} is 502."
             raise "Error: #{url} is 502."
           {:ok, %HTTPoison.Response{status_code: 404}} ->
-            Logger.debug "Error: #{url} is 404."
+            Logger.error "Error: #{url} is 404."
             raise "Error: #{url} is 404."
           {:error, %HTTPoison.Error{reason: reason}} ->
-            Logger.debug "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
+            Logger.error "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
             raise "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
           other ->
-            Logger.debug "Error: #{url} just ain't workin. reason: #{inspect(other)}"
+            Logger.error "Error: #{url} just ain't workin. reason: #{inspect(other)}"
             raise "Error: #{url} just ain't workin. reason: #{inspect(other)}"
       end
     end
@@ -196,7 +211,7 @@ defmodule Torr.Crawler do
         pagesAtOnce: 1,
         delayOnFail: 1000,
         pagePattern: "bananas?sort=6&type=asc&page=",
-        urlPattern: "(|javascript)(?<url>banan\\?id=\\d+)",
+        urlPattern: "(|javascript)banan\\?id=(?<url>\\d+)",
         namePattern: "h1",
         htmlPattern: "h1 ~ table ~ table",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
@@ -207,8 +222,8 @@ defmodule Torr.Crawler do
                       "imgAttrPattern": "src",
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png).*",
                       "videoSelector": "#youtube_video",
-                      "imgAttrPattern": "code"
-                       }
+                      "imgAttrPattern": "code",
+                      "torrent_info_url": "banan?id="}
       }) |> elem(1)
 #      ,
 #      Tracker.save(%{

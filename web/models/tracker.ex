@@ -1,4 +1,5 @@
 defmodule Torr.Tracker do
+  require Logger
   use Torr.Web, :model
 
   schema "trackers" do
@@ -31,6 +32,22 @@ defmodule Torr.Tracker do
         {:error, changeset} -> {:error, changeset}
       end
   end
+
+  def allWithEmptyName() do
+      case self().url do
+        _ -> Torr.ZamundaTorrent.allWithEmptyName()
+      end
+  end
+
+#  def saveTorrent(torrentMap) do
+#      Logger.info "tracker.saveTorrent self: #{inspect(self())}"
+#
+#      case self().url do
+#        url ->
+#            Logger.info "tracker.saveTorrent zamunda: #{inspect(url)}"
+#            Torr.ZamundaTorrent.save(self().id, torrentMap)
+#      end
+#  end
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

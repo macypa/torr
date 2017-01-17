@@ -13,11 +13,6 @@
   </li>
 
   <li>
-    <strong>Html:</strong>
-    <%= @torrent.html %>
-  </li>
-
-  <li>
     <strong>Json:</strong>
     <%= @torrent.json %>
   </li>

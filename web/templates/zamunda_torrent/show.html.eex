@@ -1,0 +1,33 @@
+<h2>Show zamunda torrent</h2>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @zamunda_torrent.name %>
+  </li>
+
+  <li>
+    <strong>Tracker:</strong>
+    <%= @zamunda_torrent.tracker_id %>
+  </li>
+
+  <li>
+    <strong>Torrent:</strong>
+    <%= @zamunda_torrent.torrent_id %>
+  </li>
+
+  <li>
+    <strong>Page:</strong>
+    <%= @zamunda_torrent.page %>
+  </li>
+
+  <li>
+    <strong>Content html:</strong>
+    <%= @zamunda_torrent.content_html %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: zamunda_torrent_path(@conn, :edit, @zamunda_torrent) %>
+<%= link "Back", to: zamunda_torrent_path(@conn, :index) %>

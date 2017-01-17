@@ -1,0 +1,34 @@
+<h2>Listing zamunda torrents</h2>
+
+<%= pagination_links @zamunda_torrents %>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Tracker</th>
+      <th>Torrent</th>
+      <th>Page</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for zamunda_torrent <- @zamunda_torrents do %>
+    <tr>
+      <td><%= zamunda_torrent.name %></td>
+      <td><%= zamunda_torrent.tracker_id %></td>
+      <td><%= zamunda_torrent.torrent_id %></td>
+      <td><%= zamunda_torrent.page %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: zamunda_torrent_path(@conn, :show, zamunda_torrent), class: "btn btn-default btn-xs" %>
+        <%= link "Edit", to: zamunda_torrent_path(@conn, :edit, zamunda_torrent), class: "btn btn-default btn-xs" %>
+        <%= link "Delete", to: zamunda_torrent_path(@conn, :delete, zamunda_torrent), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "New zamunda torrent", to: zamunda_torrent_path(@conn, :new) %>

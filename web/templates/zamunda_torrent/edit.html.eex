@@ -1,0 +1,6 @@
+<h2>Edit zamunda torrent</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: zamunda_torrent_path(@conn, :update, @zamunda_torrent) %>
+
+<%= link "Back", to: zamunda_torrent_path(@conn, :index) %>
