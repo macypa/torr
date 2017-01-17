@@ -9,7 +9,7 @@
 
   <li>
     <strong>Url:</strong>
-    <%= @torrent.url %>
+    <%= @torrent.torrent_id %>
   </li>
 
   <li>

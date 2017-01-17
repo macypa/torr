@@ -25,7 +25,6 @@ defmodule Torr.Torrent do
 #  def search(query, "") do from p in query end
 #  def search(query, %{}) do from p in query end
   def search(query, searchParams) do
-    Logger.debug "search searchParams: #{inspect(searchParams)}"
     searchTerm = searchParams["search"]
     searchTerm = if searchTerm do String.replace(searchTerm,~r/\s/u, "%") end
 
@@ -40,10 +39,10 @@ defmodule Torr.Torrent do
     order_by: [desc: p.name]
   end
 
-  def save(torrentMap) do
+  def save(tracker, torrentMap) do
       result =
         case Torr.Repo.get_by(Torr.Torrent, [tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id]) do
-          nil  -> %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}
+          nil  ->  %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}
           torrent -> torrent
         end
         |> Torr.Torrent.changeset(torrentMap)

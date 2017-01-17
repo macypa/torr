@@ -24,7 +24,7 @@
 
   <li>
     <strong>Content html:</strong>
-    <%= @zamunda_torrent.content_html %>
+    <%= raw(@zamunda_torrent.content_html) %>
   </li>
 
 </ul>

@@ -24,12 +24,46 @@ defmodule Torr.Crawler do
     for tracker <- trackers do
       collectTorrentUrls(tracker)
     end
+
+    for tracker <- trackers do
+      processTorrents(tracker)
+    end
     Logger.info "Crawler done"
+  end
+
+  def processTorrents(tracker) do
+    Logger.info "processTorrents: #{inspect(tracker)}"
+    case tracker.url do
+          _ -> Torr.ZamundaTorrent.notProcessed(tracker)
+#                                  |> Repo.preload([:tracker])
+                                  |> Repo.all
+                                  |> Enum.each(fn torrentDBId ->
+                                            case tracker.url do
+                                              _ ->
+                                                    data = processTorrentData(tracker, torrentDBId)
+                                                    Torr.Torrent.save(tracker, data)
+                                            end
+                                   end)
+        end
+  end
+
+  def processTorrentData(tracker, torrentDBId) do
+    case tracker.url do
+      _ ->
+            torrent = Torr.ZamundaTorrent |> Torr.Repo.get(torrentDBId)
+
+            %{
+              name: torrent.name,
+              tracker_id: tracker.id,
+              torrent_id: torrent.torrent_id,
+              json: updateJson(torrent.content_html, tracker)
+            }
+    end
   end
 
   def fetchTorrentData(tracker, torrent_id) do
     torrent_info_url = tracker.patterns["torrent_info_url"]
-    Logger.info "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
+    Logger.debug "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
     htmlString = download(tracker, "#{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1")
 
     name = htmlString |> Floki.find(tracker.namePattern)
@@ -74,7 +108,6 @@ defmodule Torr.Crawler do
                                         value = String.replace(value, imgReg, "")
                                         Map.put(acc, "images", "#{acc["images"]} #{value}")
                                   end)
-                              |> Enum.uniq
 
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["videoSelector"])
                               |> Floki.attribute(tracker.patterns["imgAttrPattern"])

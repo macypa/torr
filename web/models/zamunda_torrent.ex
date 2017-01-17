@@ -31,6 +31,17 @@ defmodule Torr.ZamundaTorrent do
     Torr.ZamundaTorrent |> where([t], t.name == ^"")
   end
 
+  def notProcessed(tracker) do
+    query = Torr.ZamundaTorrent
+
+    from t in query,
+      left_join: torr in Torr.Torrent,
+        on: torr.torrent_id == t.torrent_id,
+      where: ^tracker.id == t.tracker_id,
+      select: t.id,
+      order_by: [t.id]
+  end
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """

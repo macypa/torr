@@ -4,11 +4,11 @@
 <ul>
 <%= for torrent <- @torrents do %>
   <li>
-    <div class="link" onclick="toggle_visibility('torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>');">
+    <div class="link" onclick="toggle_visibility('torrent<%= torrent.torrent_id %>');">
       <%= torrent.name %>
     </div>
-    <div style="display: none;" id="torrent<%= Enum.at(String.split(torrent.url, "="), 1) %>">
-      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>  from page <a href="http://zamunda.net/bananas?sort=6&type=asc&page=<%= torrent.page %>" target="_blank"><%= torrent.page %></a>
+    <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
+      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>
 
       <div>
         <div>
@@ -19,8 +19,8 @@
           <% end %>
         </div>
         <%= unless is_nil torrent.json["video"] do %>
-          <img src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="toggle_visibility('video<%= Enum.at(String.split(torrent.url, "="), 1) %>');" />
-          <div style="display: none;" id="video<%= Enum.at(String.split(torrent.url, "="), 1) %>">
+          <img src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="toggle_visibility('video<%= Enum.at(String.split(torrent.torrent_id, "="), 1) %>');" />
+          <div style="display: none;" id="video<%= Enum.at(String.split(torrent.torrent_id, "="), 1) %>">
             <iframe width="420" height="315" src="<%= torrent.json["video"] %>"></iframe>
           </div>
         <% end %>
