@@ -8,7 +8,7 @@
       <%= torrent.name %>
     </div>
     <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
-      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.url %>" target="_blank"><%= torrent.name %></a>
+      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
       <div>
         <div>

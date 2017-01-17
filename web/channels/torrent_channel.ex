@@ -23,8 +23,8 @@ defmodule Torr.TorrentChannel do
 #           |> Torrent.search(params)
 #           |> Torr.Repo.paginate(params)
 
-#    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
-    broadcast! socket, "new_msg", %{params: params, torrents: to_map(torrents)}
+    torrentsHtml = Phoenix.View.render_to_string(Torr.TorrentView, "torrents.html", params: params, torrents: torrents)
+    broadcast! socket, "new_msg", %{html: torrentsHtml, params: params, torrents: to_map(torrents)}
     {:noreply, socket}
   end
 
