@@ -71,8 +71,8 @@ function keyEvent(event) {
 //    }
 }
 
-addEvent(document.querySelector("#searchTerm"), "keypress", keyEvent );
-addEvent(document.querySelector("#page_size"), "keypress", keyEvent );
+addEvent(document.querySelector("#searchTerm"), "keyup", keyEvent );
+addEvent(document.querySelector("#page_size"), "keyup", keyEvent );
 function addEvent(element, eventName, callback) {
     if (element.addEventListener) {
         element.addEventListener(eventName, callback, false);
