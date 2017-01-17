@@ -34,12 +34,16 @@ defmodule Torr.ZamundaTorrent do
   def notProcessed(tracker) do
     query = Torr.ZamundaTorrent
 
-    from t in query,
-      left_join: torr in Torr.Torrent,
-        on: torr.torrent_id == t.torrent_id,
-      where: ^tracker.id == t.tracker_id,
-      select: t.id,
-      order_by: [t.id]
+#    torrSubQuery = from torr in Torr.Torrent, select: torr.torrent_id
+
+    from z in query,
+#      left_join: torr in Torr.Torrent,
+#        on: torr.torrent_id == z.torrent_id,
+      where: ^tracker.id == z.tracker_id
+                and fragment(" ? NOT IN (SELECT torrent_id FROM torrents)", z.torrent_id),
+#               and not z.torrent_id in subquery(torrSubQuery),
+      select: z.id,
+      order_by: [z.id]
   end
 
   @doc """
