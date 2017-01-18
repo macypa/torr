@@ -162,7 +162,7 @@ defmodule Torr.Crawler do
       for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
         if tracker.pagesAtOnce > 0 do
-          Enum.each(1..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
+          Enum.each(0..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
           collectTorrents(tracker)
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
         end
