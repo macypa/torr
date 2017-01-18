@@ -26,6 +26,7 @@ defmodule Torr.Crawler do
     end
 
     for tracker <- trackers do
+#      Torr.Torrent.save(tracker, processTorrentData(tracker, 85421))
       processTorrents(tracker)
     end
     Logger.info "Crawler done"
@@ -96,26 +97,37 @@ defmodule Torr.Crawler do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text)
                                   end)
 
+    torrentInfo = Map.put(torrentInfo, "images", getImages(contentHtml, tracker))
+    torrentInfo = Map.put(torrentInfo, "video", getVideos(contentHtml, tracker))
+
+    torrentInfo
+  end
+
+  def getImages(contentHtml, tracker) do
+
     imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
       {:ok, imgRexgex} -> imgRexgex
       {:error, error} -> {:error, error}
     end
 
-    torrentInfo = contentHtml |> Floki.find(tracker.patterns["imgSelector"])
-                              |> Floki.attribute(tracker.patterns["imgAttrPattern"])
-                              |> Enum.reduce(torrentInfo, fn x, acc ->
-                                        value = String.replace(x, ~r/thumbs\//, "")
-                                        value = String.replace(value, imgReg, "")
-                                        Map.put(acc, "images", "#{acc["images"]} #{value}")
-                                  end)
+#    imgLinkReg = case Regex.compile(tracker.patterns["imgLinkPattern"], "u") do
+#      {:ok, imgRexgex} -> imgRexgex
+#      {:error, error} -> {:error, error}
+#    end
 
-    torrentInfo = contentHtml |> Floki.find(tracker.patterns["videoSelector"])
-                              |> Floki.attribute(tracker.patterns["imgAttrPattern"])
-                              |> Enum.reduce(torrentInfo, fn x, acc ->
-                                        Map.put(acc, "video", "https://www.youtube.com/embed/#{x}")
-                                  end)
+    contentHtml |> Floki.find(tracker.patterns["imgSelector"])
+                          |> Floki.attribute(tracker.patterns["imgAttrPattern"])
+                          |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
+                          |> Enum.uniq
+  end
 
-    torrentInfo
+  def getVideos(contentHtml, tracker) do
+    contentHtml |> Floki.find(tracker.patterns["videoSelector"])
+                              |> Floki.attribute(tracker.patterns["videoAttrPattern"])
+#                              |> Enum.reduce(torrentInfo, fn x, acc ->
+#                                        Map.put(acc, "video", "https://www.youtube.com/embed/#{x}")
+#                                  end)
+
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
@@ -253,9 +265,10 @@ defmodule Torr.Crawler do
                       "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
                       "imgSelector": "#description img",
                       "imgAttrPattern": "src",
+                      "imgLinkPattern": "previewimg.php",
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png).*",
                       "videoSelector": "#youtube_video",
-                      "imgAttrPattern": "code",
+                      "videoAttrPattern": "code",
                       "torrent_info_url": "banan?id="}
       }) |> elem(1)
 #      ,
