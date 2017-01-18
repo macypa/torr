@@ -14,14 +14,14 @@
         <div>
           <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
             <%= for img <- torrent.json["images"] do %>
-              <img src="<%= img %>" width="240" />
+              <img class="lazy" data-src="<%= img %>" width="240" />
             <% end %>
           <% end %>
         </div>
         <%= unless is_nil(torrent.json["video"]) or torrent.json["video"] == [] do %>
           <img src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="toggle_visibility('video<%= torrent.torrent_id %>');" />
           <div style="display: none;" id="video<%= torrent.torrent_id %>">
-            <iframe width="420" height="315" src="https://www.youtube.com/embed/<%= torrent.json["video"] %>"></iframe>
+            <iframe class="lazy" width="420" height="315" data-src="https://www.youtube.com/embed/<%= torrent.json["video"] %>"></iframe>
           </div>
         <% end %>
       </div>
