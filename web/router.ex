@@ -24,6 +24,7 @@ defmodule Torr.Router do
 
     resources "/torrents", TorrentController#, only: [:index, :show]
 
+    get "/img", ImageDownloaderController, :image_downloader
     get "/*path", RedirectController, :redirector
   end
 
@@ -43,5 +44,24 @@ defmodule Torr.RedirectController do
   @send_to "/torrents"
 
   def redirector(conn, _params), do: redirect(conn, to: @send_to)
+
+end
+
+defmodule Torr.ImageDownloaderController do
+  use Torr.Web, :controller
+  require Logger
+
+  def image_downloader(conn, params) do
+    img = case HTTPoison.get(params["url"]) do
+        {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
+            %{body: body, headers: headers}
+        other -> %{body: "", headers: []}
+    end
+    Logger.info inspect(img.body)
+    Logger.info inspect(img.headers)
+
+    conn |> put_resp_content_type("image/png")
+        |> send_file(200, img.body)
+  end
 
 end
