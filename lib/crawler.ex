@@ -252,7 +252,7 @@ defmodule Torr.Crawler do
       [Tracker.save(%{
         url: "http://zamunda.net/",
         name: "zamunda.net",
-        lastPageNumber: -1,
+        lastPageNumber: 0,
         pagesAtOnce: 1,
         delayOnFail: 1000,
         pagePattern: "bananas?sort=6&type=asc&page=",
