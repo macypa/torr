@@ -39,7 +39,7 @@ defmodule Torr.Torrent do
     order_by: [desc: p.name]
   end
 
-  def save(tracker, torrentMap) do
+  def save(_tracker, torrentMap) do
       result =
         case Torr.Repo.get_by(Torr.Torrent, [tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id]) do
           nil  ->  %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}

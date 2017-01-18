@@ -40,7 +40,7 @@ defmodule Torr.ZamundaTorrent do
 #      left_join: torr in Torr.Torrent,
 #        on: torr.torrent_id == z.torrent_id,
       where: ^tracker.id == z.tracker_id
-                and fragment(" ? NOT IN (SELECT torrent_id FROM torrents)", z.torrent_id),
+                and fragment(" ? NOT IN (SELECT torrent_id FROM torrents where tracker_id='?')", z.torrent_id, ^tracker.id),
 #               and not z.torrent_id in subquery(torrSubQuery),
       select: z.id,
       order_by: [z.id]
