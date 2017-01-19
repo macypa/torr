@@ -46,37 +46,3 @@ defmodule Torr.RedirectController do
   def redirector(conn, _params), do: redirect(conn, to: @send_to)
 
 end
-
-defmodule Torr.ImageDownloaderController do
-  use Torr.Web, :controller
-  require Logger
-
-  def image_downloader(conn, params) do
-    options = [hackney: [{:follow_redirect, true}], timeout: :infinity, recv_timeout: :infinity]
-    body = case HTTPoison.get(params["url"], [], options) do
-        {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
-           body
-        other -> Logger.info "img error: #{inspect(other)}"
-    end
-
-    url = params["url"] |> String.replace("http://", "") |> String.replace("http://", "")
-    imgPath = "web/static/assets/images/#{url}"
-
-    unless File.exists?(imgPath) do
-      File.mkdir_p(imgPath)
-      File.rmdir(imgPath)
-      File.write!(imgPath, body)
-    end
-
-#    conn |> Plug.Conn.send_file(200, imgPath)
-
-
-    conn  |> put_resp_content_type("image/png")
-          |> put_resp_header("content-disposition", "attachment; filename=\"#{url}\"")
-          |> send_resp(200, body)
-#          |> send_file(200, body)
-
-
-  end
-
-end

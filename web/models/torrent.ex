@@ -15,10 +15,15 @@ defmodule Torr.Torrent do
   end
 
   def request(params) do
-    Torrent
+    torrents = Torrent
 #            |> Map.from_struct
             |> search(params)
             |> Torr.Repo.paginate(params)
+
+#    Torr.ImageDownloader.download(torrents)
+    spawn(fn -> Torr.ImageDownloader.download(torrents) end)
+
+    torrents
   end
 
 #  def search(query, nil) do from p in query end
