@@ -37,11 +37,7 @@ defmodule Torr.ZamundaTorrent do
 #    torrSubQuery = from torr in Torr.Torrent, select: torr.torrent_id
 
     from z in query,
-#      left_join: torr in Torr.Torrent,
-#        on: torr.torrent_id == z.torrent_id,
-      where: ^tracker.id == z.tracker_id
-                and fragment(" ? NOT IN (SELECT torrent_id FROM torrents where tracker_id=?)", z.torrent_id, ^tracker.id),
-#               and not z.torrent_id in subquery(torrSubQuery),
+      where: fragment(" NOT EXISTS (SELECT * FROM torrents AS t  WHERE ? = t.torrent_id and ? = t.tracker_id )", z.torrent_id, ^tracker.id),
       select: z.id,
       order_by: [z.id]
   end

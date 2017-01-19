@@ -11,6 +11,10 @@ defmodule Torr.Repo.Migrations.CreateTorrent do
       timestamps()
     end
 
+    create index(:torrents, [:tracker_id])
+    create index(:torrents, [:torrent_id])
+    create index(:torrents, [:name])
+#    create index(:torrents, [:json])
     create unique_index(:torrents, [:tracker_id, :torrent_id])
   end
 end

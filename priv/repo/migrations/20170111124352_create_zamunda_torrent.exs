@@ -12,6 +12,8 @@ defmodule Torr.Repo.Migrations.CreateZamundaTorrent do
       timestamps()
     end
 
+    create index(:zamunda_torrents, [:tracker_id])
+    create index(:zamunda_torrents, [:torrent_id])
     create unique_index(:zamunda_torrents, [:tracker_id, :torrent_id])
   end
 end

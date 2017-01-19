@@ -34,18 +34,33 @@ defmodule Torr.Crawler do
 
   def processTorrents(tracker) do
     Logger.info "processTorrents: #{inspect(tracker)}"
-    case tracker.url do
-          _ -> Torr.ZamundaTorrent.notProcessed(tracker)
+    try do
+        for _ <- Stream.cycle([:ok]) do
+          case tracker.url do
+            _ -> notProcessed = Torr.ZamundaTorrent.notProcessed(tracker)
 #                                  |> Repo.preload([:tracker])
-                                  |> Repo.all
-                                  |> Enum.each(fn torrentDBId ->
-                                            case tracker.url do
-                                              _ ->
-                                                    data = processTorrentData(tracker, torrentDBId)
-                                                    Torr.Torrent.save(tracker, data)
-                                            end
-                                   end)
+                          |> Repo.all
+
+                 case notProcessed do
+                      [] -> throw :break
+                      notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
+                                                        case tracker.url do
+                                                          _ ->
+                                                                data = processTorrentData(tracker, torrentDBId)
+                                                                Torr.Torrent.save(tracker, data)
+                                                        end
+                                                      end)
+                 end
+          end
         end
+      rescue
+        e -> Logger.error "processTorrents error: #{inspect(e)}"
+              e
+      catch
+        :break -> :ok
+        e -> e
+      end
+
   end
 
   def processTorrentData(tracker, torrentDBId) do
@@ -147,7 +162,7 @@ defmodule Torr.Crawler do
 
     case banans do
       [] -> throw :break
-      _ -> banans
+      banans -> banans
             |> Enum.map(fn(torrUrl) ->
                             case tracker.url do
                               _ -> Torr.ZamundaTorrent.save(%{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
@@ -171,7 +186,7 @@ defmodule Torr.Crawler do
       e -> Logger.error "collectTorrentUrls error: #{inspect(e)}"
             e
     catch
-      :break -> :ok
+      :break -> collectTorrents(tracker)
       e -> e
     end
   end

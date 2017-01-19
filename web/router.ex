@@ -55,7 +55,7 @@ defmodule Torr.ImageDownloaderController do
     img = case HTTPoison.get(params["url"]) do
         {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
             %{body: body, headers: headers}
-        other -> %{body: "", headers: []}
+        other -> %{body: other, headers: []}
     end
     Logger.info inspect(img.body)
     Logger.info inspect(img.headers)
