@@ -146,29 +146,35 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
-    pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
-    Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
+    try do
+      pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
+      Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
 
-    urlReg = case Regex.compile(tracker.urlPattern, "u") do
-      {:ok, urlRexgex} -> urlRexgex
-      {:error, error} -> {:error, error}
-    end
+      urlReg = case Regex.compile(tracker.urlPattern, "u") do
+        {:ok, urlRexgex} -> urlRexgex
+        {:error, error} -> {:error, error}
+      end
 
-    banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
-            |> Floki.attribute("href")
-            |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
-            |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-            |> Enum.uniq
+      banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
+              |> Floki.attribute("href")
+              |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
+              |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+              |> Enum.uniq
 
-    case banans do
-      [] -> throw :break
-      banans -> banans
-            |> Enum.map(fn(torrUrl) ->
-                            case tracker.url do
-                              _ -> Torr.ZamundaTorrent.save(%{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
+      case banans do
+        [] -> throw :break
+        banans -> banans
+                        |> Enum.map(fn(torrUrl) ->
+                              case tracker.url do
+                                _ -> Torr.ZamundaTorrent.save(%{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
 
-                            end
-                         end)
+                              end
+                           end)
+      end
+    rescue
+      _ -> throw :break
+    catch
+      _ -> throw :break
     end
   end
 
@@ -183,8 +189,7 @@ defmodule Torr.Crawler do
         end
       end
     rescue
-      e -> Logger.error "collectTorrentUrls error: #{inspect(e)}"
-            e
+      e -> e
     catch
       :break -> collectTorrents(tracker)
       e -> e
@@ -228,7 +233,7 @@ defmodule Torr.Crawler do
               "Cookie": tracker.cookie,
               "Connection": "keep-alive"
             ]
-    options = [hackney: [{:follow_redirect, true}], timeout: :infinity, recv_timeout: :infinity]
+    options = [connect_timeout: 1000000, timeout: 1000000, recv_timeout: 1000000, hackney: [{:follow_redirect, true}]]
     download(tracker.delayOnFail, url, headers, options)
   end
 
@@ -252,7 +257,7 @@ defmodule Torr.Crawler do
       end
     end
     t = GenRetry.Task.async(my_future_function, retries: :infinity, delay: delay, jitter: 0.1)
-    Task.await(t)  # may raise exception
+    Task.await(t, 1000000)  # may raise exception
   end
 
   def unzip(body) do
