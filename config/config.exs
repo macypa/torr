@@ -24,7 +24,7 @@ config :logger,
   backends: [{LoggerFileBackend, :file_log}, :console]
 config :logger, :file_log,
   path: "debug.log",
-  level: :debug
+  level: :info
 
 # Configures Elixir's Logger
 config :logger, :console,

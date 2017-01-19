@@ -57,8 +57,8 @@ defmodule Torr.ImageDownloaderController do
             %{body: body, headers: headers}
         other -> %{body: other, headers: []}
     end
-    Logger.info inspect(img.body)
-    Logger.info inspect(img.headers)
+    Logger.info "img body: #{inspect(img.body)}"
+    Logger.info "img headers: #{inspect(img.headers)}"
 
     conn |> put_resp_content_type("image/png")
         |> send_file(200, img.body)
