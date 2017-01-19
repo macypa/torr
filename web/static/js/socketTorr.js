@@ -60,7 +60,6 @@ let pageSize         = document.querySelector("#page_size")
 let torrentsContainer = document.querySelector("#torrents")
 
 function keyEvent(event) {
-//  if(event.keyCode === 13){
       var params = getUrlParams({})
       params["search"] = searchTerm.value
       params["page_size"] = pageSize.value
@@ -68,11 +67,25 @@ function keyEvent(event) {
       channel.push("new_msg", params)
   //    document.location.hash = searchTerm.value
       history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
-//    }
 }
 
-addEvent(document.querySelector("#searchTerm"), "keyup", keyEvent );
-addEvent(document.querySelector("#page_size"), "keyup", keyEvent );
+var timeout = null;
+function keyEventDelay(event) {
+  if(event.keyCode === 13){
+    keyEvent(event);
+  } else {
+    var that = this;
+    if (timeout != null) {
+        clearTimeout(timeout);
+    }
+    timeout = setTimeout(function () {
+        keyEvent(event);
+    }, 1000);
+  }
+}
+
+addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
+addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
 function addEvent(element, eventName, callback) {
     if (element.addEventListener) {
         element.addEventListener(eventName, callback, false);
@@ -95,7 +108,6 @@ export var Torrents = {
 }
 
 channel.on("new_msg", payload => {
-  console.log(payload)
     Torrents.show(payload);
 })
 
