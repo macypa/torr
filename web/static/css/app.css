@@ -202,6 +202,7 @@ padding: 2px;
 }
 
 .thumbnail:hover span{ /*CSS for enlarged image on hover*/
+transition-delay: 1s !important;
 visibility: visible;
 top: 0;
 left: 60px; /*position where enlarged image should offset horizontally */
