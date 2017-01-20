@@ -35,7 +35,7 @@
 
 </div>
 
-<div style="float: left;">
+<div style="float: left; width: 70%;">
   <h2>Listing torrents</h2>
 
   Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
