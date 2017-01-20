@@ -4,8 +4,11 @@
 <ul>
 <%= for torrent <- @torrents do %>
   <li>
-    <div class="link" onclick="toggle_visibility('torrent<%= torrent.torrent_id %>');">
+    <div class="thumbnail link" onclick="toggle_visibility('torrent<%= torrent.torrent_id %>');" >
       <%= torrent.name %>
+      <span>
+        <img class="lazy" src="images/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
+        </span>
     </div>
     <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
       <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
