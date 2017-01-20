@@ -19,3 +19,31 @@
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+table     { display: table }
+tr        { display: table-row }
+thead     { display: table-header-group }
+tbody     { display: table-row-group }
+tfoot     { display: table-footer-group }
+col       { display: table-column }
+colgroup  { display: table-column-group }
+td, th    { display: table-cell }
+caption   { display: table-caption }
+
+#caption {caption-side: top}
+#caption {caption-side: bottom}
+
+#table {
+	display: table;
+  width:auto;
+  border-top: 1px solid #000;
+ 	border-right: 1px solid #000;
+}
+.row {display: table-row;}
+.cell {
+  text-align: center;
+	display: table-cell;
+	width: auto;
+	border-left: 1px solid #000;
+	border-bottom: 1px solid #000;
+}

@@ -10,6 +10,25 @@
     <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
       <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
+      <div id="table">
+        <div class="row">
+          <div class="cell">Type</div>
+          <div class="cell">Genre</div>
+          <div class="cell">Added</div>
+          <div class="cell">Size</div>
+          <div class="cell">Rating</div>
+          <div class="cell">Peers</div>
+        </div>
+        <div class="row">
+          <div class="cell"><%= torrent.json["Type"] %></div>
+          <div class="cell"><%= torrent.json["Genre"] %></div>
+          <div class="cell"><%= torrent.json["Added"] %></div>
+          <div class="cell"><%= torrent.json["Size"] %></div>
+          <div class="cell"><%= torrent.json["Rating"] %></div>
+          <div class="cell"><%= torrent.json["Peers"] %></div>
+        </div>
+      </div>
+
       <div>
         <div>
           <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
@@ -27,16 +46,6 @@
       </div>
 
       <div>
-        <div>
-          <div><%= torrent.json["Type"] %></div>
-          <div><%= torrent.json["Genre"] %></div>
-          <div><%= torrent.json["Added"] %></div>
-          <div><%= torrent.json["Size"] %></div>
-          <div><%= torrent.json["Rating"] %></div>
-          <div><%= torrent.json["Peers"] %></div>
-          <div><%= torrent.json["Genre"] %></div>
-        </div>
-
         <div class="pre"><%= torrent.json["Description"] %></div>
       </div>
     </div>
