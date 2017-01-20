@@ -16,7 +16,7 @@ defmodule Torr.TorrentController do
 #           |> Torrent.search(params)
 #           |> Torr.Repo.paginate(params)
 
-    Logger.debug "index torrent: #{inspect(torrents)}"
+#    Logger.debug "index torrent: #{inspect(torrents)}"
     render(conn, "index.html", params: params, torrents: torrents)
   end
 
@@ -42,7 +42,7 @@ defmodule Torr.TorrentController do
 
   def show(conn, %{"id" => id}) do
     torrent = Repo.get!(Torrent, id)
-    Logger.debug "torrent: #{inspect(torrent)}" 
+#    Logger.debug "torrent: #{inspect(torrent)}"
 
     render(conn, "show.html", torrent: torrent)
   end
