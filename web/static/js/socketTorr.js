@@ -80,7 +80,7 @@ function keyEventDelay(event) {
     }
     timeout = setTimeout(function () {
         keyEvent(event);
-    }, 1000);
+    }, 300);
   }
 }
 
