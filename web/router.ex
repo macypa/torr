@@ -23,7 +23,6 @@ defmodule Torr.Router do
 
     resources "/torrents", TorrentController#, only: [:index, :show]
 
-    get "/img", ImageDownloaderController, :image_downloader
     get "/*path", RedirectController, :redirector
   end
 
