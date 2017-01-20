@@ -23,7 +23,7 @@ defmodule Torr.Router do
 
     resources "/torrents", TorrentController#, only: [:index, :show]
 
-    get "/", RedirectController, :redirector
+    get "/*path", RedirectController, :redirector
   end
 
   defp put_user_token(conn, _) do
