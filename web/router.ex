@@ -1,5 +1,4 @@
 defmodule Torr.Router do
-  require Logger
   use Torr.Web, :router
 
   pipeline :browser do
@@ -30,7 +29,6 @@ defmodule Torr.Router do
 
   defp put_user_token(conn, _) do
     user_id_token = Phoenix.Token.sign(conn, "user_id", get_session(conn, :key))
-    Logger.debug "put_user_token user_id_token: #{inspect(user_id_token)}"
     assign(conn, :user_id, user_id_token)
   end
   # Other scopes may use custom stacks.

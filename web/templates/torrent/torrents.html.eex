@@ -14,7 +14,7 @@
         <div>
           <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
             <%= for img <- torrent.json["images"] do %>
-              <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "")  |> HtmlEntities.decode %>" width="240" />
+              <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="240" />
             <% end %>
           <% end %>
         </div>

@@ -20,7 +20,7 @@ defmodule Torr.ImageDownloader do
           other -> Logger.info "img error: #{inspect(other)}"
       end
 
-      url = url |> String.replace("http://", "") |> String.replace("http://", "")
+      url = url |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode()
       imgPath = "web/static/assets/images/#{url}"
 
       unless File.exists?(imgPath) do
