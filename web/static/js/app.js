@@ -20,11 +20,21 @@ import "phoenix_html"
 
 import socket from "./socketTorr"
 
-window.toggle_visibility = function(id) {
+window.toggle_displayBasedOn = function(idCondition, id) {
    var e = document.getElementById(id);
-   if(e.style.display == 'block')
+   var eCondition = document.getElementById(idCondition);
+   if(eCondition.style.display == 'block') {
+       e.style.display = 'none';
+    } else {
+       e.style.display = 'block';
+    }
+}
+window.toggle_display = function(id) {
+   var e = document.getElementById(id);
+   console.log(e.style.display)
+   if(e.style.display == 'block') {
       e.style.display = 'none';
-   else {
+   } else {
       e.style.display = 'block';
       deferImages(e);
    }
