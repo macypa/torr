@@ -1,10 +1,18 @@
 <% torrent = @torrent %>
 <div class="images">
   <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
-    <img class="lazy hover-shadow cursor"
+    <img class="lazy coverImage hover-shadow cursor"
          data-src="images/<%= torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
          onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', 1)" />
 
+      <div class="moreImages">
+        <%= for img <- torrent.json["images"] do %>
+          <%= if Enum.find_index(torrent.json["images"], fn(x) -> x == img end) > 0 do %>
+            <img class="lazy additionalImage lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+                            onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
+          <% end %>
+        <% end %>
+      <div>
 
     <div id="<%= torrent.id %>myModal" class="modal" >
 
@@ -29,7 +37,7 @@
         <%= for img <- torrent.json["images"] do %>
           <div class="column">
             <img class="lazy lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                            style="width:100%" onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
+                            width:100% onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
           </div>
         <% end %>
 
@@ -38,10 +46,13 @@
     </div>
   <% end %>
 
+</div>
+
+<div class="videos">
   <%= unless is_nil(torrent.json["video"]) or torrent.json["video"] == [] do %>
     <img width="40" id="videoIcon<%= torrent.torrent_id %>" style="float: right"src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="document.getElementById('videoIcon<%= torrent.torrent_id %>').style.display = 'none';toggle_visibility('video<%= torrent.torrent_id %>');" />
-    <div style="display: none; float: right" id="video<%= torrent.torrent_id %>">
-      <iframe class="lazy" width="400" height="315" data-src="https://www.youtube.com/embed/<%= torrent.json["video"] %>" allowfullscreen></iframe>
+    <div width="50%" style="display: none" id="video<%= torrent.torrent_id %>">
+      <iframe class="lazy" width="100%" height="315" data-src="https://www.youtube.com/embed/<%= torrent.json["video"] %>" allowfullscreen></iframe>
     </div>
   <% end %>
 

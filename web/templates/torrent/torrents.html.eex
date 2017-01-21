@@ -1,7 +1,7 @@
 
 <%= pagination_links @torrents %>
 
-<ul>
+<ul id="torrentsList">
 <%= for torrent <- @torrents do %>
   <li>
     <div class="thumbnail link" onclick="toggle_visibility('torrent<%= torrent.torrent_id %>');" >
@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div class="media">
+      <div class="imagesVideo">
         <%= render "torrentMedia.html", torrent: torrent %>
       </div>
 

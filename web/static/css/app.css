@@ -1,11 +1,11 @@
 /* This file is for your main application css. */
 
-#torrents {
+#torrentsList {
   display: block;
   position: relative;
 }
 
-#torrents::after {
+#torrentsList::after {
   content: "";
   background-image: url(../images/bgImage.jpg);
   background-size: 100% 100%;
@@ -27,7 +27,6 @@
   /*border is optional*/
   /*border-bottom:1px solid #444;*/
   cursor: pointer;
-  color: blue;
 }
 
 .pre {
@@ -39,6 +38,20 @@
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+.coverImage {
+  width: 66%;
+}
+
+.moreImages {
+  float: right;
+  width: 33%;
+}
+
+.additionalImage {
+  width: 100%;
+}
+
 
 table     { display: table }
 tr        { display: table-row }
