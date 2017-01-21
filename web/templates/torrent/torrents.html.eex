@@ -10,7 +10,7 @@
         <img class="lazy" src="images/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
         </span>
     </div>
-    <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
+    <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">
       <a href="/torrents/<%= torrent.id %>"><%= torrent.id %></a> :
                               <a href="<%= torrent.tracker.url %><%= torrent.tracker.patterns["torrent_info_url"] %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
@@ -37,11 +37,13 @@
         <%= render "torrentMedia.html", torrent: torrent %>
       </div>
 
-      <div onclick="toggle_visibility('description<%= torrent.torrent_id %>');" >
-        Toggle Description:
-      </div>
-      <div>
-        <div class="pre" style="display: none;" id="description<%= torrent.torrent_id %>"><%= torrent.json["Description"] %></div>
+      <div class="description">
+        <div onclick="toggle_visibility('description<%= torrent.torrent_id %>');" >
+          Toggle Description:
+        </div>
+        <div>
+          <div class="pre" id="description<%= torrent.torrent_id %>"><%= torrent.json["Description"] %></div>
+        </div>
       </div>
       <br/>
       <br/>

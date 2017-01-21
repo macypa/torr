@@ -19,6 +19,25 @@
   z-index: -1;
 }
 
+.torrentContent {
+  display: none;
+  height:auto;
+  overflow:hidden;
+}
+
+.images {
+  height:auto;
+  overflow:hidden;
+}
+
+.description {
+  overflow:auto
+}
+
+.description .pre {
+  display: none;
+}
+
 .link {
   background:none!important;
   border:none;
@@ -41,12 +60,14 @@
 }
 
 .coverImage {
-  width: 66%;
+  width: 55%;
 }
 
 .moreImages {
   float: right;
-  width: 33%;
+  width: 45%;
+  height: 50em;
+  overflow-y: scroll;
 }
 
 .additionalImage {
@@ -169,6 +190,19 @@ caption   { display: table-caption }
 
 .modal .lightbox {
   opacity: 0.6;
+}
+
+.modal .coverImage {
+  width: 15%;
+}
+
+.modal .moreImages {
+  float: right;
+  width: 85%;
+}
+
+.modal .additionalImage {
+  width: 28%;
 }
 
 .modal .float {
