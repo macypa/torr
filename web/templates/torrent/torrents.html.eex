@@ -11,7 +11,8 @@
         </span>
     </div>
     <div style="display: none;" id="torrent<%= torrent.torrent_id %>">
-      <a href="/torrents/<%= torrent.id %>" target="_blank"><%= torrent.id %></a> : <a href="<%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
+      <a href="/torrents/<%= torrent.id %>"><%= torrent.id %></a> :
+                              <a href="<%= torrent.tracker.url %><%= torrent.tracker.patterns["torrent_info_url"] %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
       <div id="table">
         <div class="row">
@@ -32,50 +33,8 @@
         </div>
       </div>
 
-      <div>
-        <div class="images">
-          <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
-            <img class="lazy hover-shadow cursor"
-                  data-src="images/<%= torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                   width="240" onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', 1)" />
-
-
-            <div id="<%= torrent.id %>myModal" class="modal" >
-
-              <div class="close cursor" onclick="closeModal('<%= torrent.id %>myModal')">&times;</div>
-              <div class="modal-content">
-
-
-              <%= for img <- torrent.json["images"] do %>
-                <div class="mySlides">
-                  <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="90%"/>
-                </div>
-              <% end %>
-
-              <div class="prev" onclick="plusSlides('<%= torrent.id %>myModal', -1)">&#10094;</div>
-              <div class="next" onclick="plusSlides('<%= torrent.id %>myModal', 1)">&#10095;</div>
-
-              <div class="caption-container">
-                <p id="caption"></p>
-              </div>
-
-              <%= for img <- torrent.json["images"] do %>
-                <div class="column">
-                  <img class="lazy lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                                  style="width:100%" onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) %>)" alt="<%= img %>">
-                </div>
-              <% end %>
-            </div>
-
-          <% end %>
-        </div>
-
-        <%= unless is_nil(torrent.json["video"]) or torrent.json["video"] == [] do %>
-          <img src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="toggle_visibility('video<%= torrent.torrent_id %>');" />
-          <div style="display: none;" id="video<%= torrent.torrent_id %>">
-            <iframe class="lazy" width="420" height="315" data-src="https://www.youtube.com/embed/<%= torrent.json["video"] %>"></iframe>
-          </div>
-        <% end %>
+      <div class="media">
+        <%= render "torrentMedia.html", torrent: torrent %>
       </div>
 
       <div>

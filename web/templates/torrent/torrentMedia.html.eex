@@ -1,0 +1,44 @@
+<% torrent = @torrent %>
+<div class="images">
+  <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
+    <img class="lazy hover-shadow cursor"
+          data-src="images/<%= torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+           width="240" onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', 1)" />
+
+
+    <div id="<%= torrent.id %>myModal" class="modal" >
+
+      <div class="close cursor" onclick="closeModal('<%= torrent.id %>myModal')">&times;</div>
+      <div class="modal-content">
+
+
+      <%= for img <- torrent.json["images"] do %>
+        <div class="mySlides">
+          <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="90%"/>
+        </div>
+      <% end %>
+
+      <div class="prev" onclick="plusSlides('<%= torrent.id %>myModal', -1)">&#10094;</div>
+      <div class="next" onclick="plusSlides('<%= torrent.id %>myModal', 1)">&#10095;</div>
+
+      <div class="caption-container">
+        <p id="caption"></p>
+      </div>
+
+      <%= for img <- torrent.json["images"] do %>
+        <div class="column">
+          <img class="lazy lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+                          style="width:100%" onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) %>)" alt="<%= img %>">
+        </div>
+      <% end %>
+    </div>
+
+  <% end %>
+</div>
+
+<%= unless is_nil(torrent.json["video"]) or torrent.json["video"] == [] do %>
+  <img width="40" id="videoIcon<%= torrent.torrent_id %>" style="float: right"src="https://www.squ.edu.om/portals/5/youtube-icon.png" onclick="document.getElementById('videoIcon<%= torrent.torrent_id %>').style.display = 'none';toggle_visibility('video<%= torrent.torrent_id %>');" />
+  <div style="display: none; float: right" id="video<%= torrent.torrent_id %>">
+    <iframe class="lazy" width="400" height="315" data-src="https://www.youtube.com/embed/<%= torrent.json["video"] %>" allowfullscreen></iframe>
+  </div>
+<% end %>

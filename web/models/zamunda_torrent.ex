@@ -4,7 +4,7 @@ defmodule Torr.ZamundaTorrent do
 
   schema "zamunda_torrents" do
     field :name, :string, default: ""
-    belongs_to :tracker, Tracker
+    belongs_to :tracker, Torr.Tracker
     field :torrent_id, :string, default: ""
     field :page, :integer, default: 1
     field :content_html, :string, default: ""

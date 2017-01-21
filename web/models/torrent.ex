@@ -7,7 +7,7 @@ defmodule Torr.Torrent do
 
   schema "torrents" do
     field :name, :string, default: ""
-    belongs_to :tracker, Tracker
+    belongs_to :tracker, Torr.Tracker
     field :torrent_id, :string, default: ""
     field :json, :map, default: %{}
 
@@ -37,6 +37,11 @@ defmodule Torr.Torrent do
           |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
           |> order_by([t], t.inserted_at)
           |> limit(^searchParams["limit"])
+          |> with_tracker()
+  end
+
+  def with_tracker(query) do
+    from q in query, preload: :tracker
   end
 
   def sorted(query) do
