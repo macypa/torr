@@ -11,28 +11,29 @@
       <div class="close cursor" onclick="closeModal('<%= torrent.id %>myModal')">&times;</div>
       <div class="modal-content">
 
+        <div class="modal-viewer">
+          <%= for img <- torrent.json["images"] do %>
+            <div class="mySlides">
+              <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="100%"/>
+            </div>
+          <% end %>
 
-      <%= for img <- torrent.json["images"] do %>
-        <div class="mySlides">
-          <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="90%"/>
+          <div class="prev" onclick="plusSlides('<%= torrent.id %>myModal', -1)">&#10094;</div>
+          <div class="next" onclick="plusSlides('<%= torrent.id %>myModal', 1)">&#10095;</div>
+
+          <div class="caption-container">
+            <p id="caption"></p>
+          </div>
         </div>
-      <% end %>
 
-      <div class="prev" onclick="plusSlides('<%= torrent.id %>myModal', -1)">&#10094;</div>
-      <div class="next" onclick="plusSlides('<%= torrent.id %>myModal', 1)">&#10095;</div>
-
-      <div class="caption-container">
-        <p id="caption"></p>
+        <%= for img <- torrent.json["images"] do %>
+          <div class="column">
+            <img class="lazy lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+                            style="width:100%" onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end)+1 %>)" alt="<%= img %>">
+          </div>
+        <% end %>
       </div>
-
-      <%= for img <- torrent.json["images"] do %>
-        <div class="column">
-          <img class="lazy lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                          style="width:100%" onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) %>)" alt="<%= img %>">
-        </div>
-      <% end %>
     </div>
-
   <% end %>
 </div>
 

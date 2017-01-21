@@ -89,8 +89,9 @@ caption   { display: table-caption }
 .modal .next {
   cursor: pointer;
   position: absolute;
-  top: 50%;
+  top: 5em;
   width: auto;
+  height: 70%;
   padding: 16px;
   margin-top: -50px;
   color: white;
