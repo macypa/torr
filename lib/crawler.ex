@@ -112,7 +112,12 @@ defmodule Torr.Crawler do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text)
                                   end)
 
-    torrentInfo = Map.put(torrentInfo, "images", getImages(contentHtml, tracker))
+    images = getImages(contentHtml, tracker)
+    torrentInfo = Map.put(torrentInfo, "images", images)
+    torrentInfo = if is_nil(images) or images == [] do
+      Map.put(torrentInfo, "imagesHidden", getHiddenImages(contentHtml, tracker))
+    end
+
     torrentInfo = Map.put(torrentInfo, "video", getVideos(contentHtml, tracker))
 
     torrentInfo
@@ -125,15 +130,52 @@ defmodule Torr.Crawler do
       {:error, error} -> {:error, error}
     end
 
-#    imgLinkReg = case Regex.compile(tracker.patterns["imgLinkPattern"], "u") do
-#      {:ok, imgRexgex} -> imgRexgex
-#      {:error, error} -> {:error, error}
-#    end
-
-    contentHtml |> Floki.find(tracker.patterns["imgSelector"])
+    images = contentHtml |> Floki.find(tracker.patterns["imgSelector"])
                           |> Floki.attribute(tracker.patterns["imgAttrPattern"])
                           |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
                           |> Enum.uniq
+
+    images
+  end
+
+  def getHiddenImages(contentHtml, tracker) do
+
+    imgLinkReg = case Regex.compile(tracker.patterns["imgLinkPattern"], "u") do
+      {:ok, imgRexgex} -> imgRexgex
+      {:error, error} -> {:error, error}
+    end
+
+    imgHiddenLinkReg = case Regex.compile(tracker.patterns["imgHiddenPattern"], "u") do
+      {:ok, imgRexgex} -> imgRexgex
+      {:error, error} -> {:error, error}
+    end
+
+    imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
+      {:ok, imgRexgex} -> imgRexgex
+      {:error, error} -> {:error, error}
+    end
+
+    imagesLink = contentHtml |> Floki.find("a")
+                              |> Floki.attribute("href")
+                              |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgLinkReg) end)
+
+    linksContent = download(tracker, "#{tracker.url}#{imagesLink|> Enum.at(0)}")
+                      |> Floki.find(tracker.patterns["imgHiddenSelector"])
+
+    images = linksContent |> Floki.find("img")
+                                          |> Floki.attribute(tracker.patterns["imgAttrPattern"])
+                                          |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
+                                          |> Enum.uniq
+
+    moreImages = linksContent
+                 |> Floki.attribute(tracker.patterns["imgHiddenAttr"])
+                 |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgHiddenLinkReg) end)
+                 |> Enum.map(fn(imgUrl) -> Regex.named_captures(imgHiddenLinkReg, imgUrl)["url"] end)
+                 |> Enum.uniq
+
+    images = images ++ moreImages |> Enum.uniq
+
+    images
   end
 
   def getVideos(contentHtml, tracker) do
@@ -240,8 +282,8 @@ defmodule Torr.Crawler do
   def download(delay, url, headers, options) do
     my_future_function = fn ->
       case HTTPoison.get(url, headers, options) do
-          {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
-            unzip(body)
+          {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
+            unzip(body, headers)
           {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
             Logger.error "Error: #{url} is 502."
             raise "Error: #{url} is 502."
@@ -260,12 +302,26 @@ defmodule Torr.Crawler do
     Task.await(t, 1000000)  # may raise exception
   end
 
-  def unzip(body) do
-      z = :zlib.open
-      :zlib.inflateInit(z, 31)
-      res = :zlib.inflate(z, body)
-      joined = Enum.join(res, "")
-      :iconv.convert("windows-1251", "utf-8", joined)
+  def unzip(body, headers) do
+#      z = :zlib.open
+#      :zlib.inflateInit(z, 31)
+#      res = :zlib.inflate(z, body)
+#      joined = Enum.join(res, "")
+
+      gzipped = Enum.any?(headers, fn (kv) ->
+        case kv do
+          {"Content-Encoding", "gzip"} -> true
+          _ -> false
+        end
+      end)
+
+      # body is an Elixir string
+      decompressed = if gzipped do
+        :zlib.gunzip(body)
+      else
+        body
+      end
+      :iconv.convert("windows-1251", "utf-8", decompressed)
   end
 
   def initTrackers() do
@@ -286,7 +342,10 @@ defmodule Torr.Crawler do
                       "imgSelector": "#description img",
                       "imgAttrPattern": "src",
                       "imgLinkPattern": "previewimg.php",
-                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png).*",
+                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                      "imgHiddenAttr": "style",
+                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
                       "videoSelector": "#youtube_video",
                       "videoAttrPattern": "code",
                       "torrent_info_url": "banan?id="}
