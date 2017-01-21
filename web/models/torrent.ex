@@ -35,7 +35,7 @@ defmodule Torr.Torrent do
 
     query
           |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
-          |> order_by([t], t.inserted_at)
+          |> order_by([t], desc: t.inserted_at)
           |> limit(^searchParams["limit"])
           |> with_tracker()
   end
