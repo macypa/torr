@@ -37,9 +37,17 @@
         <%= render "torrentMedia.html", torrent: torrent %>
       </div>
 
-      <div>
-        <div class="pre"><%= torrent.json["Description"] %></div>
+      <div onclick="toggle_visibility('description<%= torrent.torrent_id %>');" >
+        Toggle Description:
       </div>
+      <div>
+        <div class="pre" style="display: none;" id="description<%= torrent.torrent_id %>"><%= torrent.json["Description"] %></div>
+      </div>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
     </div>
   </li>
 <% end %>
