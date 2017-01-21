@@ -220,6 +220,7 @@ text-decoration: none;
 .thumbnail span img{ /*CSS for enlarged image*/
 border-width: 0;
 padding: 2px;
+width: 240px;
 }
 
 .thumbnail:hover span{ /*CSS for enlarged image on hover*/
