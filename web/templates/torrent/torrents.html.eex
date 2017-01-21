@@ -14,7 +14,7 @@
       <a href="/torrents/<%= torrent.id %>"><%= torrent.id %></a> :
                               <a href="<%= torrent.tracker.url %><%= torrent.tracker.patterns["torrent_info_url"] %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
-      <div id="table">
+      <div class="table">
         <div class="row">
           <div class="cell">Type</div>
           <div class="cell">Genre</div>

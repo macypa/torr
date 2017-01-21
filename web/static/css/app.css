@@ -1,11 +1,31 @@
 /* This file is for your main application css. */
+
+#torrents {
+  display: block;
+  position: relative;
+}
+
+#torrents::after {
+  content: "";
+  background-image: url(../images/bgImage.jpg);
+  background-size: 100% 100%;
+  background-repeat: repeat-y;
+  opacity: 0.3;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+}
+
 .link {
   background:none!important;
   border:none;
   padding:0!important;
   font: inherit;
   /*border is optional*/
-  border-bottom:1px solid #444;
+  /*border-bottom:1px solid #444;*/
   cursor: pointer;
   color: blue;
 }
@@ -33,7 +53,7 @@ caption   { display: table-caption }
 #caption {caption-side: top}
 #caption {caption-side: bottom}
 
-#table {
+.table {
 	display: table;
   width:auto;
   border-top: 1px solid #000;
@@ -65,7 +85,6 @@ caption   { display: table-caption }
   display: none;
   position: fixed;
   z-index: 1;
-  padding-top: 100px;
   left: 0;
   top: 0;
   width: 100%;
@@ -81,7 +100,6 @@ caption   { display: table-caption }
   margin: auto;
   padding: 0;
   width: 90%;
-  max-width: 1200px;
 }
 
 /* Next & previous buttons */
@@ -91,7 +109,7 @@ caption   { display: table-caption }
   position: absolute;
   top: 5em;
   width: auto;
-  height: 70%;
+  height: 60%;
   padding: 16px;
   margin-top: -50px;
   color: white;
@@ -139,6 +157,10 @@ caption   { display: table-caption }
   opacity: 0.6;
 }
 
+.modal .float {
+  float: left;
+}
+
 .modal .active,
 .modal .lightbox:hover {
   opacity: 1;
@@ -154,12 +176,10 @@ caption   { display: table-caption }
 
 /* The Close Button */
 .modal .close {
-  width: 90%;
-  height: 200px;
+  width: 5%;
+  height: 100%;
   color: white;
-  position: absolute;
-  top: 10px;
-  right: 25px;
+  position: relative;
   font-size: 35px;
   font-weight: bold;
 }
