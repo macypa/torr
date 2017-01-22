@@ -14,7 +14,7 @@
 
   <li>
     <strong>Json:</strong>
-    <%= @torrent.json %>
+    <span class="pre"><%= Poison.encode!(@torrent.json) |> String.replace(",\"", ",\n\"") %></span>
   </li>
 
 </ul>

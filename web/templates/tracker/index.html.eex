@@ -12,8 +12,8 @@
       <th>Urlpattern</th>
       <th>Namepattern</th>
       <th>Htmlpattern</th>
-      <th>Cookie</th>
       <th>Patterns</th>
+      <th>Cookie</th>
 
       <th></th>
     </tr>
@@ -30,8 +30,8 @@
       <td><%= tracker.urlPattern %></td>
       <td><%= tracker.namePattern %></td>
       <td><%= tracker.htmlPattern %></td>
+      <td><span class="pre"><%= Poison.encode!(tracker.patterns) |> String.replace(",\"", ",\n\"") %></span></td>
       <td><%= tracker.cookie %></td>
-      <td><%= tracker.patterns %></td>
 
       <td class="text-right">
         <%= link "Show", to: tracker_path(@conn, :show, tracker), class: "btn btn-default btn-xs" %>

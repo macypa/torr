@@ -67,7 +67,7 @@
 
   <div class="form-group">
     <%= label f, :patterns, class: "control-label" %>
-    <%= text_input f, :patterns, class: "form-control" %>
+    <%= textarea f, :patterns, class: "pre form-control", value: Poison.encode!(f.data.patterns) |> String.replace(",\"", ",\n\"")  %>
     <%= error_tag f, :patterns %>
   </div>
 

@@ -54,7 +54,7 @@
 
   <li>
     <strong>Patterns:</strong>
-    <%= @tracker.patterns %>
+    <span class="pre"><%= Poison.encode!(@tracker.patterns) |> String.replace(",\"", ",\n\"") %></span>
   </li>
 
 </ul>

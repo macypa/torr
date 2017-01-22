@@ -19,7 +19,7 @@
 
   <div class="form-group">
     <%= label f, :json, class: "control-label" %>
-    <%= text_input f, :json, class: "form-control" %>
+    <%= textarea f, :json, class: "pre form-control", value: Poison.encode!(f.data.json) |> String.replace(",\"", ",\n\"") %>
     <%= error_tag f, :json %>
   </div>
 
