@@ -2,7 +2,7 @@
 <% images = if is_nil(@params["showAll"]) do
   torrent.json["images"]
 else
-  images = unless is_nil(torrent.json["imagesHidden"]) do
+  unless is_nil(torrent.json["imagesHidden"]) do
     Enum.concat(torrent.json["images"], torrent.json["imagesHidden"])
   else
     torrent.json["images"]
