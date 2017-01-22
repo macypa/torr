@@ -65,9 +65,10 @@ defmodule Torr.Crawler do
 
   def processTorrentData(tracker, torrentDBId) do
     case tracker.url do
-      _ ->
+      _ -> 
             torrent = Torr.ZamundaTorrent |> Torr.Repo.get(torrentDBId)
 
+            Logger.info "processTorrentData id: #{inspect(torrent.id)}"
             %{
               name: torrent.name,
               tracker_id: tracker.id,
@@ -79,27 +80,35 @@ defmodule Torr.Crawler do
 
   def fetchTorrentData(tracker, torrent_id) do
     torrent_info_url = tracker.patterns["torrent_info_url"]
-    Logger.debug "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
+    Logger.info "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
     htmlString = download(tracker, "#{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1")
 
     name = htmlString |> Floki.find(tracker.namePattern)
-                      |> Enum.at(0)
-                      |> Floki.text
-                      |> String.trim
-                      |> HtmlEntities.decode
-    name = :iconv.convert("utf-8", "utf-8", name)
+    if is_nil name do
+      Logger.warn "fetchTorrentData torrent is missing from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
+      %{}
+    else
 
-    htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
-    contentHtml = htmlTree |> Floki.raw_html |> HtmlEntities.decode
-    contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
+      name = name
+                        |> Enum.at(0)
+                        |> Floki.text
+                        |> String.trim
+                        |> HtmlEntities.decode
+      name = :iconv.convert("utf-8", "utf-8", name)
 
-    %{
-      name: name,
-      tracker_id: tracker.id,
-      torrent_id: torrent_id,
-      content_html: contentHtml,
-#      json: updateJson(contentHtml, tracker)
-    }
+      htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
+      contentHtml = htmlTree |> Floki.raw_html |> HtmlEntities.decode
+      contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
+
+      %{
+        name: name,
+        tracker_id: tracker.id,
+        torrent_id: torrent_id,
+        content_html: contentHtml,
+  #      json: updateJson(contentHtml, tracker)
+      }
+
+    end
   end
 
   def updateJson(contentHtml, tracker) do
@@ -337,9 +346,9 @@ defmodule Torr.Crawler do
         pagePattern: "bananas?sort=6&type=asc&page=",
         urlPattern: "(|javascript)banan\\?id=(?<url>\\d+)",
         namePattern: "h1",
-        htmlPattern: "h1 ~ table ~ table",
+        htmlPattern: "h1 ~ table",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
-        patterns: %{ "torrentDescNameValuePattern": "table > tr",
+        patterns: %{ "torrentDescNameValuePattern": "tr",
                       "torrentDescNamePattern": "td.td_newborder[align=right]",
                       "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
                       "imgSelector": "#description img",
