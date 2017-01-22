@@ -232,6 +232,26 @@ defmodule Torr.Crawler do
     end
   end
 
+  def runPattern(content, pattern) do
+    result = if (SRegex.regex?(pattern)) do
+      pattern = pattern |> String.split("/")
+      reg = case Regex.compile(Enum.at(pattern, 1), Enum.at(pattern, 2)) do
+        {:ok, regex} -> regex
+        {:error, error} -> {:error, error}
+      end
+
+      Regex.scan(reg, content)
+    else
+      content |> Floki.find(pattern) |> Floki.raw_html
+    end
+
+    result = result
+              |> String.trim
+              |> HtmlEntities.decode
+
+    result = :iconv.convert("utf-8", "utf-8", result)
+  end
+
   def collectTorrentUrls(tracker) do
     try do
       for _ <- Stream.cycle([:ok]) do
