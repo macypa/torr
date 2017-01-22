@@ -38,7 +38,7 @@
       </div>
 
       <div class="description">
-        <div onclick="toggle_visibility('description<%= torrent.torrent_id %>');" >
+        <div onclick="toggle_display('description<%= torrent.torrent_id %>');" >
           Toggle Description:
         </div>
         <div>
