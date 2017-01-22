@@ -15,18 +15,26 @@
 
 
       <div class="property-box resizable">
-        <header>Производител
-              <span class="close-filter-header icon-up-dir"></span>
-        </header>
-        <ul class="outer" data-akfiltergroup="2"><li class="checkedContainer">
+        <header>Производител</header>
         <ul class="checked">
-        <li class="enabled active" id="47945681" data-akidx="2_10" data-aktype="man" data-akvalue="d-link" data-akpos="left" data-akentity="chb" data-akurl="http://www.pazaruvaj.com/ruteri-c3144/" data-pid="4634">
-        <a href="http://www.pazaruvaj.com/ruteri-c3144/" class="list-item" onclick="_akq.push(['ak.filter.toggle',47945681]);return!1;" title=" - Производител: D-Link"><span class="icon-check-checked"></span><span class="filterText">D-Link</span><small id="pc47945681"></small></a></li></ul></li>
-        <li class="scrollableCont"><div class="gradient topGradient" style="height:0px;"></div><div class="gradient bottomGradient"></div><ul class="unchecked scrollable">
-        <li class="enabled" id="47945682_spec" data-akidx="2_35" data-aktype="man" data-akvalue="tp-link" data-akpos="left" data-akentity="chb" data-akurl="http://www.pazaruvaj.com/ruteri-c3144/f:d-link,tp-link/" data-akspec="1" data-pid="4634"><a href="http://www.pazaruvaj.com/ruteri-c3144/tp-link/" class="list-item" onclick="_akq.push(['ak.filter.toggle',47945682]);return!1;" title=" - Производител: TP-LINK"><span class="icon-check-empty"></span><span class="filterText">TP-LINK</span><small id="pc47945682_spec">(+101)</small></a></li>
-        <li class="enabled" id="47945677_spec" data-akidx="2_3" data-aktype="man" data-akvalue="asus" data-akpos="left" data-akentity="chb" data-akurl="http://www.pazaruvaj.com/ruteri-c3144/f:asus,d-link/" data-akspec="1" data-pid="4634"><a href="http://www.pazaruvaj.com/ruteri-c3144/asus/" class="list-item" onclick="_akq.push(['ak.filter.toggle',47945677]);return!1;" title=" - Производител: ASUS"><span class="icon-check-empty"></span><span class="filterText">ASUS</span><small id="pc47945677_spec">(+45)</small></a></li>
-        <li class="enabled active" style="height:0;display:none;" id="47945681_spec" data-akidx="2_10" data-aktype="man" data-akvalue="d-link" data-akpos="left" data-akentity="chb" data-akurl="http://www.pazaruvaj.com/ruteri-c3144/" data-akspec="1" data-pid="4634"><a href="http://www.pazaruvaj.com/ruteri-c3144/" class="list-item" onclick="_akq.push(['ak.filter.toggle',47945681]);return!1;" title=" - Производител: D-Link"><span class="icon-check-checked"></span><span class="filterText">D-Link</span><small id="pc47945681_spec"></small></a></li>
-        <li class="enabled" id="47945676" data-akidx="2_41" data-aktype="man" data-akvalue="zyxel" data-akpos="left" data-akentity="chb" data-akurl="http://www.pazaruvaj.com/ruteri-c3144/f:d-link,zyxel/" data-pid="4634"><a href="http://www.pazaruvaj.com/ruteri-c3144/zyxel/" class="list-item" onclick="_akq.push(['ak.filter.toggle',47945676]);return!1;" title=" - Производител: ZyXEL"><span class="icon-check-empty"></span><span class="filterText">ZyXEL</span><small id="pc47945676">(+44)</small></a></li></ul></li><li class="resizeFilterGroup">=</li></ul>
+          <li class="enabled active" >
+            <span class="filterText">D-Link</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">TP-LINK</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">ASUS</span>
+          </li>
+          <li class="enabled active" >
+            <span class="filterText">D-Link</span>
+          </li>
+          <li class="enabled" >
+            <span class="icon-check-empty"></span><span class="filterText">ZyXEL</span>
+          </li>
+        </ul></li><li class="resizeFilterGroup">=</li></ul>
       </div>
 
 

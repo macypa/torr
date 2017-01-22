@@ -31,7 +31,6 @@ window.toggle_displayBasedOn = function(idCondition, id) {
 }
 window.toggle_display = function(id) {
    var e = document.getElementById(id);
-   console.log(e.style.display)
    if(e.style.display == 'block') {
       e.style.display = 'none';
    } else {

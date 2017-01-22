@@ -1,15 +1,24 @@
 <% torrent = @torrent %>
+<% images = if is_nil(@params["showAll"]) do
+  torrent.json["images"]
+else
+  images = unless is_nil(torrent.json["imagesHidden"]) do
+    Enum.concat(torrent.json["images"], torrent.json["imagesHidden"])
+  else
+    torrent.json["images"]
+  end
+end %>
 <div class="images">
-  <%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [] do %>
+  <%= unless is_nil(images) or images == [] do %>
     <img class="lazy coverImage hover-shadow cursor"
-         data-src="images/<%= torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+         data-src="images/<%= images |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
          onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', 1)" />
 
       <div class="moreImages">
-        <%= for img <- torrent.json["images"] do %>
-          <%= if Enum.find_index(torrent.json["images"], fn(x) -> x == img end) > 0 do %>
+        <%= for img <- images do %>
+          <%= if Enum.find_index(images, fn(x) -> x == img end) > 0 do %>
             <img class="lazy additionalImage lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                            onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
+                            onclick="openModal('<%= torrent.id %>myModal');currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(images, fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
           <% end %>
         <% end %>
       </div>
@@ -20,7 +29,7 @@
       <div class="float modal-content">
 
         <div class="modal-viewer">
-          <%= for img <- torrent.json["images"] do %>
+          <%= for img <- images do %>
             <div class="mySlides">
               <img class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" width="100%"/>
             </div>
@@ -35,14 +44,14 @@
         </div>
 
         <img class="lazy coverImage lightbox cursor"
-           data-src="images/<%= torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
+           data-src="images/<%= images |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
            onclick="currentSlide('<%= torrent.id %>myModal', 1)" />
 
         <div class="moreImages">
-          <%= for img <- torrent.json["images"] do %>
-            <%= if Enum.find_index(torrent.json["images"], fn(x) -> x == img end) > 0 do %>
+          <%= for img <- images do %>
+            <%= if Enum.find_index(images, fn(x) -> x == img end) > 0 do %>
               <img class="lazy additionalImage lightbox cursor" class="lazy" data-src="images/<%= img |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>"
-                             onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(torrent.json["images"], fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
+                             onclick="currentSlide('<%= torrent.id %>myModal', <%= Enum.find_index(images, fn(x) -> x == img end) +1 %>)" alt="<%= img %>">
             <% end %>
           <% end %>
         </div>

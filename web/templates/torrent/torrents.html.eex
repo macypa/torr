@@ -34,7 +34,7 @@
       </div>
 
       <div class="imagesVideo">
-        <%= render "torrentMedia.html", torrent: torrent %>
+        <%= render "torrentMedia.html", params: @params, torrent: torrent %>
       </div>
 
       <div class="description">
