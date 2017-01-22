@@ -115,7 +115,7 @@ defmodule Torr.Crawler do
     images = getImages(contentHtml, tracker)
     torrentInfo = Map.put(torrentInfo, "images", images)
 
-    torrentInfo = if is_nil(images) or images == [] do
+    torrentInfo = if is_nil(images) or images == [] or String.contains?(torrentInfo["Type"], "XXX") do
       Map.put(torrentInfo, "imagesHidden", getHiddenImages(contentHtml, tracker))
     else
       torrentInfo
