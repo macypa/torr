@@ -25,7 +25,7 @@
           <div class="cell">Peers</div>
         </div>
         <div class="row">
-          <div class="cell"><a href="<%= torrent.tracker.url <> "download.php/" <> torrent.torrent_id <> "/" <> URI.encode(torrent.json["Download"]) <> ".torrent" %>"><%= torrent.json["Download"] %></a></div>
+          <div class="cell"><a href="<%= torrent.tracker.url <> "download.php/" <> torrent.torrent_id <> "/" <> URI.encode(torrent.json["Download"] |> String.split("\s") |> Enum.at(0) |> String.split("\t") |> Enum.at(0)) <> ".torrent" %>"><%= torrent.json["Download"] %></a></div>
           <div class="cell"><%= torrent.json["Type"] %></div>
           <div class="cell"><%= torrent.json["Genre"] %></div>
           <div class="cell"><%= torrent.json["Added"] %></div>
