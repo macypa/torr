@@ -1,6 +1,6 @@
 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 filters-container" id="filters-container">
 
-  <section id="filter-bar">
+  <section id="filter-bar" style="position: fixed; height: 90vh; width: 17%; overflow: auto;">
     <span class="icon-close hidden-md hidden-lg close-filters-button" id="close-filters"></span>
     <div id="active-filters-sidebar" class="property-box hidden-lg hidden-md">
       <header class="open">&nbsp;Избрано филтриране</header>
@@ -13,30 +13,175 @@
     </div>
 
 
-
-      <div class="property-box resizable">
-        <header>Производител</header>
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>Trackers</header>
         <ul class="checked">
           <li class="enabled active" >
-            <span class="filterText">D-Link</span>
+            <span class="filterText">Zamunda</span>
           </li>
         </ul>
         <ul class="unchecked scrollable">
           <li class="enabled" >
-            <span class="filterText">TP-LINK</span>
+            <span class="filterText">zelka.org</span>
           </li>
           <li class="enabled" >
-            <span class="filterText">ASUS</span>
+            <span class="filterText">arena</span>
           </li>
-          <li class="enabled active" >
-            <span class="filterText">D-Link</span>
-          </li>
-          <li class="enabled" >
-            <span class="icon-check-empty"></span><span class="filterText">ZyXEL</span>
-          </li>
-        </ul></li><li class="resizeFilterGroup">=</li></ul>
+        </ul>
       </div>
 
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>sorting</header>
+        <ul class="checked">
+          <li class="enabled active" >
+            <span class="filterText">name</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">type</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">added</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>Type</header>
+        <ul class="checked">
+          <li class="enabled active" >
+            <span class="filterText">Animation</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">Movies</span>
+            <ul class="unchecked scrollable">
+              <li class="enabled" >
+                <span class="filterText">Action</span>
+              </li>
+              <li class="enabled active" >
+                <span class="filterText">Mystery</span>
+              </li>
+              <li class="enabled" >
+                <span class="filterText">Sci-Fi</span>
+              </li>
+            </ul>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Games</span>
+          </li>
+          <li class="enabled active" >
+            <span class="filterText">Serial</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Animation/Anime</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>Type</header>
+        <ul class="checked">
+          <li class="enabled active" >
+            <span class="filterText">Animation</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">Movies</span>
+            <ul class="unchecked scrollable">
+              <li class="enabled" >
+                <span class="filterText">Action</span>
+              </li>
+              <li class="enabled active" >
+                <span class="filterText">Mystery</span>
+              </li>
+              <li class="enabled" >
+                <span class="filterText">Sci-Fi</span>
+              </li>
+            </ul>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Games</span>
+          </li>
+          <li class="enabled active" >
+            <span class="filterText">Serial</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Animation/Anime</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>Type</header>
+        <ul class="checked">
+          <li class="enabled active" >
+            <span class="filterText">Animation</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">Movies</span>
+            <ul class="unchecked scrollable">
+              <li class="enabled" >
+                <span class="filterText">Action</span>
+              </li>
+              <li class="enabled active" >
+                <span class="filterText">Mystery</span>
+              </li>
+              <li class="enabled" >
+                <span class="filterText">Sci-Fi</span>
+              </li>
+            </ul>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Games</span>
+          </li>
+          <li class="enabled active" >
+            <span class="filterText">Serial</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Animation/Anime</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
+        <header>Type</header>
+        <ul class="checked">
+          <li class="enabled active" >
+            <span class="filterText">Animation</span>
+          </li>
+        </ul>
+        <ul class="unchecked scrollable">
+          <li class="enabled" >
+            <span class="filterText">Movies</span>
+            <ul class="unchecked scrollable">
+              <li class="enabled" >
+                <span class="filterText">Action</span>
+              </li>
+              <li class="enabled active" >
+                <span class="filterText">Mystery</span>
+              </li>
+              <li class="enabled" >
+                <span class="filterText">Sci-Fi</span>
+              </li>
+            </ul>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Games</span>
+          </li>
+          <li class="enabled active" >
+            <span class="filterText">Serial</span>
+          </li>
+          <li class="enabled" >
+            <span class="filterText">Animation/Anime</span>
+          </li>
+        </ul>
+      </div>
 
   </section>
 
