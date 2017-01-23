@@ -23,6 +23,11 @@
   </li>
 
   <li>
+    <strong>InfoUrl:</strong>
+    <%= @tracker.infoUrl %>
+  </li>
+
+  <li>
     <strong>PagesAtOnce:</strong>
     <%= @tracker.pagesAtOnce %>
   </li>
