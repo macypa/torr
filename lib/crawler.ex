@@ -26,7 +26,6 @@ defmodule Torr.Crawler do
     end
 
     for tracker <- trackers do
-#      Torr.Torrent.save(tracker, processTorrentData(tracker, 85421))
       processTorrents(tracker)
     end
     Logger.info "Crawler done"
@@ -75,38 +74,6 @@ defmodule Torr.Crawler do
               torrent_id: torrent.torrent_id,
               json: updateJson(torrent.content_html, tracker)
             }
-    end
-  end
-
-  def fetchTorrentData(tracker, torrent_id) do
-    Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
-    htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
-
-    name = htmlString |> Floki.find(tracker.namePattern)
-    if is_nil name do
-      Logger.warn "fetchTorrentData torrent is missing from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
-      %{}
-    else
-
-      name = name
-                        |> Enum.at(0)
-                        |> Floki.text
-                        |> String.trim
-                        |> HtmlEntities.decode
-      name = :iconv.convert("utf-8", "utf-8", name)
-
-      htmlTree = htmlString |> Floki.find(tracker.htmlPattern)
-      contentHtml = htmlTree |> Floki.raw_html |> HtmlEntities.decode
-      contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
-
-      %{
-        name: name,
-        tracker_id: tracker.id,
-        torrent_id: torrent_id,
-        content_html: contentHtml,
-  #      json: updateJson(contentHtml, tracker)
-      }
-
     end
   end
 
@@ -231,26 +198,6 @@ defmodule Torr.Crawler do
     end
   end
 
-  def runPattern(content, pattern) do
-    result = if (Regex.regex?(pattern)) do
-      pattern = pattern |> String.split("/")
-      reg = case Regex.compile(Enum.at(pattern, 1), Enum.at(pattern, 2)) do
-        {:ok, regex} -> regex
-        {:error, error} -> {:error, error}
-      end
-
-      Regex.scan(reg, content)
-    else
-      content |> Floki.find(pattern) |> Floki.raw_html
-    end
-
-    result = result
-              |> String.trim
-              |> HtmlEntities.decode
-
-    :iconv.convert("utf-8", "utf-8", result)
-  end
-
   def collectTorrentUrls(tracker) do
     try do
       for _ <- Stream.cycle([:ok]) do
@@ -276,11 +223,62 @@ defmodule Torr.Crawler do
       #                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
                 |> Enum.each(fn torrent ->
                                 case tracker.url do
-                                  _ -> Torr.ZamundaTorrent.save(fetchTorrentData(tracker, torrent.torrent_id))
+                                  _ ->  torrData = fetchTorrentData(tracker, torrent.torrent_id)
+                                        case torrData do
+                                          nil -> Logger.error "torrent #{torrent.torrent_id} is missing: #{inspect(torrData)}"
+                                          change -> Torr.ZamundaTorrent.save(change)
+                                        end
                                 end
                               end)
     end
+  end
 
+  def fetchTorrentData(tracker, torrent_id) do
+    Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
+    htmlString = Torr.Crawler.download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
+#    Logger.info "fetchTorrentData htmlString : #{htmlString}"
+
+    name = htmlString |> runPattern(tracker.namePattern)
+    case name do
+      nil -> nil
+      [] -> nil
+      "" -> nil
+      name ->
+              contentHtml = htmlString |> runPattern(tracker.htmlPattern)
+              contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
+
+              %{
+                name: name,
+                tracker_id: tracker.id,
+                torrent_id: torrent_id,
+                content_html: contentHtml,
+          #      json: updateJson(contentHtml, tracker)
+              }
+    end
+  end
+
+  def runPattern(content, pattern) do
+    result = if String.starts_with?(pattern, "~r/") do
+      regex = Regex.split(~r{~r/(?<reg>.*)/.*$}, pattern, on: [:reg], include_captures: true)
+      reg = case Regex.compile(Enum.at(regex, 1), Enum.at(regex, 2) |> String.slice(1..-1)) do
+        {:ok, regex} -> regex
+        {:error, error} -> {:error, error}
+      end
+
+      case Regex.run(reg, content) do
+        nil -> [""]
+        res -> res
+      end
+    else
+      content |> Floki.find(pattern) |> Floki.raw_html
+    end
+
+    result = result |> Floki.raw_html
+                    |> String.trim
+                    |> HtmlEntities.decode
+
+    result = :iconv.convert("utf-8", "utf-8", result)
+    result
   end
 
 
@@ -365,9 +363,10 @@ defmodule Torr.Crawler do
         pagePattern: "bananas?sort=6&type=asc&page=",
         infoUrl: "banan?id=",
         urlPattern: "(|javascript)banan\\?id=(?<url>\\d+)",
-        namePattern: "h1",
+#        htmlPattern: "h1",
+        namePattern: "~r/<h1.*?<\/h1>/su",
 #        htmlPattern: "h1 ~ table",
-        htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>/su",
+        htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "torrentDescNameValuePattern": "tr",
                       "torrentDescNamePattern": "td.td_newborder[align=right]",
