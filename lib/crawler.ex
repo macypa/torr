@@ -15,7 +15,7 @@ defmodule Torr.Crawler do
   end
 
   def doWork() do
-    trackers = case Repo.all(Tracker) do
+    trackers = case Torr.Repo.all(Torr.Tracker) do
       [] ->
         initTrackers()
       trackers -> trackers
@@ -79,13 +79,12 @@ defmodule Torr.Crawler do
   end
 
   def fetchTorrentData(tracker, torrent_id) do
-    torrent_info_url = tracker.patterns["torrent_info_url"]
-    Logger.info "collectTorrent from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
-    htmlString = download(tracker, "#{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1")
+    Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
+    htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
 
     name = htmlString |> Floki.find(tracker.namePattern)
     if is_nil name do
-      Logger.warn "fetchTorrentData torrent is missing from: #{tracker.url}#{torrent_info_url}#{torrent_id}&filelist=1"
+      Logger.warn "fetchTorrentData torrent is missing from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
       %{}
     else
 
@@ -233,7 +232,7 @@ defmodule Torr.Crawler do
   end
 
   def runPattern(content, pattern) do
-    result = if (SRegex.regex?(pattern)) do
+    result = if (Regex.regex?(pattern)) do
       pattern = pattern |> String.split("/")
       reg = case Regex.compile(Enum.at(pattern, 1), Enum.at(pattern, 2)) do
         {:ok, regex} -> regex
@@ -249,7 +248,7 @@ defmodule Torr.Crawler do
               |> String.trim
               |> HtmlEntities.decode
 
-    result = :iconv.convert("utf-8", "utf-8", result)
+    :iconv.convert("utf-8", "utf-8", result)
   end
 
   def collectTorrentUrls(tracker) do
@@ -364,9 +363,11 @@ defmodule Torr.Crawler do
         pagesAtOnce: 1,
         delayOnFail: 1000,
         pagePattern: "bananas?sort=6&type=asc&page=",
+        infoUrl: "banan?id=",
         urlPattern: "(|javascript)banan\\?id=(?<url>\\d+)",
         namePattern: "h1",
-        htmlPattern: "h1 ~ table",
+#        htmlPattern: "h1 ~ table",
+        htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "torrentDescNameValuePattern": "tr",
                       "torrentDescNamePattern": "td.td_newborder[align=right]",
@@ -379,8 +380,7 @@ defmodule Torr.Crawler do
                       "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
                       "videoSelector": "#youtube_video",
-                      "videoAttrPattern": "code",
-                      "torrent_info_url": "banan?id="}
+                      "videoAttrPattern": "code"}
       }) |> elem(1)
 #      ,
 #      Tracker.save(%{
