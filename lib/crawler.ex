@@ -233,9 +233,20 @@ defmodule Torr.Crawler do
     end
   end
 
+  def test() do
+    tracker = Torr.Repo.get(Torr.Tracker, 1)
+    url = "http://zamunda.net/banan?id=366750&filelist=1"
+    content = Torr.Crawler.download(tracker, url)
+    pattern = tracker.namePattern
+    pattern = tracker.htmlPattern
+
+    Torr.Crawler.runPattern(content, pattern)
+
+  end
+
   def fetchTorrentData(tracker, torrent_id) do
     Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
-    htmlString = Torr.Crawler.download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
+    htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
 #    Logger.info "fetchTorrentData htmlString : #{htmlString}"
 
     name = htmlString |> runPattern(tracker.namePattern)
@@ -246,6 +257,11 @@ defmodule Torr.Crawler do
       name ->
               contentHtml = htmlString |> runPattern(tracker.htmlPattern)
               contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
+
+              contentHtml = case String.contains?(contentHtml, ">Type</") do
+                true -> ""
+                false -> :iconv.convert("utf-8", "utf-8", htmlString)
+              end
 
               %{
                 name: name,
