@@ -254,7 +254,8 @@ defmodule Torr.Crawler do
       nil -> nil
       [] -> nil
       "" -> nil
-      name ->
+      name -> name = name |> Floki.text
+
               contentHtml = htmlString |> runPattern(tracker.htmlPattern)
               contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
