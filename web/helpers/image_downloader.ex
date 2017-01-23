@@ -21,7 +21,7 @@ defmodule Torr.ImageDownloader do
       end
 
       url = url |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode()
-      imgPath = "web/static/assets/images/#{url}"
+      imgPath = "web/static/assets/images/remote/#{url}"
 
       unless File.exists?(imgPath) do
         File.mkdir_p(imgPath)

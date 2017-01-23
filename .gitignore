@@ -6,6 +6,9 @@
 /.*
 /*.iml
 
+# runtime downloaded images
+/web/static/assets/images/remote/*
+
 # Generated on crash by the VM
 erl_crash.dump
 
