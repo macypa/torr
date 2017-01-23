@@ -12,10 +12,11 @@
     </div>
     <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">
       <a href="/torrents/<%= torrent.id %>"><%= torrent.id %></a> :
-                              <a href="<%= torrent.tracker.url %><%= torrent.tracker.patterns["torrent_info_url"] %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
+                              <a href="<%= torrent.tracker.url %><%= torrent.tracker.infoUrl %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
 
       <div class="table">
         <div class="row">
+          <div class="cell">Download</div>
           <div class="cell">Type</div>
           <div class="cell">Genre</div>
           <div class="cell">Added</div>
@@ -24,6 +25,7 @@
           <div class="cell">Peers</div>
         </div>
         <div class="row">
+          <div class="cell"><a href="<%= torrent.tracker.url <> "download.php/" <> torrent.torrent_id <> "/" <> URI.encode(torrent.json["Download"]) <> ".torrent" %>"><%= torrent.json["Download"] %></a></div>
           <div class="cell"><%= torrent.json["Type"] %></div>
           <div class="cell"><%= torrent.json["Genre"] %></div>
           <div class="cell"><%= torrent.json["Added"] %></div>

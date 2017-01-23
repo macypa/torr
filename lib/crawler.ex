@@ -238,7 +238,7 @@ defmodule Torr.Crawler do
     url = "http://zamunda.net/banan?id=366750&filelist=1"
     content = Torr.Crawler.download(tracker, url)
     pattern = tracker.namePattern
-    pattern = tracker.htmlPattern
+#    pattern = tracker.htmlPattern
 
     Torr.Crawler.runPattern(content, pattern)
 
