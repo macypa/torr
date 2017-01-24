@@ -12,13 +12,12 @@ defmodule Torr.TorrentController do
 #    Logger.debug "index params: #{inspect(params)}"
 
     torrents = Torrent.request(params)
-#    torrents = Torrent
-#           |> Torrent.search(params)
-#           |> Torr.Repo.paginate(params)
+    filterData = Torr.FilterData |> Repo.all |> Torr.FilterData.to_map
+
 #require IEx; IEx.pry
 
-#    Logger.debug "index torrent: #{inspect(torrents)}"
-    render(conn, "index.html", params: params, torrents: torrents)
+#    Logger.info "index torrent: #{inspect(filterData)}"
+    render(conn, "index.html", params: params, filterData: filterData, torrents: torrents)
   end
 
   def new(conn, _params) do

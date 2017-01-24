@@ -71,137 +71,22 @@
 
       <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
         <header>Type</header>
-        <ul class="checked">
-          <li class="enabled active" >
-            <span class="filterText">Animation</span>
-          </li>
-        </ul>
         <ul class="unchecked scrollable">
-          <li class="enabled" >
-            <span class="filterText">Movies</span>
-            <ul class="unchecked scrollable">
-              <li class="enabled" >
-                <span class="filterText">Action</span>
-              </li>
-              <li class="enabled active" >
-                <span class="filterText">Mystery</span>
-              </li>
-              <li class="enabled" >
-                <span class="filterText">Sci-Fi</span>
-              </li>
-            </ul>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Games</span>
-          </li>
-          <li class="enabled active" >
-            <span class="filterText">Serial</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Animation/Anime</span>
-          </li>
-        </ul>
-      </div>
 
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>Type</header>
-        <ul class="checked">
-          <li class="enabled active" >
-            <span class="filterText">Animation</span>
-          </li>
-        </ul>
-        <ul class="unchecked scrollable">
-          <li class="enabled" >
-            <span class="filterText">Movies</span>
-            <ul class="unchecked scrollable">
-              <li class="enabled" >
-                <span class="filterText">Action</span>
-              </li>
-              <li class="enabled active" >
-                <span class="filterText">Mystery</span>
-              </li>
-              <li class="enabled" >
-                <span class="filterText">Sci-Fi</span>
-              </li>
-            </ul>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Games</span>
-          </li>
-          <li class="enabled active" >
-            <span class="filterText">Serial</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Animation/Anime</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>Type</header>
-        <ul class="checked">
-          <li class="enabled active" >
-            <span class="filterText">Animation</span>
-          </li>
-        </ul>
-        <ul class="unchecked scrollable">
-          <li class="enabled" >
-            <span class="filterText">Movies</span>
-            <ul class="unchecked scrollable">
-              <li class="enabled" >
-                <span class="filterText">Action</span>
-              </li>
-              <li class="enabled active" >
-                <span class="filterText">Mystery</span>
-              </li>
-              <li class="enabled" >
-                <span class="filterText">Sci-Fi</span>
-              </li>
-            </ul>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Games</span>
-          </li>
-          <li class="enabled active" >
-            <span class="filterText">Serial</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Animation/Anime</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>Type</header>
-        <ul class="checked">
-          <li class="enabled active" >
-            <span class="filterText">Animation</span>
-          </li>
-        </ul>
-        <ul class="unchecked scrollable">
-          <li class="enabled" >
-            <span class="filterText">Movies</span>
-            <ul class="unchecked scrollable">
-              <li class="enabled" >
-                <span class="filterText">Action</span>
-              </li>
-              <li class="enabled active" >
-                <span class="filterText">Mystery</span>
-              </li>
-              <li class="enabled" >
-                <span class="filterText">Sci-Fi</span>
-              </li>
-            </ul>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Games</span>
-          </li>
-          <li class="enabled active" >
-            <span class="filterText">Serial</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Animation/Anime</span>
-          </li>
+          <%= for type <- @filterData["Type"] |> String.split(", ") do %>
+            <li class="enabled" >
+              <span class="filterText"><%= type %></span>
+              <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
+                <ul class="unchecked scrollable">
+                  <%= for genre <- @filterData[type] |> String.split(", ") do %>
+                    <li class="enabled" >
+                      <span class="filterText"><%= genre %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
+            </li>
+          <% end %>
         </ul>
       </div>
 

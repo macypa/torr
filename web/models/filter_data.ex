@@ -59,4 +59,10 @@ defmodule Torr.FilterData do
     |> validate_required([:key, :value])
     |> unique_constraint(:url)
   end
+
+  def to_map(data) do
+    Enum.reduce data, %{}, fn data, acc ->
+      Map.put(acc, data.key, data.value)
+    end
+  end
 end
