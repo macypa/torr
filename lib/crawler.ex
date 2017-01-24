@@ -137,7 +137,13 @@ defmodule Torr.Crawler do
                               |> Floki.attribute("href")
                               |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgLinkReg) end)
 
-    linksContent = download(tracker, "#{tracker.url}#{imagesLink|> Enum.at(0)}")
+    imagePreviewLink = unless String.contains?(imagesLink|> Enum.at(0), tracker.url) do
+      "#{tracker.url}#{imagesLink|> Enum.at(0)}"
+    else
+      imagesLink|> Enum.at(0)
+    end
+    Logger.debug "getHiddenImages imagePreviewLink: #{imagePreviewLink}"
+    linksContent = download(tracker, imagePreviewLink)
                       |> Floki.find(tracker.patterns["imgHiddenSelector"])
 
     images = linksContent |> Floki.find("img")
