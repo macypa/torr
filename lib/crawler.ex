@@ -113,6 +113,7 @@ defmodule Torr.Crawler do
                           |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
                           |> Enum.uniq
 
+      Logger.debug "getImages images: #{images}"
     images
   end
 
@@ -137,29 +138,40 @@ defmodule Torr.Crawler do
                               |> Floki.attribute("href")
                               |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgLinkReg) end)
 
-    imagePreviewLink = unless String.contains?(imagesLink|> Enum.at(0), tracker.url) do
-      "#{tracker.url}#{imagesLink|> Enum.at(0)}"
+    if is_nil(imagesLink) or imagesLink == [] do
+      imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
+            {:ok, imgRexgex} -> imgRexgex
+            {:error, error} -> {:error, error}
+          end
+
+      contentHtml |> Floki.find("a")
+                            |> Floki.attribute("href")
+                            |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
+                            |> Enum.uniq
+
     else
-      imagesLink|> Enum.at(0)
+      imagePreviewLink = unless String.contains?(imagesLink|> Enum.at(0), tracker.url) do
+        "#{tracker.url}#{imagesLink|> Enum.at(0)}"
+      else
+        imagesLink|> Enum.at(0)
+      end
+      Logger.debug "getHiddenImages imagePreviewLink: #{imagePreviewLink}"
+      linksContent = download(tracker, imagePreviewLink)
+                        |> Floki.find(tracker.patterns["imgHiddenSelector"])
+
+      images = linksContent |> Floki.find("img")
+                                            |> Floki.attribute(tracker.patterns["imgAttrPattern"])
+                                            |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
+                                            |> Enum.uniq
+
+      moreImages = linksContent
+                   |> Floki.attribute(tracker.patterns["imgHiddenAttr"])
+                   |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgHiddenLinkReg) end)
+                   |> Enum.map(fn(imgUrl) -> Regex.named_captures(imgHiddenLinkReg, imgUrl)["url"] end)
+                   |> Enum.uniq
+
+      images ++ moreImages |> Enum.uniq
     end
-    Logger.debug "getHiddenImages imagePreviewLink: #{imagePreviewLink}"
-    linksContent = download(tracker, imagePreviewLink)
-                      |> Floki.find(tracker.patterns["imgHiddenSelector"])
-
-    images = linksContent |> Floki.find("img")
-                                          |> Floki.attribute(tracker.patterns["imgAttrPattern"])
-                                          |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
-                                          |> Enum.uniq
-
-    moreImages = linksContent
-                 |> Floki.attribute(tracker.patterns["imgHiddenAttr"])
-                 |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgHiddenLinkReg) end)
-                 |> Enum.map(fn(imgUrl) -> Regex.named_captures(imgHiddenLinkReg, imgUrl)["url"] end)
-                 |> Enum.uniq
-
-    images = images ++ moreImages |> Enum.uniq
-
-    images
   end
 
   def getVideos(contentHtml, tracker) do
