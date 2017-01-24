@@ -278,7 +278,7 @@ defmodule Torr.Crawler do
               contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
               contentHtml = case String.contains?(contentHtml, ">Type</") do
-                true -> ""
+                true -> contentHtml
                 false -> :iconv.convert("utf-8", "utf-8", htmlString)
               end
 

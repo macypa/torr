@@ -51,5 +51,6 @@ defmodule Torr.ZamundaTorrent do
     |> unique_constraint(:torrent_id)
     |> foreign_key_constraint(:tracker_id)
     |> validate_required([:torrent_id, :page])
+    |> validate_length(:torrent_id, min: 1)
   end
 end
