@@ -20,9 +20,6 @@ defmodule Torr.Torrent do
             |> search(params)
             |> Torr.Repo.paginate(params)
 
-#    Torr.ImageDownloader.download(torrents)
-    spawn(fn -> Torr.ImageDownloader.download(torrents) end)
-
     torrents
   end
 

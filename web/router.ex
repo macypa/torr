@@ -38,8 +38,17 @@ end
 
 defmodule Torr.RedirectController do
   use Torr.Web, :controller
+  require Logger
   @send_to "/torrents"
 
-  def redirector(conn, _params), do: redirect(conn, to: @send_to)
+  def redirector(conn, params) do
 
+    if String.contains?(params["path"] |> Enum.join("/") , "images/remote") do
+      url = params["path"] |> Enum.slice(2..-1) |> Enum.join("/") |> URI.encode
+
+      conn |> resp(:ok, Torr.ImageDownloader.downloadImage(url))
+    else
+      redirect(conn, to: @send_to)
+    end
+  end
 end

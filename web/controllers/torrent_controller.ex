@@ -15,7 +15,7 @@ defmodule Torr.TorrentController do
 #    torrents = Torrent
 #           |> Torrent.search(params)
 #           |> Torr.Repo.paginate(params)
-
+#require IEx; IEx.pry
 #    Logger.debug "index torrent: #{inspect(torrents)}"
     render(conn, "index.html", params: params, torrents: torrents)
   end
