@@ -4,7 +4,7 @@ defmodule Torr.Repo.Migrations.CreateFilterData do
   def change do
     create table(:filter_data) do
       add :key, :string
-      add :value, :string
+      add :value, :text
 
       timestamps()
     end

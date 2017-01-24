@@ -12,12 +12,13 @@ defmodule Torr.UpdateFilter do
   end
 
   def doWork() do
-#    torrents = Torr.Repo.all(Torr.Torrent)
-#
-#    for torrent <- torrents do
-#      Torr.FilterData.updateFilterData("Type", torrent.json["Type"])
-#      Torr.FilterData.updateFilterData("Genre", torrent.json["Genre"])
-#    end
+    Torr.Torrent.typeGenres |> Torr.Repo.all
+                                         |> Enum.each(fn(key) ->
+                                                Torr.FilterData.updateFilterData("Type", key[:type])
+                                                Torr.FilterData.updateFilterData(key[:type], key[:genre])
+                                          end)
+
+    Logger.info "Update filter data done"
   end
 
   def handle_info(:work, state) do

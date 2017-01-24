@@ -58,9 +58,20 @@ defmodule Torr.Torrent do
       case result do
         {:ok, struct}  -> {:ok, struct}
                           Torr.FilterData.updateFilterData("Type", struct.json["Type"])
-                          Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
+                          Torr.FilterData.updateFilterData(struct.json["Type"], struct.json["Genre"])
         {:error, changeset} -> {:error, changeset}
       end
+  end
+
+  def typeGenres do
+    query = Torr.Torrent
+
+    from t in query,
+      distinct: true,
+      select:  %{
+        type: fragment("json->'Type'"),
+        genre: fragment("json->'Genre'")
+      }
   end
 
   @doc """
