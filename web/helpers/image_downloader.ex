@@ -36,7 +36,7 @@ defmodule Torr.ImageDownloader do
                {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
                   body
                other -> Logger.info "img #{url} error: #{inspect(other)}"
-                  case File.read("web/static/assets/images/404/#{:rand.uniform(5)}.jpg") do
+                  case File.read("web/static/assets/images/404/#{:rand.uniform(2)}.jpg") do
                     {:ok, body}      -> body
                     {:error, reason} -> reason
                   end

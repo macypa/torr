@@ -44,11 +44,9 @@ defmodule Torr.TorrentChannel do
 #  end
 
   def to_map(torrs) do
-    torrents = Enum.reduce torrs, %{}, fn torrent, acc ->
+    Enum.reduce torrs, %{}, fn torrent, acc ->
       Map.put(acc, torrent.name, %{"name" => torrent.name, "json" => torrent.json})
     end
-    Logger.debug "to_map torrents: #{inspect(torrents)}"
-      torrents
   end
 
 end

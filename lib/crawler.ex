@@ -52,9 +52,9 @@ defmodule Torr.Crawler do
                  end
           end
         end
-      rescue
-        e -> Logger.error "processTorrents error: #{inspect(e)}"
-              e
+#      rescue
+#        e -> Logger.error "processTorrents error: #{inspect(e)}"
+#              e
       catch
         :break -> :ok
         e -> e

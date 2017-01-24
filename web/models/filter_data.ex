@@ -14,23 +14,36 @@ defmodule Torr.FilterData do
       filterData -> filterData
     end
 
-    filterData = Map.put(filterData, :value, "#{filterData.value} #{values |> String.replace(",", "")}")
-    save(filterData)
+    unless is_nil (values) do
+      values = values |> String.replace("\s+", " ")
+                      |> String.trim
+
+      values = case filterData.value do
+                  nil -> values
+                  _ -> filterData.value <> ", " <> values
+                        |> String.split(", ")
+                        |> Enum.uniq
+                        |> Enum.join(", ")
+               end
+
+      filterData = Map.put(filterData, :value, values)
+      save(filterData |> Map.from_struct)
+    end
   end
 
   def save(filterMap) do
-      result =
-        case Torr.Repo.get_by(Torr.FilterData, key: filterMap.key) do
-          nil  -> %Torr.FilterData{key: filterMap.key}
-          filterData -> filterData
-        end
-        |> Torr.FilterData.changeset(filterMap)
-        |> Torr.Repo.insert_or_update
-
-      case result do
-        {:ok, struct}  -> {:ok, struct}
-        {:error, changeset} -> {:error, changeset}
+    result =
+      case Torr.Repo.get_by(Torr.FilterData, key: filterMap.key) do
+        nil  -> %Torr.FilterData{key: filterMap.key}
+        filterData -> filterData
       end
+      |> Torr.FilterData.changeset(filterMap)
+      |> Torr.Repo.insert_or_update
+
+    case result do
+      {:ok, struct}  -> {:ok, struct}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
