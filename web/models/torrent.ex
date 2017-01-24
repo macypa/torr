@@ -57,6 +57,8 @@ defmodule Torr.Torrent do
 
       case result do
         {:ok, struct}  -> {:ok, struct}
+                          Torr.FilterData.updateFilterData("Type", struct.json["Type"])
+                          Torr.FilterData.updateFilterData("Ganre", struct.json["Ganre"])
         {:error, changeset} -> {:error, changeset}
       end
   end

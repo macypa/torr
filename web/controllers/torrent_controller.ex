@@ -16,6 +16,7 @@ defmodule Torr.TorrentController do
 #           |> Torrent.search(params)
 #           |> Torr.Repo.paginate(params)
 #require IEx; IEx.pry
+
 #    Logger.debug "index torrent: #{inspect(torrents)}"
     render(conn, "index.html", params: params, torrents: torrents)
   end
@@ -83,5 +84,6 @@ defmodule Torr.TorrentController do
   end
 
 #SELECT * from torrents where (json#>>'{Genre}') ILIKE '%rock%';
-
+#select distinct jsonb_object_keys(json) from torrents;
+#SELECT distinct json->'Genre' from torrents;
 end
