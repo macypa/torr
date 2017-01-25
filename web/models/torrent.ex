@@ -19,7 +19,6 @@ defmodule Torr.Torrent do
 #            |> Map.from_struct
             |> search(params)
             |> sort(params)
-            |> limit(^params["limit"])
             |> with_tracker()
             |> Torr.Repo.paginate(params)
 
@@ -29,15 +28,22 @@ defmodule Torr.Torrent do
 
   def sort(query, searchParams) do
     sortTerm = searchParams["sort"]
-    if sortTerm do
+    unless is_nil(sortTerm) or sortTerm == "" do
         sortTerm = sortTerm |> String.split(",")
-                 |> Enum.map(fn(sortField) ->
-                         "json->>'#{sortField}'"
+                  |> Enum.filter(fn(sortField) -> sortField != "" end)
+                  |> Enum.map(fn(sortField) ->
+                         case sortField do
+                           "Name" -> Logger.info sortField
+                                      "Name"
+                            other -> Logger.info sortField
+                                      "json->>'#{other}'"
+                         end
                     end)
-                 |> Enum.join(",")
+                  |> Enum.join(",")
 
-        query
-              |> order_by([t], fragment(" ?", ^sortTerm))
+        query |> order_by([t], fragment("?", ^sortTerm))
+    else
+      query
     end
   end
 
@@ -48,6 +54,8 @@ defmodule Torr.Torrent do
       query
             |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
 #          |> where([t], fragment("(json#>>'{Description}') ILIKE ?", ^("%#{searchTerm}%")))
+    else
+      query
     end
   end
 

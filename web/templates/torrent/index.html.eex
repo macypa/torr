@@ -46,6 +46,19 @@
       Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
       Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
 
+      <ul>
+        <li>
+          <div class="space_between">
+            <span id="sortName" class="fixed_size50">Name</span>
+            <span class="fixed_size5">Download</span>
+            <span id="sortType" class="fixed_size5">Type</span>
+            <span id="sortGenre" class="fixed_size5">Genre</span>
+            <span id="sortAdded" class="fixed_size5">Added</span>
+            <span id="sortSize" class="fixed_size5">Size</span>
+          </div>
+        </li>
+      </ul>
+
       <div id="torrents">
         <%= render "torrents.html", params: @params, torrents: @torrents %>
       </div>

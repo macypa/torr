@@ -83,8 +83,7 @@ function addEvent(element, eventName, callback) {
 }
 
 function keyEvent(event) {
-  var params = getParams()
-  sendRequest(params)
+  sendRequest(getParams())
 }
 
 function sortEvent(event) {
@@ -102,6 +101,7 @@ function getParams() {
 }
 
 function sendRequest(params) {
+  channel.push("new_msg", params)
 //    document.location.hash = searchTerm.value
   history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
 }

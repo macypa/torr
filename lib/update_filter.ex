@@ -21,17 +21,21 @@ defmodule Torr.UpdateFilter do
     Torr.Torrent.typeGenres |> Torr.Repo.all
                              |> Enum.each(fn(key) ->
                                     type = key[:type]
-                                    type_genre = if is_nil(type) or type == [] or not String.contains?(type, "/") do
-                                              type
-                                            else
-                                              type |> String.trim |> String.split("/") |> Enum.at(0)
-                                            end
 
-                                    subType = if is_nil(type) or type == [] or not String.contains?(type, "/") do
-                                              nil
-                                            else
-                                              type
-                                            end
+                                    type_genre = case type do
+                                                  nil -> nil
+                                                  [] -> nil
+                                                  type -> type |> String.split("/")
+                                                               |> Enum.at(0)
+                                                               |> String.trim
+                                                end
+
+                                    subType = case type do
+                                                nil -> nil
+                                                type -> if String.contains?(type, "/") do
+                                                          type
+                                                        end
+                                              end
 
                                     Torr.FilterData.updateFilterData("Type", type_genre)
                                     Torr.FilterData.updateFilterData(type_genre, key[:genre])
