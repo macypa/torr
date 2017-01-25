@@ -22,9 +22,9 @@ defmodule Torr.UpdateFilter do
                              |> Enum.each(fn(key) ->
                                     type = key[:type]
                                     type_genre = if is_nil(type) or type == [] or not String.contains?(type, "/") do
-                                              [type]
+                                              type
                                             else
-                                              type |> String.split("/")
+                                              type |> String.trim |> String.split("/") |> Enum.at(0)
                                             end
 
                                     subType = if is_nil(type) or type == [] or not String.contains?(type, "/") do
@@ -33,10 +33,9 @@ defmodule Torr.UpdateFilter do
                                               type
                                             end
 
-                                    type = type_genre |> Enum.at(0)
-                                    Torr.FilterData.updateFilterData("Type", type)
-                                    Torr.FilterData.updateFilterData(type, key[:genre])
-                                    Torr.FilterData.updateFilterData(type, subType)
+                                    Torr.FilterData.updateFilterData("Type", type_genre)
+                                    Torr.FilterData.updateFilterData(type_genre, key[:genre])
+                                    Torr.FilterData.updateFilterData(type_genre, subType)
                               end)
 
     Logger.info "Update filter data done"
