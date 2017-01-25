@@ -1,5 +1,9 @@
 /* This file is for your main application css. */
 
+ul {
+  list-style: none;
+}
+
 #torrentsList {
   display: block;
   position: relative;
@@ -74,6 +78,27 @@
   width: 100%;
 }
 
+.videos {
+  resize: both;
+}
+
+.fixed_size5 {
+  width:10%; /* or whatever width you want. */
+  max-width:10%; /* or whatever width you want. */
+  display: inline-block;
+  text-align: left;
+}
+
+.fixed_size50 {
+  width:50%; /* or whatever width you want. */
+  max-width:50%; /* or whatever width you want. */
+  display: inline-block;
+}
+
+.space_between {
+    display: flex;
+    justify-content: space-between;
+}
 
 table     { display: table }
 tr        { display: table-row }
@@ -255,7 +280,7 @@ background-color: transparent;
 z-index: 50;
 }
 
-.thumbnail span{ /*CSS for enlarged image*/
+.thumbnail > span{ /*CSS for enlarged image*/
 position: absolute;
 padding: 5px;
 left: -1000px;
@@ -264,13 +289,13 @@ color: black;
 text-decoration: none;
 }
 
-.thumbnail span img{ /*CSS for enlarged image*/
+.thumbnail > span img{ /*CSS for enlarged image*/
 border-width: 0;
 padding: 2px;
 width: 240px;
 }
 
-.thumbnail:hover span{ /*CSS for enlarged image on hover*/
+.thumbnail:hover > span{ /*CSS for enlarged image on hover*/
 transition-delay: 1s !important;
 visibility: visible;
 top: 0;

@@ -23,9 +23,6 @@ defmodule Torr.Torrent do
     torrents
   end
 
-#  def search(query, nil) do from p in query end
-#  def search(query, "") do from p in query end
-#  def search(query, %{}) do from p in query end
   def search(query, searchParams) do
     searchTerm = searchParams["search"]
     searchTerm = if searchTerm do String.replace(searchTerm,~r/\s/u, "%") end

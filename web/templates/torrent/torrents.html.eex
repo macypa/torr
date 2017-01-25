@@ -2,50 +2,48 @@
 <%= pagination_links @torrents %>
 
 <ul id="torrentsList">
+  <li>
+    <div class="space_between">
+      <span class="fixed_size50">Name</span>
+      <span class="fixed_size5">Download</span>
+      <span class="fixed_size5">Type</span>
+      <span class="fixed_size5">Genre</span>
+      <span class="fixed_size5">Added</span>
+      <span class="fixed_size5">Size</span>
+    </div>
+  </li>
 <%= for torrent <- @torrents do %>
   <li>
     <div class="thumbnail link" onclick="toggle_display('torrent<%= torrent.torrent_id %>');toggle_displayBasedOn('torrent<%= torrent.torrent_id %>', 'thumbpopup<%= torrent.torrent_id %>');" >
-      <%= torrent.name %>
+
       <span id="thumbpopup<%= torrent.torrent_id %>">
         <img class="lazy" src="images/remote/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
+      </span>
+
+      <div class="space_between">
+        <span class="fixed_size50"><%= torrent.name %></span>
+        <span class="fixed_size5">
+            <%= unless is_nil(torrent.json["Download"]) or (torrent.json["Download"] |> String.trim == "") do %>
+                  <a href="<%= torrent.tracker.url <> "download.php/"
+                               <> torrent.torrent_id
+                               <> "/" <> URI.encode(torrent.json["Download"]
+                                         |> String.trim
+                                         |> String.split("\s")
+                                         |> Enum.at(0)
+                                         |> String.split("\t")
+                                         |> Enum.at(0))
+                               <> ".torrent" %>">Download</a>
+            <% end %>
         </span>
+        <span class="fixed_size5"><%= torrent.json["Type"] %></span>
+        <span class="fixed_size5"><%= torrent.json["Genre"] %></span>
+        <span class="fixed_size5"><%= torrent.json["Added"] %></span>
+        <span class="fixed_size5"><%= torrent.json["Size"] %></span>
+      </div>
     </div>
     <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">
       <a href="/torrents/<%= torrent.id %>"><%= torrent.id %></a> :
                               <a href="<%= torrent.tracker.url %><%= torrent.tracker.infoUrl %><%= torrent.torrent_id %>" target="_blank"><%= torrent.name %></a>
-
-      <div class="table">
-        <div class="row">
-          <div class="cell">Download</div>
-          <div class="cell">Type</div>
-          <div class="cell">Genre</div>
-          <div class="cell">Added</div>
-          <div class="cell">Size</div>
-          <div class="cell">Rating</div>
-          <div class="cell">Peers</div>
-        </div>
-        <div class="row">
-          <div class="cell">
-                <%= unless is_nil(torrent.json["Download"]) or (torrent.json["Download"] |> String.trim == "") do %>
-                      <a href="<%= torrent.tracker.url <> "download.php/"
-                                                             <> torrent.torrent_id
-                                                             <> "/" <> URI.encode(torrent.json["Download"]
-                                                                       |> String.trim
-                                                                       |> String.split("\s")
-                                                                       |> Enum.at(0)
-                                                                       |> String.split("\t")
-                                                                       |> Enum.at(0))
-                                                             <> ".torrent" %>"><%= torrent.json["Download"] %></a>
-                <% end %>
-          </div>
-          <div class="cell"><%= torrent.json["Type"] %></div>
-          <div class="cell"><%= torrent.json["Genre"] %></div>
-          <div class="cell"><%= torrent.json["Added"] %></div>
-          <div class="cell"><%= torrent.json["Size"] %></div>
-          <div class="cell"><%= torrent.json["Rating"] %></div>
-          <div class="cell"><%= torrent.json["Peers"] %></div>
-        </div>
-      </div>
 
       <div class="imagesVideo">
         <%= render "torrentMedia.html", params: @params, torrent: torrent %>

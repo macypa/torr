@@ -25,42 +25,6 @@
       </div>
 
       <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>sorting</header>
-        <ul class="checked">
-          <li class="enabled" >
-            <span class="filterText">Added</span>
-            <span class="filterText"> desc</span>
-          </li>
-        </ul>
-        <ul class="unchecked scrollable">
-          <li class="enabled active" >
-            <span class="filterText">name</span>
-            <span class="filterText"> asc</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Type</span>
-            <span class="filterText"> asc</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Genre</span>
-            <span class="filterText"> asc</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Peers</span>
-            <span class="filterText"> asc</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Size</span>
-            <span class="filterText"> asc</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">Rating</span>
-            <span class="filterText"> asc</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
         <header>Type</header>
         <ul class="unchecked scrollable">
 
