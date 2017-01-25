@@ -1,6 +1,6 @@
 <% torrent = @torrent %>
 <% images = if is_nil(@params["showAll"]) do
-  if String.contains?(torrent.json["Type"], "XXX") do
+  if torrent.json["Type"] != nil and String.contains?(torrent.json["Type"], "XXX") do
     nil
   else
     torrent.json["images"]
