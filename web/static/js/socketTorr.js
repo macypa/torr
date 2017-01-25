@@ -59,14 +59,51 @@ let searchTerm         = document.querySelector("#searchTerm")
 let pageSize         = document.querySelector("#page_size")
 let torrentsContainer = document.querySelector("#torrents")
 
+let sortName = document.querySelector("#sortName")
+let sortType = document.querySelector("#sortType")
+let sortGenre = document.querySelector("#sortGenre")
+let sortAdded = document.querySelector("#sortAdded")
+let sortSize = document.querySelector("#sortSize")
+
+addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
+addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
+
+addEvent(document.querySelector("#sortName"), "click", sortEvent );
+addEvent(document.querySelector("#sortType"), "click", sortEvent );
+addEvent(document.querySelector("#sortGenre"), "click", sortEvent );
+addEvent(document.querySelector("#sortAdded"), "click", sortEvent );
+addEvent(document.querySelector("#sortSize"), "click", sortEvent );
+
+function addEvent(element, eventName, callback) {
+    if (element.addEventListener) {
+        element.addEventListener(eventName, callback, false);
+    } else if (element.attachEvent) {
+        element.attachEvent("on" + eventName, callback);
+    }
+}
+
 function keyEvent(event) {
-      var params = getUrlParams({})
-      params["search"] = searchTerm.value
-      params["page_size"] = pageSize.value
-      params["page"] = 1
-      channel.push("new_msg", params)
-  //    document.location.hash = searchTerm.value
-      history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
+  var params = getParams()
+  sendRequest(params)
+}
+
+function sortEvent(event) {
+  var params = getParams()
+  updateParams(params, "sort", event.target.id.replace(/sort/i, ""))
+  sendRequest(params)
+}
+
+function getParams() {
+  var params = getUrlParams({})
+  params["search"] = searchTerm.value
+  params["page_size"] = pageSize.value
+  params["page"] = 1
+  return params
+}
+
+function sendRequest(params) {
+//    document.location.hash = searchTerm.value
+  history.pushState(searchTerm.value, '', '/torrents?' + composeUrlParams(params));
 }
 
 var timeout = null;
@@ -82,16 +119,6 @@ function keyEventDelay(event) {
         keyEvent(event);
     }, 300);
   }
-}
-
-addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
-addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
-function addEvent(element, eventName, callback) {
-    if (element.addEventListener) {
-        element.addEventListener(eventName, callback, false);
-    } else if (element.attachEvent) {
-        element.attachEvent("on" + eventName, callback);
-    }
 }
 
 
@@ -129,6 +156,23 @@ function getUrlParams(payload) {
       if (!nv[0]) continue;
       params[nv[0]] = nv[1];
     }
+  }
+  return params
+}
+
+function updateParams(params, key, value) {
+  var urlParams = ""
+
+  if (params.hasOwnProperty(key)) {
+    if (params[key].includes(value)) {
+      var reg = new RegExp(',*'+value, 'i')
+      params[key] = params[key].replace(reg, "")
+    } else {
+      params[key] = params[key] + "," + value
+    }
+    params[key] = params[key].replace(/^,/i, "")
+  } else {
+    params[key] = value;
   }
   return params
 }
