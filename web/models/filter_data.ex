@@ -9,26 +9,27 @@ defmodule Torr.FilterData do
   end
 
   def updateFilterData(key, values) do
-    unless is_nil (key) do
-
+    unless is_nil(key) or key |> String.trim == "" or is_nil(values) or values |> String.trim == "" do
       filterData = case Torr.Repo.get_by(Torr.FilterData, key: key) do
         nil  -> %Torr.FilterData{key: key}
         filterData -> filterData
       end
 
-      unless is_nil (values) do
-        values = values |> String.replace("\s+", " ")
-                        |> String.trim
+      new_values = if is_nil(filterData.value) or filterData.value |> String.trim == "" do
+                      values
+                    else
+                      filterData.value <> ", " <> values
+                    end
 
-        values = case filterData.value do
-                    nil -> values
-                    _ -> filterData.value <> ", " <> values
-                          |> String.split(", ")
-                          |> Enum.uniq
-                          |> Enum.sort
-                          |> Enum.join(", ")
-                 end
+      values = new_values |> String.replace("\s+", " ")
+                      |> String.split(", ")
+                      |> Enum.uniq
+                      |> Enum.sort
+                      |> Enum.join(", ")
+                      |> String.trim
 
+      values = values |> String.replace(~r/^, /, "")
+      unless values == ", " or values == "" or values == filterData.value do
         filterData = Map.put(filterData, :value, values)
         save(filterData |> Map.from_struct)
       end
