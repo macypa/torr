@@ -1,6 +1,4 @@
-<div class="space_between">
-  <div class="resizable fixed_size20">
-  </div>
+<div>
   <div class="resizable filter-bar fixed_size20">
     <div class="resizable">
       <header>Trackers</header>
@@ -39,14 +37,18 @@
 
   </div>
 
-  <div class="fixed_size80">
-    <h2>Listing torrents</h2>
+  <div class="space_between">
+    <div class="resizable fixed_size20">
+    </div>
+    <div class="fixed_size80">
+      <h2>Listing torrents</h2>
 
-    Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
-    Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
+      Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
+      Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
 
-    <div id="torrents">
-      <%= render "torrents.html", params: @params, torrents: @torrents %>
+      <div id="torrents">
+        <%= render "torrents.html", params: @params, torrents: @torrents %>
+      </div>
     </div>
   </div>
 </div>
