@@ -321,7 +321,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
 .filter-bar {
   position: fixed;
   height: 90vh;
-  width: 17%;
+  width: 15.56%;
   overflow: auto;
 }
 

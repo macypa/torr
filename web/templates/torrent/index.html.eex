@@ -1,5 +1,7 @@
 <div class="space_between">
   <div class="resizable fixed_size20">
+  </div>
+  <div class="resizable filter-bar fixed_size20">
     <div class="resizable">
       <header>Trackers</header>
       <ul class="treeview">
