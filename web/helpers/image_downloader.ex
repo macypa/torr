@@ -22,32 +22,19 @@ defmodule Torr.ImageDownloader do
 
     unless File.exists?(url) do
       headers = [
-                      "Accept-Encoding": "gzip;deflate,sdch",
-                      "Accept-Language": "en-US,en;q=0.8",
-                      "Upgrade-Insecure-Requests": "1",
-                      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36",
-                      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-                      "Referer": "http://zamunda.net/bananas",
-      #                "Cookie": tracker.cookie,
-                      "Connection": "keep-alive"
-                    ]
+                  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/53.0.2785.143 Chrome/53.0.2785.143 Safari/537.36",
+                  "Referer": url,
+                ]
       options = [connect_timeout: 1000000, timeout: 1000000, recv_timeout: 1000000, hackney: [{:follow_redirect, true}]]
       case HTTPoison.get(url, headers, options) do
                {:ok, %HTTPoison.Response{body: body, headers: _headers, status_code: 200}} ->
                   body
                other -> Logger.info "img #{url} error: #{inspect(other)}"
-                  case File.read("web/static/assets/images/404/#{:rand.uniform(2)}.jpg") do
+                  case File.read(Path.wildcard("web/static/assets/images/404/*") |> Enum.random) do
                     {:ok, body}      -> body
                     {:error, reason} -> reason
                   end
              end
-
-#      imgPath = "web/static/assets/images/remote/#{url}"
-#      unless File.exists?(imgPath) do
-#        File.mkdir_p(imgPath)
-#        File.rmdir(imgPath)
-#        File.write(imgPath, body)
-#      end
     end
   end
 end

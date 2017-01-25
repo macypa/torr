@@ -5,6 +5,7 @@
 /*.ez
 /.*
 /*.iml
+/*.log
 
 # runtime downloaded images
 /web/static/assets/images/remote/*
