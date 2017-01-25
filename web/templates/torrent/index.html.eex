@@ -1,62 +1,60 @@
-<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 filters-container" id="filters-container">
+<div class="space_between">
+  <div class="resizable fixed_size20">
+    <div class="resizable">
+      <header>Trackers</header>
+      <ul class="treeview">
+        <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
+          <li>
+            <input type="checkbox">
+            <label class="custom-unchecked" trackerId="<%= tracker |> String.split(":") |> Enum.at(0) %>">
+              <%= tracker |> String.split(":") |> Enum.at(1) %>
+            </label>
 
-  <section id="filter-bar" style="position: fixed; height: 90vh; width: 17%; overflow: auto;">
-    <span class="icon-close hidden-md hidden-lg close-filters-button" id="close-filters"></span>
-    <div id="active-filters-sidebar" class="property-box hidden-lg hidden-md">
-      <header class="open">&nbsp;Избрано филтриране</header>
-      <div class="active-filters">
-
-        <span class="filter"><a href="http://www.pazaruvaj.com/ruteri-c3144/" title="D-Link" onclick="_akq.push(['ak.filter.topRemove',47945681,this]);return!1;">D-Link&nbsp;<span class="icon-close"></span></a></span>
-
-        <a class="remove-all-filters" href="http://www.pazaruvaj.com/ruteri-c3144/" title="Изтрий филтрите" onclick="_akq.push(['ak.filter.remove']);return false;">Изтрий&nbsp;филтрите</a>
-      </div>
+          </li>
+        <% end %>
+      </ul>
     </div>
 
+    <div class="resizable">
+      <header>Category</header>
+      <ul class="treeview">
+        <%= for type <- @filterData["Type"] |> String.split(", ") do %>
+          <li>
+            <input type="checkbox">
+            <label class="custom-unchecked" onclick="toggle_display('type<%= type %>')">
+              <%= type %>
+            </label>
 
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>Trackers</header>
-        <ul class="unchecked scrollable">
-          <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
-            <li class="enabled" >
-              <span class="filterText" trackerId="<%= tracker |> String.split(":") |> Enum.at(0) %>"><%= tracker |> String.split(":") |> Enum.at(1) %></span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
+            <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
+              <ul style="display:none" id="type<%= type %>">
+                 <%= for genre <- @filterData[type] |> String.split(", ") do %>
 
-      <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
-        <header>Type</header>
-        <ul class="unchecked scrollable">
+                   <li>
+                     <input type="checkbox">
+                     <label class="custom-unchecked">
+                       <%= genre %>
+                     </label>
+                   </li>
+                 <% end %>
+               </ul>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
 
-          <%= for type <- @filterData["Type"] |> String.split(", ") do %>
-            <li class="enabled" >
-              <span class="filterText" onclick="toggle_display('type<%= type %>')" ><%= type %></span>
-              <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
-                <ul style="display:none" id="type<%= type %>" class="unchecked scrollable">
-                  <%= for genre <- @filterData[type] |> String.split(", ") do %>
-                    <li class="enabled" >
-                      <span class="filterText"><%= genre %></span>
-                    </li>
-                  <% end %>
-                </ul>
-              <% end %>
-            </li>
-          <% end %>
-        </ul>
-      </div>
+  </div>
 
-  </section>
+  <div class="fixed_size80">
+    <h2>Listing torrents</h2>
 
+    Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
+    Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
 
-</div>
-
-<div style="float: left; width: 70%;">
-  <h2>Listing torrents</h2>
-
-  Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
-  Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
-
-  <div id="torrents">
-    <%= render "torrents.html", params: @params, torrents: @torrents %>
+    <div id="torrents">
+      <%= render "torrents.html", params: @params, torrents: @torrents %>
+    </div>
   </div>
 </div>
+
+
