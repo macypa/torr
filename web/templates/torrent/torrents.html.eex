@@ -17,7 +17,9 @@
     <div class="thumbnail link" onclick="toggle_display('torrent<%= torrent.torrent_id %>');toggle_displayBasedOn('torrent<%= torrent.torrent_id %>', 'thumbpopup<%= torrent.torrent_id %>');" >
 
       <span id="thumbpopup<%= torrent.torrent_id %>">
-        <img class="lazy" src="images/remote/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
+        <%= unless String.contains?(torrent.json["Type"], "XXX") do %>
+          <img class="lazy" src="images/remote/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
+        <% end %>
       </span>
 
       <div class="space_between">

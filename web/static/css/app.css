@@ -332,7 +332,8 @@ left: 60px; /*position where enlarged image should offset horizontally */
 }
 
 .treeview {
-  margin: 10px 0 0 20px;
+  margin: 10px 0 0 10px;
+  padding-left: 0px;
 }
 
 .treeview ul {
@@ -341,7 +342,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
 
 .treeview li {
   background: url(http://jquery.bassistance.de/treeview/images/treeview-default-line.gif) 0 0 no-repeat;
-  padding: 2px 0 2px 16px;
+  padding: 2px 0 2px 2px;
 }
 
 .treeview > li:first-child > label {

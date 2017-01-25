@@ -1,6 +1,10 @@
 <% torrent = @torrent %>
 <% images = if is_nil(@params["showAll"]) do
-  torrent.json["images"]
+  if String.contains?(torrent.json["Type"], "XXX") do
+    nil
+  else
+    torrent.json["images"]
+  end
 else
   unless is_nil(torrent.json["imagesHidden"]) do
     Enum.concat(torrent.json["images"], torrent.json["imagesHidden"])

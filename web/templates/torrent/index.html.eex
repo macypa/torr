@@ -11,7 +11,6 @@
             <label class="custom-unchecked" trackerId="<%= tracker |> String.split(":") |> Enum.at(0) %>">
               <%= tracker |> String.split(":") |> Enum.at(1) %>
             </label>
-
           </li>
         <% end %>
       </ul>
@@ -30,7 +29,6 @@
             <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
               <ul style="display:none" id="type<%= type %>">
                  <%= for genre <- @filterData[type] |> String.split(", ") do %>
-
                    <li>
                      <input type="checkbox">
                      <label class="custom-unchecked">
