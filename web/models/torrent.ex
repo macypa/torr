@@ -18,21 +18,37 @@ defmodule Torr.Torrent do
     torrents = Torrent
 #            |> Map.from_struct
             |> search(params)
+            |> sort(params)
+            |> limit(^params["limit"])
+            |> with_tracker()
             |> Torr.Repo.paginate(params)
 
+#    Logger.info "torrents : #{inspect(torrents)}"
     torrents
+  end
+
+  def sort(query, searchParams) do
+    sortTerm = searchParams["sort"]
+    if sortTerm do
+        sortTerm = sortTerm |> String.split(",")
+                 |> Enum.map(fn(sortField) ->
+                         "json->>'#{sortField}'"
+                    end)
+                 |> Enum.join(",")
+
+        query
+              |> order_by([t], fragment(" ?", ^sortTerm))
+    end
   end
 
   def search(query, searchParams) do
     searchTerm = searchParams["search"]
-    searchTerm = if searchTerm do String.replace(searchTerm,~r/\s/u, "%") end
-
-    query
-          |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
+    if searchTerm do
+      String.replace(searchTerm,~r/\s/u, "%")
+      query
+            |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
 #          |> where([t], fragment("(json#>>'{Description}') ILIKE ?", ^("%#{searchTerm}%")))
-          |> order_by([t], desc: t.inserted_at)
-          |> limit(^searchParams["limit"])
-          |> with_tracker()
+    end
   end
 
   def with_tracker(query) do
