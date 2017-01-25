@@ -12,6 +12,11 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
+import $ from "jquery"
+
+//$(document).ready(function(){
+// $("#msgid").html("This is Hello World by JQuery");
+//});
 
 // Import local files
 //
