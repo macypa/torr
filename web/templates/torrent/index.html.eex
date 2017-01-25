@@ -15,21 +15,12 @@
 
       <div class="property-box resizable" style="min-height: 50px; resize: vertical; overflow: auto;">
         <header>Trackers</header>
-        <ul class="checked">
-          <li class="enabled active" >
-            <span class="filterText">All</span>
-          </li>
-        </ul>
         <ul class="unchecked scrollable">
-          <li class="enabled active" >
-            <span class="filterText">Zamunda</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">zelka.org</span>
-          </li>
-          <li class="enabled" >
-            <span class="filterText">arena</span>
-          </li>
+          <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
+            <li class="enabled" >
+              <span class="filterText" trackerId="<%= tracker |> String.split(":") |> Enum.at(0) %>"><%= tracker |> String.split(":") |> Enum.at(1) %></span>
+            </li>
+          <% end %>
         </ul>
       </div>
 
@@ -75,9 +66,9 @@
 
           <%= for type <- @filterData["Type"] |> String.split(", ") do %>
             <li class="enabled" >
-              <span class="filterText"><%= type %></span>
+              <span class="filterText" onclick="toggle_display('type<%= type %>')" ><%= type %></span>
               <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
-                <ul class="unchecked scrollable">
+                <ul style="display:none" id="type<%= type %>" class="unchecked scrollable">
                   <%= for genre <- @filterData[type] |> String.split(", ") do %>
                     <li class="enabled" >
                       <span class="filterText"><%= genre %></span>

@@ -12,6 +12,12 @@ defmodule Torr.UpdateFilter do
   end
 
   def doWork() do
+
+    Torr.Tracker |> Torr.Repo.all
+                 |> Enum.each(fn(tracker) ->
+                        Torr.FilterData.updateFilterData("trackers", "#{tracker.id}:#{tracker.name}")
+                  end)
+
     Torr.Torrent.typeGenres |> Torr.Repo.all
                              |> Enum.each(fn(key) ->
                                     type = key[:type]
