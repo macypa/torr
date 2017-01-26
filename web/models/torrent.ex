@@ -37,17 +37,21 @@ defmodule Torr.Torrent do
                           case field do
                             "" -> acc
                             "name" -> case order do
-                                    "asc" -> acc |> order_by([t], [asc: :name])
-                                    "desc" -> acc |> order_by([t], [desc: :name])
-                                  end
+                                        nil -> acc
+                                        "asc" -> acc |> order_by([t], [asc: :name])
+                                        "desc" -> acc |> order_by([t], [desc: :name])
+                                      end
                             field -> case order do
+                                       nil -> acc
                                        "asc" -> case field do
+                                                 nil -> acc
                                                  "type" -> acc |> order_by([t], fragment("json->>'Type' asc"))
                                                  "genre" -> acc |> order_by([t], fragment("json->>'Genre' asc"))
                                                  "added" -> acc |> order_by([t], fragment("json->>'Added' asc"))
                                                  "size" -> acc |> order_by([t], fragment("json->>'Size' asc"))
                                                end
                                        "desc" -> case field do
+                                                  nil -> acc
                                                   "type" -> acc |> order_by([t], fragment("json->>'Type' desc"))
                                                   "genre" -> acc |> order_by([t], fragment("json->>'Genre' desc"))
                                                   "added" -> acc |> order_by([t], fragment("json->>'Added' desc"))
@@ -65,10 +69,15 @@ defmodule Torr.Torrent do
     searchTerm = searchParams["search"]
     unless is_nil(searchTerm) or searchTerm == "" do
       searchTerm = String.replace(searchTerm,~r/\s/u, "%")
-      Logger.info "#{searchTerm}"
-      query
+      query = query
             |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
-            |> or_where([t], fragment("json->>'Description' ILIKE ?", ^("%#{searchTerm}%")))
+
+      searchDesc = searchParams["searchDescription"]
+      unless is_nil(searchDesc) or searchDesc == "" do
+        query  |> or_where([t], fragment("json->>'Description' ILIKE ?", ^("%#{searchTerm}%")))
+      else
+        query
+      end
     else
       query
     end

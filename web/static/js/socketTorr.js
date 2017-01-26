@@ -56,18 +56,13 @@ socket.connect()
 let channel = socket.channel("torrent:"+window.userToken, {})
 
 let searchTerm         = document.querySelector("#searchTerm")
-let pageSize         = document.querySelector("#page_size")
-let torrentsContainer = document.querySelector("#torrents")
-
-let sortName = document.querySelector("#sortName")
-let sortType = document.querySelector("#sortType")
-let sortGenre = document.querySelector("#sortGenre")
-let sortAdded = document.querySelector("#sortAdded")
-let sortSize = document.querySelector("#sortSize")
+let pageSize           = document.querySelector("#page_size")
+let torrentsContainer  = document.querySelector("#torrents")
 
 addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
 addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
 
+addEvent(document.querySelector("#searchDescription"), "click", clickEvent );
 addEvent(document.querySelector("#sort_name"), "click", sortEvent );
 addEvent(document.querySelector("#sort_type"), "click", sortEvent );
 addEvent(document.querySelector("#sort_genre"), "click", sortEvent );
@@ -89,6 +84,12 @@ function keyEvent(event) {
 function sortEvent(event) {
   var params = getParams()
   updateParams(params, "sort", event.target.id.replace(/sort_/i, "") + "_asc")
+  sendRequest(params)
+}
+
+function clickEvent(event) {
+  var params = getParams()
+  updateParams(params, event.target.id, "on")
   sendRequest(params)
 }
 
