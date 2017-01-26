@@ -36,14 +36,14 @@ defmodule Torr.Torrent do
                           order = x |> String.replace(~r/.*_/, "")
 
                           case field do
-                            "" -> acc
+                            _ -> acc
                             "name" -> case order do
-                                        nil -> acc
+                                        _ -> acc
                                         "asc" -> acc |> order_by([t], [asc: :name])
                                         "desc" -> acc |> order_by([t], [desc: :name])
                                       end
                             field -> case order do
-                                       nil -> acc
+                                       _ -> acc
                                        "asc" -> case field do
                                                  nil -> acc
                                                  "type" -> acc |> order_by([t], fragment("json->>'Type' asc"))
