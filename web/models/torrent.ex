@@ -35,7 +35,8 @@ defmodule Torr.Torrent do
                           order = x |> String.replace(~r/.*_/, "")
 
                           case field do
-                            "" -> case order do
+                            "" -> acc
+                            "name" -> case order do
                                     "asc" -> acc |> order_by([t], [asc: :name])
                                     "desc" -> acc |> order_by([t], [desc: :name])
                                   end
