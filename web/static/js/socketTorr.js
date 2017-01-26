@@ -88,7 +88,7 @@ function keyEvent(event) {
 
 function sortEvent(event) {
   var params = getParams()
-  updateParams(params, "sort", event.target.id.replace(/sort_/i, "") + "_desc")
+  updateParams(params, "sort", event.target.id.replace(/sort_/i, "") + "_asc")
   sendRequest(params)
 }
 
