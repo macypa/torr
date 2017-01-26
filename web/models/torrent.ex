@@ -18,6 +18,7 @@ defmodule Torr.Torrent do
     torrents = Torrent
 #            |> Map.from_struct
             |> search(params)
+            |> filter(params)
             |> sort(params)
             |> with_tracker()
             |> Torr.Repo.paginate(params)
@@ -30,7 +31,7 @@ defmodule Torr.Torrent do
     sortTerm = searchParams["sort"]
     unless is_nil(sortTerm) or sortTerm == "" do
         sortTerm |> String.split(",")
-                  |> Enum.reduce(query, fn x, acc ->
+                 |> Enum.reduce(query, fn x, acc ->
                           field = x |> String.replace(~r/_.*/, "")
                           order = x |> String.replace(~r/.*_/, "")
 
@@ -81,6 +82,22 @@ defmodule Torr.Torrent do
     else
       query
     end
+  end
+
+  def filter(query, params) do
+    trackers = params["tracker"]
+    query = unless is_nil(trackers) or trackers == "" do
+      trackers |> String.split(",")
+                          |> Enum.reduce(query, fn x, acc ->
+                                  acc |> where([c], c.tracker_id == ^x)
+                              end)
+    else
+      query
+    end
+
+
+#    trackers = params["type"]
+#    trackers = params["category"]
   end
 
   def with_tracker(query) do

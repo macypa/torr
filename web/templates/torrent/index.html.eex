@@ -6,7 +6,7 @@
         <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
           <li>
             <input type="checkbox">
-            <label class="custom-unchecked" trackerId="<%= tracker |> String.split(":") |> Enum.at(0) %>"><%= tracker |> String.split(":") |> Enum.at(1) %></label>
+            <label name="tracker" id="<%= tracker %>" class="custom-unchecked" filterId="<%= tracker |> String.split(":") |> Enum.at(0) %>"><%= tracker |> String.split(":") |> Enum.at(1) %></label>
           </li>
         <% end %>
       </ul>
@@ -18,14 +18,14 @@
         <%= for type <- @filterData["Type"] |> String.split(", ") do %>
           <li>
             <input type="checkbox">
-            <label class="custom-unchecked" onclick="toggle_display('type<%= type %>')"><%= type %></label>
+            <label name="type" filterId="<%= type %>" class="custom-unchecked" onclick="toggle_display('type<%= type %>')"><%= type %></label>
 
             <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
               <ul style="display:none" id="type<%= type %>">
                  <%= for genre <- @filterData[type] |> String.split(", ") do %>
                    <li>
                      <input type="checkbox">
-                     <label class="custom-unchecked"><%= genre %></label>
+                     <label name="category" filterId="<%= genre %>" class="custom-unchecked"><%= genre %></label>
                    </li>
                  <% end %>
                </ul>
