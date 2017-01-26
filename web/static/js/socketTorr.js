@@ -68,11 +68,11 @@ let sortSize = document.querySelector("#sortSize")
 addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
 addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
 
-addEvent(document.querySelector("#sortName"), "click", sortEvent );
-addEvent(document.querySelector("#sortType"), "click", sortEvent );
-addEvent(document.querySelector("#sortGenre"), "click", sortEvent );
-addEvent(document.querySelector("#sortAdded"), "click", sortEvent );
-addEvent(document.querySelector("#sortSize"), "click", sortEvent );
+addEvent(document.querySelector("#sort_name"), "click", sortEvent );
+addEvent(document.querySelector("#sort_type"), "click", sortEvent );
+addEvent(document.querySelector("#sort_genre"), "click", sortEvent );
+addEvent(document.querySelector("#sort_added"), "click", sortEvent );
+addEvent(document.querySelector("#sort_size"), "click", sortEvent );
 
 function addEvent(element, eventName, callback) {
     if (element.addEventListener) {
@@ -88,7 +88,7 @@ function keyEvent(event) {
 
 function sortEvent(event) {
   var params = getParams()
-  updateParams(params, "sort", event.target.id.replace(/sort/i, ""))
+  updateParams(params, "sort", event.target.id.replace(/sort_/i, "") + "_desc")
   sendRequest(params)
 }
 

@@ -29,21 +29,34 @@ defmodule Torr.Torrent do
   def sort(query, searchParams) do
     sortTerm = searchParams["sort"]
     unless is_nil(sortTerm) or sortTerm == "" do
-        sortTerm = sortTerm |> String.split(",")
-                  |> Enum.filter(fn(sortField) -> sortField != "" end)
-                  |> Enum.map(fn(sortField) ->
-                         case sortField do
-                           "Name" -> Logger.info sortField
-                                      "Name"
-                            other -> Logger.info sortField
-                                      "json->>'#{other}'"
-                         end
-                    end)
-                  |> Enum.join(",")
+        sortTerm |> String.split(",")
+                  |> Enum.reduce(query, fn x, acc ->
+                          field = x |> String.replace(~r/_.*/, "")
+                          order = x |> String.replace(~r/.*_/, "")
 
-        query |> order_by([t], fragment("?", ^sortTerm))
+                          case field do
+                            "" -> case order do
+                                    "asc" -> acc |> order_by([t], [asc: :name])
+                                    "desc" -> acc |> order_by([t], [desc: :name])
+                                  end
+                            field -> case order do
+                                       "asc" -> case field do
+                                                 "type" -> acc |> order_by([t], fragment("json->>'Type' asc"))
+                                                 "genre" -> acc |> order_by([t], fragment("json->>'Genre' asc"))
+                                                 "added" -> acc |> order_by([t], fragment("json->>'Added' asc"))
+                                                 "size" -> acc |> order_by([t], fragment("json->>'Size' asc"))
+                                               end
+                                       "desc" -> case field do
+                                                  "type" -> acc |> order_by([t], fragment("json->>'Type' desc"))
+                                                  "genre" -> acc |> order_by([t], fragment("json->>'Genre' desc"))
+                                                  "added" -> acc |> order_by([t], fragment("json->>'Added' desc"))
+                                                  "size" -> acc |> order_by([t], fragment("json->>'Size' desc"))
+                                                end
+                                     end
+                          end
+                      end)
     else
-      query
+      query |> order_by([t], [desc: :inserted_at])
     end
   end
 
