@@ -36,28 +36,27 @@ defmodule Torr.Torrent do
                           order = x |> String.replace(~r/.*_/, "")
 
                           case field do
-                            _ -> acc
                             "name" -> case order do
-                                        _ -> acc
                                         "asc" -> acc |> order_by([t], [asc: :name])
                                         "desc" -> acc |> order_by([t], [desc: :name])
+                                        _ -> acc
                                       end
                             field -> case order do
-                                       _ -> acc
                                        "asc" -> case field do
-                                                 nil -> acc
                                                  "type" -> acc |> order_by([t], fragment("json->>'Type' asc"))
                                                  "genre" -> acc |> order_by([t], fragment("json->>'Genre' asc"))
                                                  "added" -> acc |> order_by([t], fragment("json->>'Added' asc"))
                                                  "size" -> acc |> order_by([t], fragment("json->>'Size' asc"))
+                                                  _ -> acc
                                                end
                                        "desc" -> case field do
-                                                  nil -> acc
                                                   "type" -> acc |> order_by([t], fragment("json->>'Type' desc"))
                                                   "genre" -> acc |> order_by([t], fragment("json->>'Genre' desc"))
                                                   "added" -> acc |> order_by([t], fragment("json->>'Added' desc"))
                                                   "size" -> acc |> order_by([t], fragment("json->>'Size' desc"))
+                                                  _ -> acc
                                                 end
+                                       _ -> acc
                                      end
                           end
                       end)
@@ -86,7 +85,7 @@ defmodule Torr.Torrent do
 
   def filter(query, params) do
     trackers = params["tracker"]
-    query = unless is_nil(trackers) or trackers == "" do
+    unless is_nil(trackers) or trackers == "" do
       trackers |> String.split(",")
                           |> Enum.reduce(query, fn x, acc ->
                                   acc |> where([c], c.tracker_id == ^x)
