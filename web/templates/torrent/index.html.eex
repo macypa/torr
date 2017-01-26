@@ -45,6 +45,9 @@
 
       Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
       Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
+      <div>
+        <label onclick="toggle_displayByClass('torrentContent');">expand all</label>
+      </div>
 
       <ul>
         <li>

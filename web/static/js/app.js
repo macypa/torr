@@ -107,6 +107,18 @@ window.toggle_display = function(id) {
       deferImages(e);
    }
 }
+window.toggle_displayByClass = function(className) {
+   var classEls = document.getElementsByClassName(className);
+   for (var i=0; i<classEls.length; i++) {
+     var e = classEls[i];
+     if(e.style.display == 'block') {
+        e.style.display = 'none';
+     } else {
+        e.style.display = 'block';
+        deferImages(e);
+     }
+   }
+}
 
 window.deferImages = function(container, imgUrl) {
   var imgDefer = container.getElementsByClassName('lazy');
