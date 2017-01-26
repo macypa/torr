@@ -62,11 +62,12 @@ defmodule Torr.Torrent do
 
   def search(query, searchParams) do
     searchTerm = searchParams["search"]
-    if searchTerm do
-      String.replace(searchTerm,~r/\s/u, "%")
+    unless is_nil(searchTerm) or searchTerm == "" do
+      searchTerm = String.replace(searchTerm,~r/\s/u, "%")
+      Logger.info "#{searchTerm}"
       query
             |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
-#          |> where([t], fragment("(json#>>'{Description}') ILIKE ?", ^("%#{searchTerm}%")))
+            |> or_where([t], fragment("json->>'Description' ILIKE ?", ^("%#{searchTerm}%")))
     else
       query
     end
