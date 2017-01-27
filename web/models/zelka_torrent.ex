@@ -13,8 +13,7 @@ defmodule Torr.ZelkaTorrent do
   end
 
   def query() do
-      from k in Torr.ZelkaTorrent,
-        select: k
+      from k in Torr.ZelkaTorrent
   end
 
   @doc """

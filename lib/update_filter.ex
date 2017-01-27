@@ -18,11 +18,31 @@ defmodule Torr.UpdateFilter do
                         Torr.FilterData.updateFilterData("trackers", "#{tracker.id}:#{tracker.name}")
                   end)
 
-    Torr.Torrent.typeGenres |> Torr.Repo.all
-                             |> Enum.each(fn(key) ->
-                                    Torr.FilterData.updateFilterData("Type", key[:type])
-                                    Torr.FilterData.updateFilterData("Genre", key[:genre])
-                              end)
+    typesGenres = Torr.Torrent.typeGenres |> Torr.Repo.all
+
+
+
+    filterDataType = case Torr.Repo.get_by(Torr.FilterData, key: "Type") do
+                    nil  -> %Torr.FilterData{key: "Type"}
+                    filterData -> filterData
+                  end
+    filterDataGenre = case Torr.Repo.get_by(Torr.FilterData, key: "Genre") do
+                    nil  -> %Torr.FilterData{key: "Genre"}
+                    filterData -> filterData
+                  end
+
+
+    filterDataType = typesGenres |> Enum.reduce(filterDataType, fn x, acc ->
+                                      Torr.FilterData.updateFilterData(acc, "Type", x[:type])
+                                    end)
+                                  |> Map.from_struct
+                                  |> Torr.FilterData.save
+
+    filterDataGenre = typesGenres |> Enum.reduce(filterDataGenre, fn x, acc ->
+                                      Torr.FilterData.updateFilterData(acc, "Genre", x[:genre])
+                                    end)
+                                  |> Map.from_struct
+                                  |> Torr.FilterData.save
 
     Logger.info "Update filter data done"
   end

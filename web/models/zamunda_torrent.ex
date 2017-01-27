@@ -13,8 +13,7 @@ defmodule Torr.ZamundaTorrent do
   end
 
   def query() do
-      from k in Torr.ZamundaTorrent,
-        select: k
+      from k in Torr.ZamundaTorrent
   end
 
   @doc """
