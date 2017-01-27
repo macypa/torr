@@ -35,21 +35,16 @@ defmodule Torr.Crawler do
     Logger.info "processTorrents: #{inspect(tracker)}"
     try do
         for _ <- Stream.cycle([:ok]) do
-          case tracker.url do
-            _ -> notProcessed = Torr.ZamundaTorrent.notProcessed(tracker)
+          notProcessed = Torr.Tracker.notProcessed(tracker)
 #                                  |> Repo.preload([:tracker])
                           |> Repo.all
 
-                 case notProcessed do
-                      [] -> throw :break
-                      notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
-                                                        case tracker.url do
-                                                          _ ->
-                                                                data = processTorrentData(tracker, torrentDBId)
-                                                                Torr.Torrent.save(tracker, data)
-                                                        end
-                                                      end)
-                 end
+          case notProcessed do
+                [] -> throw :break
+                notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
+                                                   data = processTorrentData(tracker, torrentDBId)
+                                                   Torr.Torrent.save(tracker, data)
+                                                end)
           end
         end
 #      rescue
@@ -63,18 +58,17 @@ defmodule Torr.Crawler do
   end
 
   def processTorrentData(tracker, torrentDBId) do
-    case tracker.url do
-      _ -> 
-            torrent = Torr.ZamundaTorrent |> Torr.Repo.get(torrentDBId)
 
-            Logger.info "processTorrentData id: #{inspect(torrent.id)}"
-            %{
-              name: torrent.name,
-              tracker_id: tracker.id,
-              torrent_id: torrent.torrent_id,
-              json: updateJson(torrent.content_html, tracker)
-            }
-    end
+    torrent = Torr.Tracker.getQuery(tracker) |> Torr.Repo.get(torrentDBId)
+
+    Logger.info "processTorrentData id: #{inspect(torrent.id)}"
+    %{
+      name: torrent.name,
+      tracker_id: tracker.id,
+      torrent_id: torrent.torrent_id,
+      json: updateJson(torrent.content_html, tracker)
+    }
+
   end
 
   def updateJson(contentHtml, tracker) do
@@ -193,20 +187,22 @@ defmodule Torr.Crawler do
         {:error, error} -> {:error, error}
       end
 
+#      if tracker.name == "zelka.org" do
+#      require IEx; IEx.pry
+#      end
+
       banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
               |> Floki.attribute("href")
               |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
               |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
               |> Enum.uniq
 
+      Logger.info "collectTorrentUrlsFromPage banans: #{banans}"
       case banans do
         [] -> throw :break
         banans -> banans
                         |> Enum.map(fn(torrUrl) ->
-                              case tracker.url do
-                                _ -> Torr.ZamundaTorrent.save(%{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
-
-                              end
+                              Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
                            end)
       end
     rescue
@@ -235,20 +231,16 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrents(tracker) do
-    case tracker.url do
-      _ -> Torr.ZamundaTorrent.allWithEmptyName()
+    Torr.Tracker.allWithEmptyName(tracker)
                 |> Repo.all
       #                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
                 |> Enum.each(fn torrent ->
-                                case tracker.url do
-                                  _ ->  torrData = fetchTorrentData(tracker, torrent.torrent_id)
-                                        case torrData do
-                                          nil -> Logger.error "torrent #{torrent.torrent_id} is missing: #{inspect(torrData)}"
-                                          change -> Torr.ZamundaTorrent.save(change)
-                                        end
+                                torrData = fetchTorrentData(tracker, torrent.torrent_id)
+                                case torrData do
+                                  nil -> Logger.error "torrent #{torrent.torrent_id} is missing: #{inspect(torrData)}"
+                                  change -> Torr.Tracker.saveTorrent(tracker, change)
                                 end
                               end)
-    end
   end
 
   def test() do
@@ -415,19 +407,34 @@ defmodule Torr.Crawler do
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
                       "videoSelector": "#youtube_video",
                       "videoAttrPattern": "code"}
+      }) |> elem(1),
+      Tracker.save(%{
+        url: "http://zelka.org/",
+        name: "zelka.org",
+        lastPageNumber: 0,
+        pagesAtOnce: 1,
+        delayOnFail: 1000,
+        pagePattern: "browse.php?sort=6&type=asc&page=",
+        infoUrl: "details.php?id=",
+        urlPattern: "(|javascript)details\\.php\\?id=(?<url>\\d+)",
+#        htmlPattern: "h1",
+        namePattern: "~r/<h1.*?<\/h1>/su",
+#        htmlPattern: "h1 ~ table",
+        htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
+        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
+        patterns: %{ "torrentDescNameValuePattern": "tr",
+                      "torrentDescNamePattern": "td.td_newborder[align=right]",
+                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                      "imgSelector": "#description img",
+                      "imgAttrPattern": "src",
+                      "imgLinkPattern": "previewimg.php",
+                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                      "imgHiddenAttr": "style",
+                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                      "videoSelector": "#youtube_video",
+                      "videoAttrPattern": "code"}
       }) |> elem(1)
-#      ,
-#      Tracker.save(%{
-#        url: "http://zelka.org/",
-#        name: "zelka.org",
-#        lastPageNumber: -1,
-#        pagePattern: "browse.php?sort=6&type=asc&page=",
-#        urlPattern: "(|javascript)(?<url>details.php\\?id=\\d+)",
-#        namePattern: "h1",
-#        htmlPattern: "h1 ~ table ~ table",
-#        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
-#        patterns: %{ "torrentDescNameValuePattern": "table > tr", "torrentDescNamePattern": "td.td_newborder[align=right]", "torrentDescValuePattern": "td.td_newborder+td.td_newborder" }
-#      }) |> elem(1)
       ]
   end
 end

@@ -1,8 +1,8 @@
-defmodule Torr.ZamundaTorrent do
+defmodule Torr.ZelkaTorrent do
   require Logger
   use Torr.Web, :model
 
-  schema "zamunda_torrents" do
+  schema "zelka_torrents" do
     field :name, :string, default: ""
     belongs_to :tracker, Torr.Tracker
     field :torrent_id, :string, default: ""
@@ -13,7 +13,7 @@ defmodule Torr.ZamundaTorrent do
   end
 
   def query() do
-      from k in Torr.ZamundaTorrent,
+      from k in Torr.ZelkaTorrent,
         select: k
   end
 
