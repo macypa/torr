@@ -82,6 +82,10 @@ ul {
   resize: both;
 }
 
+#page_size {
+  width:3em;
+}
+
 .fixed_size5 {
   width:10%; /* or whatever width you want. */
   max-width:10%; /* or whatever width you want. */
@@ -317,6 +321,10 @@ left: 60px; /*position where enlarged image should offset horizontally */
 
 
 
+.filtertracker {
+  height: 10% !important;
+}
+
 
 .filter-bar {
   position: fixed;
@@ -325,6 +333,17 @@ left: 60px; /*position where enlarged image should offset horizontally */
   min-height: 90vh;
   width: 15.56%;
   overflow: auto;
+}
+
+.filter {
+  border-top: 1px solid #000;
+  margin-top: 20px;
+}
+
+.filter header {
+  font-weight: bold;
+  color: Blue;
+  font-size: 12px;
 }
 
 .resizable {

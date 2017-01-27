@@ -1,6 +1,17 @@
 <div>
   <div class="filter-bar fixed_size20">
-    <div class="resizable">
+
+      <div>
+        Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
+      </div>
+      <div>
+        <input type="checkbox" id="searchDescription"> in description
+      </div>
+      <div>
+        Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
+      </div>
+
+    <div class="filter filtertracker resizable">
       <header>Trackers</header>
       <ul class="treeview">
         <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
@@ -20,7 +31,7 @@
       </ul>
     </div>
 
-    <div class="resizable">
+    <div class="filter filtertype resizable">
       <header>Type</header>
       <ul class="treeview">
         <%= for type <- @filterData["Type"] |> String.split(", ") do %>
@@ -43,7 +54,7 @@
       </ul>
     </div>
 
-    <div class="resizable">
+    <div class="filter filtergenre resizable">
       <header>Genre</header>
       <ul class="treeview">
         <%= for genre <- @filterData["Genre"] |> String.split(", ") do %>
@@ -73,13 +84,7 @@
     </div>
     <div class="fixed_size80">
       <h2>Listing torrents</h2>
-
-      Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
-      <input type="checkbox" id="searchDescription"> in description
-      Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
-      <div>
-        <label onclick="toggle_displayByClass('torrentContent');">expand all</label>
-      </div>
+      <div onclick="toggle_displayByClass('torrentContent');">expand all</div>
 
       <ul>
         <li>
