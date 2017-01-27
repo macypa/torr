@@ -84,19 +84,45 @@ defmodule Torr.Torrent do
   end
 
   def filter(query, params) do
+    query |> filterByTracker(params)
+          |> filterByType(params)
+          |> filterByGenre(params)
+  end
+
+  def filterByTracker(query, params) do
     trackers = params["tracker"]
     unless is_nil(trackers) or trackers == "" do
       trackers |> String.split(",")
-                          |> Enum.reduce(query, fn x, acc ->
-                                  acc |> where([c], c.tracker_id == ^x)
-                              end)
+               |> Enum.reduce(query, fn x, acc ->
+                      acc |> where([c], c.tracker_id == ^x)
+                  end)
     else
       query
     end
+  end
 
+  def filterByType(query, params) do
+    type = params["type"]
+    unless is_nil(type) or type == "" do
+      type |> String.split(",")
+               |> Enum.reduce(query, fn x, acc ->
+                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
+                  end)
+    else
+      query
+    end
+  end
 
-#    trackers = params["type"]
-#    trackers = params["category"]
+  def filterByGenre(query, params) do
+    category = params["category"]
+    unless is_nil(category) or category == "" do
+      category |> String.split(",")
+               |> Enum.reduce(query, fn x, acc ->
+                      acc |> where([c], fragment("json->>'Genre' ILIKE ?", ^("%#{x}%")))
+                  end)
+    else
+      query
+    end
   end
 
   def with_tracker(query) do
