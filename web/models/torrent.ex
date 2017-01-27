@@ -94,7 +94,7 @@ defmodule Torr.Torrent do
     unless is_nil(trackers) or trackers == "" do
       trackers |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> where([c], c.tracker_id == ^x)
+                      acc |> or_where([c], c.tracker_id == ^x)
                   end)
     else
       query
@@ -106,7 +106,7 @@ defmodule Torr.Torrent do
     unless is_nil(type) or type == "" do
       type |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
+                      acc |> or_where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
                   end)
     else
       query

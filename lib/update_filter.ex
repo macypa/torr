@@ -32,17 +32,17 @@ defmodule Torr.UpdateFilter do
                   end
 
 
-    filterDataType = typesGenres |> Enum.reduce(filterDataType, fn x, acc ->
+    typesGenres |> Enum.reduce(filterDataType, fn x, acc ->
                                       Torr.FilterData.updateFilterData(acc, "Type", x[:type])
                                     end)
-                                  |> Map.from_struct
-                                  |> Torr.FilterData.save
+                |> Map.from_struct
+                |> Torr.FilterData.save
 
-    filterDataGenre = typesGenres |> Enum.reduce(filterDataGenre, fn x, acc ->
+    typesGenres |> Enum.reduce(filterDataGenre, fn x, acc ->
                                       Torr.FilterData.updateFilterData(acc, "Genre", x[:genre])
                                     end)
-                                  |> Map.from_struct
-                                  |> Torr.FilterData.save
+                |> Map.from_struct
+                |> Torr.FilterData.save
 
     Logger.info "Update filter data done"
   end
