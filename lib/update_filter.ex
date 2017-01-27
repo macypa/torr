@@ -20,26 +20,8 @@ defmodule Torr.UpdateFilter do
 
     Torr.Torrent.typeGenres |> Torr.Repo.all
                              |> Enum.each(fn(key) ->
-                                    type = key[:type]
-
-                                    type_genre = case type do
-                                                  nil -> nil
-                                                  [] -> nil
-                                                  type -> type |> String.split("/")
-                                                               |> Enum.at(0)
-                                                               |> String.trim
-                                                end
-
-                                    subType = case type do
-                                                nil -> nil
-                                                type -> if String.contains?(type, "/") do
-                                                          type
-                                                        end
-                                              end
-
-                                    Torr.FilterData.updateFilterData("Type", type_genre)
-                                    Torr.FilterData.updateFilterData(type_genre, key[:genre])
-                                    Torr.FilterData.updateFilterData(type_genre, subType)
+                                    Torr.FilterData.updateFilterData("Type", key[:type])
+                                    Torr.FilterData.updateFilterData("Genre", key[:genre])
                               end)
 
     Logger.info "Update filter data done"

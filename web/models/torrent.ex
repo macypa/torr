@@ -114,9 +114,9 @@ defmodule Torr.Torrent do
   end
 
   def filterByGenre(query, params) do
-    category = params["category"]
-    unless is_nil(category) or category == "" do
-      category |> String.split(",")
+    genre = params["genre"]
+    unless is_nil(genre) or genre == "" do
+      genre |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
                       acc |> where([c], fragment("json->>'Genre' ILIKE ?", ^("%#{x}%")))
                   end)
@@ -146,7 +146,7 @@ defmodule Torr.Torrent do
       case result do
         {:ok, struct}  -> {:ok, struct}
                           Torr.FilterData.updateFilterData("Type", struct.json["Type"])
-                          Torr.FilterData.updateFilterData(struct.json["Type"], struct.json["Genre"])
+                          Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
         {:error, changeset} -> {:error, changeset}
       end
   end

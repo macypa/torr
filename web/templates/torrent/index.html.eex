@@ -1,5 +1,5 @@
 <div>
-  <div class="resizable filter-bar fixed_size20">
+  <div class="filter-bar fixed_size20">
     <div class="resizable">
       <header>Trackers</header>
       <ul class="treeview">
@@ -21,7 +21,7 @@
     </div>
 
     <div class="resizable">
-      <header>Category</header>
+      <header>Type</header>
       <ul class="treeview">
         <%= for type <- @filterData["Type"] |> String.split(", ") do %>
           <li>
@@ -37,31 +37,31 @@
                                else
                                  "custom-unchecked"
                                end %>"
-                    onclick="toggle_display('type<%= type %>')"
                  ><%= type %></label>
-
-            <%= unless is_nil(@filterData[type]) or @filterData[type] == [] do %>
-              <ul style="display:none" id="type<%= type %>">
-                 <%= for genre <- @filterData[type] |> String.split(", ") do %>
-                   <li>
-                     <input type="checkbox">
-                     <label name="category"
-                            filterId="<%= genre %>"
-                            class="<%= if Map.has_key?(@params, "category") do
-                                          if String.contains?(@params["category"], genre) do
-                                            "custom-checked"
-                                          else
-                                            "custom-unchecked"
-                                          end
-                                        else
-                                          "custom-unchecked"
-                                        end %>"
-                          ><%= genre %></label>
-                   </li>
-                 <% end %>
-               </ul>
-            <% end %>
           </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="resizable">
+      <header>Genre</header>
+      <ul class="treeview">
+        <%= for genre <- @filterData["Genre"] |> String.split(", ") do %>
+           <li>
+             <input type="checkbox">
+             <label name="genre"
+                    filterId="<%= genre %>"
+                    class="<%= if Map.has_key?(@params, "genre") do
+                                  if String.contains?(@params["genre"], genre) do
+                                    "custom-checked"
+                                  else
+                                    "custom-unchecked"
+                                  end
+                                else
+                                  "custom-unchecked"
+                                end %>"
+                  ><%= genre %></label>
+           </li>
         <% end %>
       </ul>
     </div>

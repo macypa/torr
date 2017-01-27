@@ -321,11 +321,14 @@ left: 60px; /*position where enlarged image should offset horizontally */
 .filter-bar {
   position: fixed;
   height: 90vh;
+  max-height: 90vh;
+  min-height: 90vh;
   width: 15.56%;
   overflow: auto;
 }
 
 .resizable {
+  height: 30%;
   min-height: 50px;
   resize: vertical;
   overflow: auto;
