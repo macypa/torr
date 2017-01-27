@@ -40,4 +40,5 @@ config :torr, Torr.Repo,
   password: "postgres",
   database: "torr_dev",
   hostname: "localhost",
-  pool_size: 10
+  pool_size: 10,
+  log_level: :debug

@@ -19,6 +19,13 @@ defmodule Torr.Tracker do
     timestamps()
   end
 
+  def insertMissing(trackerMap) do
+    case Torr.Repo.get_by(Torr.Tracker, url: trackerMap.url) do
+      nil  -> Torr.Tracker.save trackerMap
+      tracker -> tracker
+    end
+  end
+
   def save(trackerMap) do
       result =
         case Torr.Repo.get_by(Torr.Tracker, url: trackerMap.url) do

@@ -15,12 +15,7 @@ defmodule Torr.Crawler do
   end
 
   def doWork() do
-#    initTrackers()
-    trackers = case Torr.Repo.all(Torr.Tracker) do
-      [] ->
-        initTrackers()
-      trackers -> trackers
-    end
+    trackers = trackers()
 
     for tracker <- trackers do
       collectTorrentUrls(tracker)
@@ -381,9 +376,15 @@ defmodule Torr.Crawler do
       :iconv.convert("windows-1251", "utf-8", decompressed)
   end
 
-  def initTrackers() do
+  def trackers() do
+      trackerMaps() |> Enum.each(fn x -> x |> Tracker.insertMissing end)
+      Torr.Repo.all(Torr.Tracker)
+  end
+
+
+  def trackerMaps() do
       [
-      Tracker.save(%{
+      %{
         url: "http://zamunda.net/",
         name: "zamunda.net",
         lastPageNumber: 0,
@@ -409,8 +410,8 @@ defmodule Torr.Crawler do
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
                       "videoSelector": "#youtube_video",
                       "videoAttrPattern": "code"}
-      }) |> elem(1),
-      Tracker.save(%{
+      },
+      %{
         url: "http://pruc.org/",
         name: "zelka.org",
         lastPageNumber: 0,
@@ -436,7 +437,7 @@ defmodule Torr.Crawler do
                       "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
                       "videoSelector": "#youtube_video",
                       "videoAttrPattern": "code"}
-      }) |> elem(1)
+      }
       ]
   end
 end
