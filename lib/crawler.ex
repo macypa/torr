@@ -15,6 +15,7 @@ defmodule Torr.Crawler do
   end
 
   def doWork() do
+#    initTrackers()
     trackers = case Torr.Repo.all(Torr.Tracker) do
       [] ->
         initTrackers()
@@ -381,7 +382,8 @@ defmodule Torr.Crawler do
   end
 
   def initTrackers() do
-      [Tracker.save(%{
+      [
+      Tracker.save(%{
         url: "http://zamunda.net/",
         name: "zamunda.net",
         lastPageNumber: 0,
@@ -409,7 +411,7 @@ defmodule Torr.Crawler do
                       "videoAttrPattern": "code"}
       }) |> elem(1),
       Tracker.save(%{
-        url: "http://zelka.org/",
+        url: "http://pruc.org/",
         name: "zelka.org",
         lastPageNumber: 0,
         pagesAtOnce: 1,
@@ -421,7 +423,7 @@ defmodule Torr.Crawler do
         namePattern: "~r/<h1.*?<\/h1>/su",
 #        htmlPattern: "h1 ~ table",
         htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
-        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5",
+        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
         patterns: %{ "torrentDescNameValuePattern": "tr",
                       "torrentDescNamePattern": "td.td_newborder[align=right]",
                       "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
