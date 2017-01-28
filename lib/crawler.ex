@@ -251,8 +251,8 @@ defmodule Torr.Crawler do
   end
 
   def fetchTorrentData(tracker, torrent_id) do
-    Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1"
-    htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}&filelist=1")
+    Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}"
+    htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}")
 #    Logger.info "fetchTorrentData htmlString : #{htmlString}"
 
     name = htmlString |> runPattern(tracker.namePattern)
@@ -265,7 +265,7 @@ defmodule Torr.Crawler do
               contentHtml = htmlString |> runPattern(tracker.htmlPattern)
               contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
-              contentHtml = case String.contains?(contentHtml, ">Type</") do
+              contentHtml = case String.contains?(contentHtml, tracker.patterns["categoryPattern"]) do
                 true -> contentHtml
                 false -> :iconv.convert("utf-8", "utf-8", htmlString)
               end
@@ -373,7 +373,19 @@ defmodule Torr.Crawler do
       else
         body
       end
-      :iconv.convert("windows-1251", "utf-8", decompressed)
+
+      charsetUTF8 = Enum.any?(headers, fn (kv) ->
+        case kv do
+          {"Content-Type", "text/html; charset=utf-8;"} -> true
+          _ -> false
+        end
+      end)
+
+      if charsetUTF8 do
+        decompressed
+      else
+        :iconv.convert("windows-1251", "utf-8", decompressed)
+      end
   end
 
   def trackers() do
@@ -397,66 +409,72 @@ defmodule Torr.Crawler do
 #        htmlPattern: "h1 ~ table",
         htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
-        patterns: %{ "torrentDescNameValuePattern": "tr",
-                      "torrentDescNamePattern": "td.td_newborder[align=right]",
-                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
-                      "imgSelector": "#description img",
-                      "imgAttrPattern": "src",
-                      "imgLinkPattern": "previewimg.php",
-                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
-                      "imgHiddenAttr": "style",
-                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
-                      "videoSelector": "#youtube_video",
-                      "videoAttrPattern": "code"}
+        patterns: %{ "urlsuffix": "&filelist=1",
+                     "categoryPattern": ">Type</",
+                     "torrentDescNameValuePattern": "tr",
+                     "torrentDescNamePattern": "td.td_newborder[align=right]",
+                     "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                     "imgSelector": "#description img",
+                     "imgAttrPattern": "src",
+                     "imgLinkPattern": "previewimg.php",
+                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                     "imgHiddenAttr": "style",
+                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                     "videoSelector": "#youtube_video",
+                     "videoAttrPattern": "code"}
       },
-      %{
-        url: "http://zelka.org/",
-        name: "zelka.org",
-        pagesAtOnce: 1,
-        delayOnFail: 1000,
-        pagePattern: "browse.php?sort=6&type=asc&page=",
-        infoUrl: "details.php?id=",
-        urlPattern: "(|javascript)details\\.php\\?id=(?<url>\\d+)",
-        namePattern: "~r/<h1.*?<\/h1>/su",
-        htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
-        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
-        patterns: %{ "torrentDescNameValuePattern": "tr",
-                      "torrentDescNamePattern": "td.td_newborder[align=right]",
-                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
-                      "imgSelector": "#description img",
-                      "imgAttrPattern": "src",
-                      "imgLinkPattern": "previewimg.php",
-                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
-                      "imgHiddenAttr": "style",
-                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
-                      "videoSelector": "#youtube_video",
-                      "videoAttrPattern": "code"}
-      },
+     %{
+       url: "http://zelka.org/",
+       name: "zelka.org",
+       pagesAtOnce: 1,
+       delayOnFail: 1000,
+       pagePattern: "browse.php?sort=6&type=asc&page=",
+       infoUrl: "details.php?id=",
+       urlPattern: "(|javascript)details\\.php\\?id=(?<url>\\d+)",
+       namePattern: "~r/<h1.*?<\/h1>/su",
+       htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
+       cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
+       patterns: %{ "urlsuffix": "&filelist=1",
+                    "categoryPattern": ">Type</",
+                    "torrentDescNameValuePattern": "tr",
+                    "torrentDescNamePattern": "td.td_newborder[align=right]",
+                    "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                    "imgSelector": "#description img",
+                    "imgAttrPattern": "src",
+                    "imgLinkPattern": "previewimg.php",
+                    "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                    "imgHiddenAttr": "style",
+                    "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                    "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                    "videoSelector": "#youtube_video",
+                    "videoAttrPattern": "code"}
+     },
       %{
         url: "http://arenabg.com/",
         name: "arenabg.com",
         pagesAtOnce: 1,
         delayOnFail: 1000,
-        pagePattern: "/en/torrents/sort:date/dir:asc/page:",
-        infoUrl: "/en/torrent-download-",
+        pagePattern: "en/torrents/sort:date/dir:asc/page:",
+        infoUrl: "en/torrent-download-",
         urlPattern: "/en/torrent-download-(?<url>.*?)(#|$)",
         namePattern: "~r/<h3.*?<\/h3>/su",
         htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
-        patterns: %{ "torrentDescNameValuePattern": "tr",
-                      "torrentDescNamePattern": "td.td_newborder[align=right]",
-                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
-                      "imgSelector": "#description img",
-                      "imgAttrPattern": "src",
-                      "imgLinkPattern": "previewimg.php",
-                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
-                      "imgHiddenAttr": "style",
-                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
-                      "videoSelector": "#youtube_video",
-                      "videoAttrPattern": "code"}
+        patterns: %{ "urlsuffix": "",
+                     "categoryPattern": "<b>Category</b>",
+                     "torrentDescNameValuePattern": "tr",
+                     "torrentDescNamePattern": "td.td_newborder[align=right]",
+                     "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                     "imgSelector": "#description img",
+                     "imgAttrPattern": "src",
+                     "imgLinkPattern": "previewimg.php",
+                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                     "imgHiddenAttr": "style",
+                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                     "videoSelector": "#youtube_video",
+                     "videoAttrPattern": "code"}
       }
       ]
   end
