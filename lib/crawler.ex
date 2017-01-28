@@ -183,7 +183,7 @@ defmodule Torr.Crawler do
         {:error, error} -> {:error, error}
       end
 
-#      if tracker.name == "zelka.org" do
+#      if tracker.name == "arenabg.com" do
 #      require IEx; IEx.pry
 #      end
 
@@ -377,7 +377,7 @@ defmodule Torr.Crawler do
   end
 
   def trackers() do
-      trackerMaps() |> Enum.each(fn x -> x |> Tracker.insertMissing end)
+      trackerMaps() |> Enum.each(fn x -> x |> Tracker.save end)
       Torr.Repo.all(Torr.Tracker)
   end
 
@@ -387,7 +387,6 @@ defmodule Torr.Crawler do
       %{
         url: "http://zamunda.net/",
         name: "zamunda.net",
-        lastPageNumber: 0,
         pagesAtOnce: 1,
         delayOnFail: 1000,
         pagePattern: "bananas?sort=6&type=asc&page=",
@@ -412,19 +411,40 @@ defmodule Torr.Crawler do
                       "videoAttrPattern": "code"}
       },
       %{
-        url: "http://pruc.org/",
+        url: "http://zelka.org/",
         name: "zelka.org",
-        lastPageNumber: 0,
         pagesAtOnce: 1,
         delayOnFail: 1000,
         pagePattern: "browse.php?sort=6&type=asc&page=",
         infoUrl: "details.php?id=",
         urlPattern: "(|javascript)details\\.php\\?id=(?<url>\\d+)",
-#        htmlPattern: "h1",
         namePattern: "~r/<h1.*?<\/h1>/su",
-#        htmlPattern: "h1 ~ table",
         htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
+        patterns: %{ "torrentDescNameValuePattern": "tr",
+                      "torrentDescNamePattern": "td.td_newborder[align=right]",
+                      "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                      "imgSelector": "#description img",
+                      "imgAttrPattern": "src",
+                      "imgLinkPattern": "previewimg.php",
+                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                      "imgHiddenAttr": "style",
+                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                      "videoSelector": "#youtube_video",
+                      "videoAttrPattern": "code"}
+      },
+      %{
+        url: "http://arenabg.com/",
+        name: "arenabg.com",
+        pagesAtOnce: 1,
+        delayOnFail: 1000,
+        pagePattern: "/en/torrents/sort:date/dir:asc/page:",
+        infoUrl: "/en/torrent-download-",
+        urlPattern: "/en/torrent-download-(?<url>.*?)(#|$)",
+        namePattern: "~r/<h3.*?<\/h3>/su",
+        htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
+        cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "torrentDescNameValuePattern": "tr",
                       "torrentDescNamePattern": "td.td_newborder[align=right]",
                       "torrentDescValuePattern": "td.td_newborder+td.td_newborder",

@@ -5,7 +5,7 @@ defmodule Torr.Tracker do
   schema "trackers" do
     field :url, :string, unique: true
     field :name, :string, default: ""
-    field :lastPageNumber, :integer, default: -1
+    field :lastPageNumber, :integer, default: 0
     field :pagesAtOnce, :integer, default: 1
     field :delayOnFail, :integer, default: 1000
     field :pagePattern, :string, default: ""
@@ -42,17 +42,14 @@ defmodule Torr.Tracker do
   end
 
   def getQuery(tracker) do
-      case tracker.name do
-        "zamunda.net" -> Torr.ZamundaTorrent.query
-        "zelka.org" -> Torr.ZelkaTorrent.query
-        _ -> throw :break
-      end
+      getKind(tracker).query
   end
 
   def getKind(tracker) do
       case tracker.name do
         "zamunda.net" -> Torr.ZamundaTorrent
         "zelka.org" -> Torr.ZelkaTorrent
+        "arenabg.com" -> Torr.ArenaTorrent
         _ -> throw :break
       end
   end
