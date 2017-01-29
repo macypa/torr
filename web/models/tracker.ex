@@ -50,7 +50,7 @@ defmodule Torr.Tracker do
         "zamunda.net" -> Torr.ZamundaTorrent
         "zelka.org" -> Torr.ZelkaTorrent
         "arenabg.com" -> Torr.ArenaTorrent
-        _ -> throw :break
+        _ -> raise "tracker.name has no table"
       end
   end
 

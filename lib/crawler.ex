@@ -15,14 +15,22 @@ defmodule Torr.Crawler do
   end
 
   def doWork() do
-    trackers = trackers()
 
-    for tracker <- trackers do
-      collectTorrentUrls(tracker)
-    end
+    try do
+      trackers = trackers()
 
-    for tracker <- trackers do
-      processTorrents(tracker)
+      for tracker <- trackers do
+        collectTorrentUrls(tracker)
+      end
+
+      for tracker <- trackers do
+        processTorrents(tracker)
+      end
+
+    rescue e -> Logger.info "error rescue... #{inspect( e)}"
+                e
+    catch e -> Logger.info "error catch... #{inspect( e)}"
+               e
     end
     Logger.info "Crawler done"
   end
@@ -36,19 +44,16 @@ defmodule Torr.Crawler do
                           |> Repo.all
 
           case notProcessed do
-                [] -> throw :break
+                [] -> raise "no new torrents to process"
                 notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
                                                    data = processTorrentData(tracker, torrentDBId)
                                                    Torr.Torrent.save(tracker, data)
                                                 end)
           end
         end
-#      rescue
-#        e -> Logger.error "processTorrents error: #{inspect(e)}"
-#              e
-      catch
-        :break -> :ok
-        e -> e
+      rescue
+        e -> Logger.error "processTorrents error: #{inspect(e)}"
+              :ok
       end
 
   end
@@ -68,6 +73,7 @@ defmodule Torr.Crawler do
   end
 
   def updateJson(contentHtml, tracker) do
+    Logger.debug "updateJson"
 
     torrentInfo = %{}
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
@@ -92,6 +98,7 @@ defmodule Torr.Crawler do
   end
 
   def getImages(contentHtml, tracker) do
+    Logger.debug "getImages"
 
     imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
       {:ok, imgRexgex} -> imgRexgex
@@ -108,6 +115,7 @@ defmodule Torr.Crawler do
   end
 
   def getHiddenImages(contentHtml, tracker) do
+    Logger.debug "getHiddenImages"
 
     imgLinkReg = case Regex.compile(tracker.patterns["imgLinkPattern"], "u") do
       {:ok, imgRexgex} -> imgRexgex
@@ -165,6 +173,7 @@ defmodule Torr.Crawler do
   end
 
   def getVideos(contentHtml, tracker) do
+    Logger.debug "getVideos"
     contentHtml |> Floki.find(tracker.patterns["videoSelector"])
                               |> Floki.attribute(tracker.patterns["videoAttrPattern"])
 #                              |> Enum.reduce(torrentInfo, fn x, acc ->
@@ -174,41 +183,37 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
-    try do
-      pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
-      Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
+    Logger.info "collectTorrentUrlsFromPage: #{inspect(pageNumber)}"
+    pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
+    Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
 
-      urlReg = case Regex.compile(tracker.urlPattern, "u") do
-        {:ok, urlRexgex} -> urlRexgex
-        {:error, error} -> {:error, error}
-      end
+    urlReg = case Regex.compile(tracker.urlPattern, "u") do
+      {:ok, urlRexgex} -> urlRexgex
+      {:error, error} -> {:error, error}
+    end
 
 #      if tracker.name == "arenabg.com" do
 #      require IEx; IEx.pry
 #      end
 
-      banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
-              |> Floki.attribute("href")
-              |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
-              |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-              |> Enum.uniq
+    banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
+            |> Floki.attribute("href")
+            |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
+            |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+            |> Enum.uniq
 
-      Logger.info "collectTorrentUrlsFromPage banans: #{banans}"
-      case banans do
-        [] -> throw :break
-        banans -> banans
-                        |> Enum.map(fn(torrUrl) ->
-                              Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
-                           end)
-      end
-    rescue
-      _ -> throw :break
-    catch
-      _ -> throw :break
+    Logger.info "collectTorrentUrlsFromPage banans: #{banans}"
+    case banans do
+      [] -> raise "no new torrents in page #{pageNumber}"
+      banans -> banans
+                      |> Enum.map(fn(torrUrl) ->
+                            Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
+                         end)
     end
   end
 
   def collectTorrentUrls(tracker) do
+    Logger.debug "collectTorrentUrls tracker id: #{inspect(tracker.id)}"
     try do
       for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
@@ -219,14 +224,13 @@ defmodule Torr.Crawler do
         end
       end
     rescue
-      e -> e
-    catch
-      :break -> collectTorrents(tracker)
-      e -> e
+      e -> Logger.info "no more pages to download #{inspect(tracker.id)} : #{inspect(e)}"
+            collectTorrents(tracker)
     end
   end
 
   def collectTorrents(tracker) do
+    Logger.debug "collectTorrents tracker id: #{inspect(tracker.id)}"
     Torr.Tracker.allWithEmptyName(tracker)
                 |> Repo.all
       #                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
@@ -251,6 +255,7 @@ defmodule Torr.Crawler do
   end
 
   def fetchTorrentData(tracker, torrent_id) do
+    Logger.debug "fetchTorrentData tracker id: #{inspect(tracker.id)}  torrent_id: #{inspect(torrent_id)}"
     Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}"
     htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}")
 #    Logger.info "fetchTorrentData htmlString : #{htmlString}"
@@ -332,26 +337,24 @@ defmodule Torr.Crawler do
   end
 
   def download(delay, url, headers, options) do
-    my_future_function = fn ->
-      case HTTPoison.get(url, headers, options) do
-          {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
-            unzip(body, headers)
-          {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
-            Logger.error "Error: #{url} is 502."
-            raise "Error: #{url} is 502."
-          {:ok, %HTTPoison.Response{status_code: 404}} ->
-            Logger.error "Error: #{url} is 404."
-            raise "Error: #{url} is 404."
-          {:error, %HTTPoison.Error{reason: reason}} ->
-            Logger.error "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
-            raise "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
-          other ->
-            Logger.error "Error: #{url} just ain't workin. reason: #{inspect(other)}"
-            raise "Error: #{url} just ain't workin. reason: #{inspect(other)}"
-      end
-    end
-    t = GenRetry.Task.async(my_future_function, retries: :infinity, delay: delay, jitter: 0.1)
-    Task.await(t, 1000000)  # may raise exception
+    Torr.RetryFun.retry(3, fn ->
+        case HTTPoison.get(url, headers, options) do
+            {:ok, %HTTPoison.Response{body: body, headers: headers, status_code: 200}} ->
+              unzip(body, headers)
+            {:ok, %HTTPoison.Response{body: _body, headers: _headers, status_code: 502}} ->
+              Logger.error "Error: #{url} is 502."
+              raise "Error: #{url} is 502."
+            {:ok, %HTTPoison.Response{status_code: 404}} ->
+              Logger.error "Error: #{url} is 404."
+              raise "Error: #{url} is 404."
+            {:error, %HTTPoison.Error{reason: reason}} ->
+              Logger.error "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
+              raise "Error: #{url} just ain't workin. reason: #{inspect(reason)}"
+            other ->
+              Logger.error "Error: #{url} just ain't workin. reason: #{inspect(other)}"
+              raise "Error: #{url} just ain't workin. reason: #{inspect(other)}"
+        end
+      end, delay)
   end
 
   def unzip(body, headers) do
