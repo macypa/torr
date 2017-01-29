@@ -33,7 +33,15 @@ defmodule Torr.UpdateFilter do
 
 
     typesGenres |> Enum.reduce(filterDataType, fn x, acc ->
-                                      Torr.FilterData.updateFilterData(acc, "Type", x[:type])
+                                      unless is_nil(x[:type]) do
+                                        type = x[:type] |> String.trim
+                                                    |> String.split(["/", "#"])
+                                                    |> Enum.at(0)
+                                                    |> String.trim
+                                        Torr.FilterData.updateFilterData(acc, "Type", type)
+                                      else
+                                        acc
+                                      end
                                     end)
                 |> Map.from_struct
                 |> Torr.FilterData.save

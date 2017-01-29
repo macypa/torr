@@ -144,9 +144,15 @@ defmodule Torr.Torrent do
         |> Torr.Repo.insert_or_update
 
       case result do
-        {:ok, struct}  -> {:ok, struct}
-                          Torr.FilterData.updateFilterData("Type", struct.json["Type"])
+        {:ok, struct}  -> unless is_nil(struct.json["Type"]) do
+                            type = struct.json["Type"] |> String.trim
+                                        |> String.split(["/", "#"])
+                                        |> Enum.at(0)
+                                        |> String.trim
+                            Torr.FilterData.updateFilterData("Type", type)
+                          end
                           Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
+                          {:ok, struct}
         {:error, changeset} -> {:error, changeset}
       end
   end

@@ -24,6 +24,7 @@ defmodule Torr.Crawler do
       end
 
       for tracker <- trackers do
+      #tracker = Repo.get(Tracker, 8)
         processTorrents(tracker)
       end
 
@@ -62,7 +63,7 @@ defmodule Torr.Crawler do
 
     torrent = Torr.Tracker.getQuery(tracker) |> Torr.Repo.get(torrentDBId)
 
-    Logger.info "processTorrentData id: #{inspect(torrent.id)}"
+    Logger.info "processTorrentData tracker : #{inspect(tracker.url)} torrent id:#{inspect(torrent.id)}"
     %{
       name: torrent.name,
       tracker_id: tracker.id,
@@ -79,17 +80,28 @@ defmodule Torr.Crawler do
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
                                     Map.put(acc,
-                                            Floki.find(x, tracker.patterns["torrentDescNamePattern"]) |> Floki.text |> String.replace(~r/\n|\r/, ""),
-                                            Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text)
+                                            Floki.find(x, tracker.patterns["torrentDescNamePattern"]) |> Floki.text |> String.replace(~r/\n|\r/, "") |> String.trim,
+                                            Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text |> String.trim)
                                   end)
 
-    images = getImages(contentHtml, tracker)
-    torrentInfo = Map.put(torrentInfo, "images", images)
 
-    torrentInfo = if is_nil(images) or images == [] or String.contains?(torrentInfo["Type"], "XXX") do
-      Map.put(torrentInfo, "imagesHidden", getHiddenImages(contentHtml, tracker))
+      if tracker.name == "arenabg.com" do
+        require IEx; IEx.pry
+      end
+    category = runPattern(contentHtml, tracker.patterns["categoryPattern"]) |> Floki.text
+    torrentInfo = case category do
+      "" -> torrentInfo
+      cat -> torrentInfo |> Map.put( "Type", cat |> String.trim |> String.split(["/", "#"]) |> Enum.at(0) |> String.trim)
+                         |> Map.put("Genre", cat)
+    end
+
+
+    images = getImages(contentHtml, tracker)
+    torrentInfo = if String.contains?(torrentInfo["Type"], "XXX") do
+      torrentInfo |> Map.put("imagesHidden", images)
+                  |> Map.put("imagesHidden", getHiddenImages(contentHtml, tracker))
     else
-      torrentInfo
+      Map.put(torrentInfo, "images", images)
     end
 
     torrentInfo = Map.put(torrentInfo, "video", getVideos(contentHtml, tracker))
@@ -174,12 +186,13 @@ defmodule Torr.Crawler do
 
   def getVideos(contentHtml, tracker) do
     Logger.debug "getVideos"
-    contentHtml |> Floki.find(tracker.patterns["videoSelector"])
-                              |> Floki.attribute(tracker.patterns["videoAttrPattern"])
-#                              |> Enum.reduce(torrentInfo, fn x, acc ->
-#                                        Map.put(acc, "video", "https://www.youtube.com/embed/#{x}")
-#                                  end)
 
+    videoReg = tracker.patterns["videoPattern"]
+    case videoReg do
+      nil -> contentHtml |> Floki.find(tracker.patterns["videoSelector"])
+                              |> Floki.attribute(tracker.patterns["videoAttrPattern"])
+      videoReg -> contentHtml |> runPattern(videoReg)
+    end
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
@@ -191,10 +204,6 @@ defmodule Torr.Crawler do
       {:ok, urlRexgex} -> urlRexgex
       {:error, error} -> {:error, error}
     end
-
-#      if tracker.name == "arenabg.com" do
-#      require IEx; IEx.pry
-#      end
 
     banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
             |> Floki.attribute("href")
@@ -217,11 +226,13 @@ defmodule Torr.Crawler do
     try do
       for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
-        if tracker.pagesAtOnce > 0 do
           Enum.each(0..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
           collectTorrents(tracker)
-          Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce})
-        end
+
+          if tracker.lastPageNumber+tracker.pagesAtOnce < 0 do
+            raise "no more pages to search for torrents"
+          end
+          Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce })
       end
     rescue
       e -> Logger.info "no more pages to download #{inspect(tracker.id)} : #{inspect(e)}"
@@ -258,6 +269,15 @@ defmodule Torr.Crawler do
     Logger.debug "fetchTorrentData tracker id: #{inspect(tracker.id)}  torrent_id: #{inspect(torrent_id)}"
     Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}"
     htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}")
+    htmlString = case htmlString do
+      "" -> altUrl = tracker.patterns["alternativeUrl"]
+            case altUrl do
+              nil -> ""
+              "" -> ""
+              altUrl -> download(tracker, "#{altUrl}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}")
+            end
+      htmlString -> htmlString
+    end
 #    Logger.info "fetchTorrentData htmlString : #{htmlString}"
 
     name = htmlString |> runPattern(tracker.namePattern)
@@ -270,9 +290,9 @@ defmodule Torr.Crawler do
               contentHtml = htmlString |> runPattern(tracker.htmlPattern)
               contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
-              contentHtml = case String.contains?(contentHtml, tracker.patterns["categoryPattern"]) do
-                true -> contentHtml
-                false -> :iconv.convert("utf-8", "utf-8", htmlString)
+              contentHtml = case runPattern(contentHtml, tracker.patterns["categoryPattern"]) do
+                "" -> raise "no category/type found on page ...probably wrong page is downloaded"
+                _ -> contentHtml
               end
 
               %{
@@ -293,9 +313,16 @@ defmodule Torr.Crawler do
         {:error, error} -> {:error, error}
       end
 
-      case Regex.run(reg, content) do
-        nil -> [""]
-        res -> res
+      names = Regex.names(reg)
+      case names do
+        [] -> case Regex.run(reg, content) do
+                nil -> [""]
+                res -> res
+              end
+        names -> case Regex.named_captures(reg, content)[names |> Enum.at(0)] do
+                   nil -> [""]
+                   res -> [res]
+                 end
       end
     else
       content |> Floki.find(pattern) |> Floki.raw_html
@@ -308,7 +335,6 @@ defmodule Torr.Crawler do
     result = :iconv.convert("utf-8", "utf-8", result)
     result
   end
-
 
   def handle_info(:work, state) do
     doWork()
@@ -413,10 +439,10 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
-                     "categoryPattern": ">Type</",
+                     "categoryPattern": "~r/>Type</(?<type>.*?)</tr>/su",
                      "torrentDescNameValuePattern": "tr",
                      "torrentDescNamePattern": "td.td_newborder[align=right]",
-                     "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                     "torrentDescValuePattern": "td.td_newborder[align=right]+td",
                      "imgSelector": "#description img",
                      "imgAttrPattern": "src",
                      "imgLinkPattern": "previewimg.php",
@@ -430,19 +456,20 @@ defmodule Torr.Crawler do
      %{
        url: "http://zelka.org/",
        name: "zelka.org",
-       pagesAtOnce: 1,
+       pagesAtOnce: -2,
        delayOnFail: 1000,
-       pagePattern: "browse.php?sort=6&type=asc&page=",
+       pagePattern: "browse.php?sort=6&type=desc&page=",
        infoUrl: "details.php?id=",
        urlPattern: "(|javascript)details\\.php\\?id=(?<url>\\d+)",
        namePattern: "~r/<h1.*?<\/h1>/su",
        htmlPattern: "~r/<h1.*?(?!Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
-       patterns: %{ "urlsuffix": "&filelist=1",
-                    "categoryPattern": ">Type</",
+       patterns: %{ "alternativeUrl": "http://pruc.org/",
+                    "urlsuffix": "&filelist=1",
+                    "categoryPattern": "~r/>Type</(?<type>.*?)</tr>/su",
                     "torrentDescNameValuePattern": "tr",
-                    "torrentDescNamePattern": "td.td_newborder[align=right]",
-                    "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                    "torrentDescNamePattern": "td.heading[align=right]",
+                    "torrentDescValuePattern": "td.heading[align=right]+td",
                     "imgSelector": "#description img",
                     "imgAttrPattern": "src",
                     "imgLinkPattern": "previewimg.php",
@@ -465,10 +492,10 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "urlsuffix": "",
-                     "categoryPattern": "<b>Category</b>",
-                     "torrentDescNameValuePattern": "tr",
-                     "torrentDescNamePattern": "td.td_newborder[align=right]",
-                     "torrentDescValuePattern": "td.td_newborder+td.td_newborder",
+                     "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</tr>/su",
+                     "torrentDescNameValuePattern": ".table-details tr",
+                     "torrentDescNamePattern": "td.hidden-xs",
+                     "torrentDescValuePattern": "td.hidden-xs+td",
                      "imgSelector": "#description img",
                      "imgAttrPattern": "src",
                      "imgLinkPattern": "previewimg.php",
@@ -476,8 +503,7 @@ defmodule Torr.Crawler do
                      "imgHiddenAttr": "style",
                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
                      "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
-                     "videoSelector": "#youtube_video",
-                     "videoAttrPattern": "code"}
+                     "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
       }
       ]
   end
