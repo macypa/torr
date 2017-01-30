@@ -50,6 +50,7 @@ defmodule Torr.Tracker do
         "zamunda.net" -> Torr.ZamundaTorrent
         "zelka.org" -> Torr.ZelkaTorrent
         "arenabg.com" -> Torr.ArenaTorrent
+        "alein.org" -> Torr.AleinTorrent
         _ -> raise "tracker.name has no table"
       end
   end
@@ -78,6 +79,15 @@ defmodule Torr.Tracker do
         {:ok, struct}  -> {:ok, struct}
         {:error, changeset} -> {:error, changeset}
       end
+  end
+
+  def all() do
+    Torr.Tracker |> Torr.Tracker.sorted |> Torr.Repo.all
+  end
+
+  def sorted(query) do
+    from p in query,
+    order_by: [asc: p.id]
   end
 
   def allWithEmptyName(tracker) do
