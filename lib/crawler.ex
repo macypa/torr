@@ -62,15 +62,27 @@ defmodule Torr.Crawler do
       name: torrent.name,
       tracker_id: tracker.id,
       torrent_id: torrent.torrent_id,
-      json: updateJson(torrent.content_html, tracker)
+      json: updateJson(torrent.content_html, tracker, torrent.name)
     }
 
   end
 
-  def updateJson(contentHtml, tracker) do
+  def updateJson(contentHtml, tracker, name) do
     Logger.debug "updateJson"
 
     torrentInfo = %{}
+    episode = case Regex.run(~r/\s*(E\d+).*/, name) do
+      nil -> ""
+      ep -> Enum.at(ep, 1)
+    end
+    season = case Regex.run(~r/\s*(S\d+).*/, name) do
+      nil -> ""
+      ep -> Enum.at(ep, 1)
+    end
+
+
+    torrentInfo = Map.put(torrentInfo, "uniqNmae", name |> String.replace(~r/\s*(S\d+).*|\s*(E\d+).*/, episode <> season) |> String.trim)
+
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
                                     Map.put(acc,
@@ -81,13 +93,13 @@ defmodule Torr.Crawler do
     category = runPattern(contentHtml, tracker.patterns["categoryPattern"]) |> Floki.text
     torrentInfo = case category do
       "" -> torrentInfo
-      cat -> torrentInfo |> Map.put( "Type", cat |> String.trim)
+      cat -> torrentInfo |> Map.put( "Type", cat |> Floki.text |> String.trim)
     end
 
     genre = runPattern(contentHtml, tracker.patterns["genrePattern"]) |> Floki.text
     torrentInfo = case genre do
       "" -> torrentInfo
-      genr -> torrentInfo |> Map.put( "Genre", genr |> String.trim)
+      genr -> torrentInfo |> Map.put( "Genre", genr |> Floki.text |> String.trim)
     end
 
 
@@ -430,7 +442,7 @@ defmodule Torr.Crawler do
       %{
         url: "http://zamunda.net/",
         name: "zamunda.net",
-        pagesAtOnce: 1,
+        pagesAtOnce: 2,
         delayOnFail: 1000,
         pagePattern: "bananas?sort=6&type=asc&page=",
         infoUrl: "banan?id=",
@@ -441,8 +453,8 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
-                     "categoryPattern": "~r/>Type</(?<type>.*?)</td>/su",
-                     "genrePattern": "~r/>Genre</(?<genre>.*?)</td>/su",
+                     "categoryPattern": "~r/>Type(?<type></.*?)</td>/su",
+                     "genrePattern": "~r/>Genre(?<genre></.*?)</td>/su",
                      "torrentDescNameValuePattern": "tr",
                      "torrentDescNamePattern": "td.td_newborder[align=right]",
                      "torrentDescValuePattern": "td.td_newborder[align=right]+td",
@@ -470,8 +482,8 @@ defmodule Torr.Crawler do
         cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
         patterns: %{ "alternativeUrl": "http://pruc.org/",
                     "urlsuffix": "&filelist=1",
-                    "categoryPattern": "~r/>Type</(?<type>.*?)</tr>/su",
-                    "genrePattern": "~r/>Genre</(?<genre>.*?)</tr>/su",
+                    "categoryPattern": "~r/>Type(?<type></.*?)</tr>/su",
+                    "genrePattern": "~r/>Genre(?<genre></.*?)</tr>/su",
                     "torrentDescNameValuePattern": "tr",
                     "torrentDescNamePattern": "td.heading[align=right]",
                     "torrentDescValuePattern": "td.heading[align=right]+td",
@@ -488,7 +500,7 @@ defmodule Torr.Crawler do
       %{
         url: "http://arenabg.com/",
         name: "arenabg.com",
-        pagesAtOnce: 1,
+        pagesAtOnce: 2,
         delayOnFail: 1000,
         pagePattern: "en/torrents/sort:date/dir:asc/page:",
         infoUrl: "en/torrent-download-",
@@ -498,7 +510,7 @@ defmodule Torr.Crawler do
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "urlsuffix": "",
                      "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
-                     "genrePattern": "~r/<b>Category</b>.*?</a>.*?<(?<genre>.*?)</tr>/su",
+                     "genrePattern": "~r/<b>Category</b>.*?</a>.*?(?<genre><.*?)</tr>/su",
                      "torrentDescNameValuePattern": ".table-details tr",
                      "torrentDescNamePattern": "td.hidden-xs",
                      "torrentDescValuePattern": "td.hidden-xs+td",
@@ -514,7 +526,7 @@ defmodule Torr.Crawler do
       %{
         url: "http://alein.org/",
         name: "alein.org",
-        pagesAtOnce: 1,
+        pagesAtOnce: 2,
         delayOnFail: 1000,
         pagePattern: "index.php?page=torrents&active=1&order=3&by=1&pages=",
         infoUrl: "index.php?page=torrent-details&id=",
