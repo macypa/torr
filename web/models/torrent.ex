@@ -20,6 +20,7 @@ defmodule Torr.Torrent do
             |> search(params)
             |> filter(params)
             |> sort(params)
+            |> catalogMode(params)
             |> with_tracker()
             |> Torr.Repo.paginate(params)
 
@@ -62,6 +63,26 @@ defmodule Torr.Torrent do
                       end)
     else
       query |> order_by([t], [desc: :inserted_at])
+    end
+  end
+
+  def catalogMode(query, searchParams) do
+    sortTerm = searchParams["catalog"]
+    unless is_nil(sortTerm) or sortTerm == "" do
+      from q in query,
+        distinct: fragment("json->'uniqName'"),
+        order_by: [asc: fragment("json->'uniqName'"), desc: q.json]
+#            |> distinct(true)
+#            |> distinct([t], fragment("json->'uniqName'"))
+#            |> group_by([t], fragment("json->'uniqName'"))
+#            |> order_by([t], fragment("json->>'uniqName' asc"))
+#            |> select([t],
+##                           t)
+#                            %{uniqName: fragment("DISTINCT t0.json->'uniqName'"),
+#                              id: t
+#                            })
+    else
+      query
     end
   end
 

@@ -72,17 +72,11 @@ defmodule Torr.Crawler do
     Logger.debug "updateJson"
 
     torrentInfo = %{}
-    episode = case Regex.run(~r/\s*(E\d+).*/, name) do
-      nil -> ""
-      ep -> Enum.at(ep, 1)
-    end
-    season = case Regex.run(~r/\s*(S\d+).*/, name) do
-      nil -> ""
-      ep -> Enum.at(ep, 1)
-    end
 
-
-    torrentInfo = Map.put(torrentInfo, "uniqNmae", name |> String.replace(~r/\s*(S\d+).*|\s*(E\d+).*/, episode <> season) |> String.trim)
+    torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
+                                                        |> String.replace(~r/\s*((S|E|С)\d+).*/us, "")
+                                                        |> String.replace(~r/\s*(Season|Сезон).*/us, "")
+                                                        |> String.trim)
 
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
