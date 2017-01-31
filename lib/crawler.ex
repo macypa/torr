@@ -18,11 +18,12 @@ defmodule Torr.Crawler do
     trackers = trackers()
 
     for tracker <- trackers do
+#    tracker = Repo.get(Tracker, 4)
       collectTorrentUrls(tracker)
     end
 
     for tracker <- trackers do
-    #tracker = Repo.get(Tracker, 8)
+#    tracker = Repo.get(Tracker, 1)
       processTorrents(tracker)
     end
 
@@ -38,7 +39,7 @@ defmodule Torr.Crawler do
                           |> Repo.all
 
           case notProcessed do
-                [] -> require IEx; IEx.pry
+                [] -> #require IEx; IEx.pry
                       raise "no new torrents to process"
                 notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
                                                    data = processTorrentData(tracker, torrentDBId)
@@ -90,10 +91,13 @@ defmodule Torr.Crawler do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text |> String.trim)
                                   end)
 
+#require IEx; IEx.pry
     category = runPattern(contentHtml, tracker.patterns["categoryPattern"]) |> Floki.text
     torrentInfo = case category do
       "" -> torrentInfo
-      cat -> torrentInfo |> Map.put( "Type", cat |> Floki.text |> String.trim)
+      cat ->
+              cat = cat |> Floki.text |> String.trim |> Torr.UpdateFilter.convertType
+              torrentInfo |> Map.put( "Type", cat)
     end
 
     genre = runPattern(contentHtml, tracker.patterns["genrePattern"]) |> Floki.text
@@ -101,6 +105,13 @@ defmodule Torr.Crawler do
       "" -> torrentInfo
       genr -> torrentInfo |> Map.put( "Genre", genr |> Floki.text |> String.trim)
     end
+
+    description = runPattern(contentHtml, tracker.patterns["descriptionPattern"]) |> Floki.text
+    torrentInfo = case description do
+      "" -> torrentInfo
+      descr -> torrentInfo |> Map.put( "Description", descr |> Floki.text |> String.trim)
+    end
+
 
 
     images = getImages(contentHtml, tracker)
@@ -130,7 +141,11 @@ defmodule Torr.Crawler do
                           |> Enum.uniq
 
       Logger.debug "getImages images: #{images}"
-    images
+#
+    images |> Enum.map(fn(imgUrl) -> unless String.starts_with?(imgUrl, "http") do tracker.url <> imgUrl else imgUrl end end)
+           |> Enum.map(fn(imgUrl) -> imgUrl |> String.replace("https://", "") |> String.replace("http://", "") end)
+
+
   end
 
   def getHiddenImages(contentHtml, tracker) do
@@ -188,6 +203,8 @@ defmodule Torr.Crawler do
                    |> Enum.uniq
 
       images ++ moreImages |> Enum.uniq
+            |> Enum.map(fn(imgUrl) -> unless String.starts_with?(imgUrl, "http") do tracker.url <> imgUrl else imgUrl end end)
+            |> Enum.map(fn(imgUrl) -> imgUrl |> String.replace("https://", "") |> String.replace("http://", "") end)
     end
   end
 
@@ -203,7 +220,7 @@ defmodule Torr.Crawler do
   end
 
   def collectTorrentUrlsFromPage(tracker, pageNumber) do
-    Logger.info "collectTorrentUrlsFromPage: #{inspect(pageNumber)}"
+    Logger.debug "collectTorrentUrlsFromPage: #{inspect(pageNumber)}"
     pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
     Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
 
@@ -220,9 +237,9 @@ defmodule Torr.Crawler do
 #if tracker.name == "zelka.org" do
 #        require IEx; IEx.pry
 #      end
-    Logger.info "collectTorrentUrlsFromPage banans: #{banans}"
+    Logger.debug "collectTorrentUrlsFromPage banans: #{banans}"
     case banans do
-      [] -> require IEx; IEx.pry
+      [] -> #require IEx; IEx.pry
             raise "no new torrents in page #{pageNumber}"
       banans -> banans
                       |> Enum.map(fn(torrUrl) ->
@@ -240,7 +257,7 @@ defmodule Torr.Crawler do
           collectTorrents(tracker)
 
           if tracker.lastPageNumber+tracker.pagesAtOnce < 0 do
-            require IEx; IEx.pry
+            #require IEx; IEx.pry
             raise "no more pages to search for torrents"
           end
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce })
@@ -281,7 +298,7 @@ defmodule Torr.Crawler do
     Logger.info "collectTorrent from: #{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}"
     htmlString = download(tracker, "#{tracker.url}#{tracker.infoUrl}#{torrent_id}#{tracker.patterns["urlsuffix"]}")
     htmlString = case htmlString do
-      "" -> require IEx; IEx.pry
+      "" -> #require IEx; IEx.pry
             altUrl = tracker.patterns["alternativeUrl"]
             case altUrl do
               nil -> ""
@@ -341,7 +358,7 @@ defmodule Torr.Crawler do
                  end
       end
     else
-      content |> Floki.find(pattern) |> Floki.raw_html
+      content |> Floki.find(pattern)
     end
 
     result = result |> Floki.raw_html
@@ -454,8 +471,9 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
-                     "categoryPattern": "~r/>Type(?<type></.*?)</td>/su",
-                     "genrePattern": "~r/>Genre(?<genre></.*?)</td>/su",
+                     "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
+                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
+                     "descriptionPattern": "#description",
                      "torrentDescNameValuePattern": "tr",
                      "torrentDescNamePattern": "td.td_newborder[align=right]",
                      "torrentDescValuePattern": "td.td_newborder[align=right]+td",
@@ -483,8 +501,9 @@ defmodule Torr.Crawler do
         cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
         patterns: %{ "alternativeUrl": "http://pruc.org/",
                     "urlsuffix": "&filelist=1",
-                    "categoryPattern": "~r/>Type(?<type></.*?)</tr>/su",
-                    "genrePattern": "~r/>Genre(?<genre></.*?)</tr>/su",
+                    "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
+                    "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
+                    "descriptionPattern": "#description",
                     "torrentDescNameValuePattern": "tr",
                     "torrentDescNamePattern": "td.heading[align=right]",
                     "torrentDescValuePattern": "td.heading[align=right]+td",
@@ -511,11 +530,12 @@ defmodule Torr.Crawler do
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "urlsuffix": "",
                      "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
-                     "genrePattern": "~r/<b>Category</b>.*?</a>.*?(?<genre><.*?)</tr>/su",
+                     "genrePattern": "~r/<b>Category</b>.*?</a>.*?<a.*?>(?<genre>.*?)</a>/su",
+                     "descriptionPattern": "~r/Torrent:(?<desc>.*?)id=\"comments\"/su",
                      "torrentDescNameValuePattern": ".table-details tr",
                      "torrentDescNamePattern": "td.hidden-xs",
                      "torrentDescValuePattern": "td.hidden-xs+td",
-                     "imgSelector": "img.lazy | a[rel='nofollow'] img",
+                     "imgSelector": "img.lazy, a[rel='nofollow'] img",
                      "imgAttrPattern": "src",
                      "imgLinkPattern": "previewimg.php",
                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
@@ -536,8 +556,9 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/>Name</td>.*?history.go|>Name</td>.*$/su",
         cookie: "_ga=GA1.2.1213498673.1485510803; _popfired=1; xbtit=lnlkrkmtt3qjms086pdtdqn1d6",
         patterns: %{ "urlsuffix": "#expand",
-                     "categoryPattern": "~r/>Category</td>(?<type>.*?)</td>/su",
-                     "genrePattern": "~r/>Genre</td>(?<type>.*?)</td>/su",
+                     "categoryPattern": "~r/<td[^>]*?>Category(?<type></.*?)</td>/su",
+                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
+                     "descriptionPattern": "~r/<td[^>]*?>Description(?<genre>.*?)Screenshots/su",
                      "torrentDescNameValuePattern": ".table-details tr",
                      "torrentDescNamePattern": "td.header",
                      "torrentDescValuePattern": "td.header+td",

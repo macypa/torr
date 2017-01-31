@@ -144,11 +144,9 @@ defmodule Torr.Torrent do
         |> Torr.Repo.insert_or_update
 
       case result do
-        {:ok, struct}  -> Torr.FilterData.updateFilterData("Type", struct.json["Type"])
-                          case struct.json["Type"] do
-                            "XXX" -> Torr.FilterData.updateFilterData("GenreHidden", struct.json["Genre"])
-                            _ -> Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
-                          end
+        {:ok, struct}  ->
+                          Torr.FilterData.updateFilterData("Type", Torr.UpdateFilter.convertType(struct.json["Type"]))
+                          Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
                           {:ok, struct}
         {:error, changeset} -> {:error, changeset}
       end
