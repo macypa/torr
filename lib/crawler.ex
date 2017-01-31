@@ -427,8 +427,9 @@ defmodule Torr.Crawler do
                   _ -> ""
                 end
         end)
-
-      :iconv.convert(charset, "utf-8", decompressed)
+      toUtf8 = :iconv.convert(charset, "utf-8", decompressed)
+      toUtf8 = String.replace(toUtf8, "\u0000", "")
+      :iconv.convert("utf-8", "utf-8", toUtf8)
   end
 
   def trackers() do
