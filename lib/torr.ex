@@ -15,6 +15,7 @@ defmodule Torr do
       # Start your own worker by calling: Torr.Worker.start_link(arg1, arg2, arg3)
       worker(Torr.UpdateFilter, []),
       worker(Torr.Crawler, []),
+      worker(Torr.Parser, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
