@@ -271,6 +271,7 @@ defmodule Torr.Crawler do
                                 torrData = fetchTorrentData(tracker, torrent.torrent_id)
                                 case torrData do
                                   nil -> Logger.error "torrent #{torrent.torrent_id} is missing: #{inspect(torrData)}"
+                                         Torr.Tracker.deleteTorrent(tracker, %{torrent_id: torrent.torrent_id})
                                   change -> Torr.Tracker.saveTorrent(tracker, change)
                                 end
                               end)

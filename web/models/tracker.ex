@@ -81,6 +81,13 @@ defmodule Torr.Tracker do
       end
   end
 
+  def deleteTorrent(tracker, torrentMap) do
+      case Torr.Repo.get_by(getQuery(tracker), torrent_id: torrentMap.torrent_id) do
+        nil  -> {:ok, nil}
+        torrent -> torrent |> Torr.Repo.delete
+      end
+  end
+
   def all() do
     Torr.Tracker |> Torr.Tracker.sorted |> Torr.Repo.all
   end
