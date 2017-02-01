@@ -282,8 +282,10 @@ caption   { display: table-caption }
 }
 
 
-
-
+/*
+.img_listing {
+  width: 150px;
+}
 
 
 .thumbnail{
@@ -296,7 +298,7 @@ background-color: transparent;
 z-index: 50;
 }
 
-.thumbnail > span{ /*CSS for enlarged image*/
+.thumbnail > span{
 position: absolute;
 padding: 5px;
 left: -1000px;
@@ -305,20 +307,20 @@ color: black;
 text-decoration: none;
 }
 
-.thumbnail > span img{ /*CSS for enlarged image*/
+.thumbnail > span img{
 border-width: 0;
 padding: 2px;
 width: 240px;
 }
 
-.thumbnail:hover > span{ /*CSS for enlarged image on hover*/
+.thumbnail:hover > span{
 transition-delay: 1s !important;
 visibility: visible;
 top: 0;
 left: 60px; /*position where enlarged image should offset horizontally */
 
 }
-
+*/
 
 
 .filtertracker {

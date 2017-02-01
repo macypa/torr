@@ -10,6 +10,9 @@
       <div>
         Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
       </div>
+      <div>
+        Image Size: <input id="img_size" type="text" value="<%= if Map.has_key?(@params, "img_size") do @params["img_size"] end %>"></input>
+      </div>
 
     <div class="filter filtertracker resizable">
       <header>Trackers</header>
@@ -89,6 +92,7 @@
       <ul>
         <li>
           <div class="space_between">
+            <span style="display: inline-block; width: 13em;">  </span>
             <span id="sort_name" class="fixed_size50">Name</span>
             <span class="fixed_size5">Download</span>
             <span id="sort_type" class="fixed_size5">Type</span>

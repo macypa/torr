@@ -6,13 +6,16 @@
   <li>
     <div class="thumbnail link" onclick="toggle_display('torrent<%= torrent.torrent_id %>');toggle_displayBasedOn('torrent<%= torrent.torrent_id %>', 'thumbpopup<%= torrent.torrent_id %>');" >
 
-      <span id="thumbpopup<%= torrent.torrent_id %>">
+      <div class="space_between">
+
+      <span width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" id="thumbpopup<%= torrent.torrent_id %>">
+
         <%= unless torrent.json["Type"] != nil and (is_nil(@params["showAll"]) and String.contains?(torrent.json["Type"], "XXX")) do %>
-          <img class="lazy" src="images/remote/<%= unless is_nil(torrent.json["images"]) or torrent.json["images"] == [], do: torrent.json["images"] |> Enum.at(0) |> String.trim |> String.replace("http://", "") |> String.replace("http://", "") |> URI.decode() %>" />
+          <img width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" class="lazy img_listing"
+            src="images/remote/<%= decodeImgFirst(torrent.json["images"]) %>" />
         <% end %>
       </span>
 
-      <div class="space_between">
         <span class="fixed_size50"><%= torrent.name %></span>
         <span class="fixed_size5">
             <%= unless is_nil(torrent.json["Download"]) or (torrent.json["Download"] |> String.trim == "") do %>

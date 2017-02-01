@@ -57,6 +57,7 @@ let channel = socket.channel("torrent:"+window.userToken, {})
 
 let searchTerm         = document.querySelector("#searchTerm")
 let pageSize           = document.querySelector("#page_size")
+let imgSize           = document.querySelector("#img_size")
 let torrentsContainer  = document.querySelector("#torrents")
 
 addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
@@ -97,6 +98,7 @@ function getParams() {
   var params = getUrlParams({})
   params["search"] = searchTerm.value
   params["page_size"] = pageSize.value
+  params["img_size"] = imgSize.value
   params["page"] = 1
   return params
 }
