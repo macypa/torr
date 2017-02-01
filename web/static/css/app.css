@@ -64,18 +64,17 @@ ul {
 }
 
 .coverImage {
-  width: 55%;
+  width: 35%;
 }
 
 .moreImages {
   float: right;
-  width: 45%;
-  height: 50em;
+  width: 65%;
   overflow-y: scroll;
 }
 
 .additionalImage {
-  width: 100%;
+  width: 49%;
 }
 
 .videos {
@@ -163,9 +162,7 @@ caption   { display: table-caption }
   z-index: 1;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+  height: 100vh;
   background-color: black;
 }
 
@@ -185,7 +182,7 @@ caption   { display: table-caption }
   position: absolute;
   top: 5em;
   width: 30%;
-  height: 60%;
+  height: 60vh;
   padding: 16px;
   margin-top: -50px;
   color: white;
@@ -220,6 +217,7 @@ caption   { display: table-caption }
 }
 
 .modal img {
+  height: 70vh;
   margin-bottom: -4px;
 }
 
@@ -238,13 +236,21 @@ caption   { display: table-caption }
   width: 15%;
 }
 
+.modal .visibleImage {
+  width: auto;
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+
 .modal .moreImages {
   float: right;
   width: 85%;
 }
 
 .modal .additionalImage {
-  width: 28%;
+  width: 22%;
+  height: auto;
 }
 
 .modal .float {
