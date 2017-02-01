@@ -80,13 +80,20 @@ defmodule Torr.Torrent do
   def search(query, searchParams) do
     searchTerm = searchParams["search"]
     unless is_nil(searchTerm) or searchTerm == "" do
-      searchTerm = String.replace(searchTerm,~r/\s/u, "%")
-      query = query
-            |> where([t], fragment("? ILIKE ?", t.name, ^("%#{searchTerm}%")))
+      searchTerm = Regex.scan(~r/"(?:\.|[^\"])*"|\S+/,searchTerm)
+                   |> Enum.reduce([], fn(x, list) -> list ++ [x |> Enum.at(0)
+                                                       |> String.replace_leading("\"", "")
+                                                       |> String.replace_trailing("\"", "")] end)
+
+      query = searchTerm |> Enum.reduce(query, fn x, acc ->
+                          acc |> where([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
+                      end)
 
       searchDesc = searchParams["searchDescription"]
       unless is_nil(searchDesc) or searchDesc == "" do
-        query  |> or_where([t], fragment("json->>'Description' ILIKE ?", ^("%#{searchTerm}%")))
+        query = searchTerm |> Enum.reduce(query, fn x, acc ->
+                                acc |> where([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
+                            end)
       else
         query
       end
@@ -106,7 +113,7 @@ defmodule Torr.Torrent do
     unless is_nil(trackers) or trackers == "" do
       trackers |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> or_where([c], c.tracker_id == ^x)
+                      acc |> where([c], c.tracker_id == ^x)
                   end)
     else
       query
@@ -118,7 +125,7 @@ defmodule Torr.Torrent do
     unless is_nil(type) or type == "" do
       type |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> or_where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
+                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
                   end)
     else
       query
