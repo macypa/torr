@@ -13,6 +13,9 @@
       <div>
         Image Size: <input id="img_size" type="text" value="<%= if Map.has_key?(@params, "img_size") do @params["img_size"] end %>"></input>
       </div>
+      <div>
+        Catalogue mode: <input type="checkbox" id="catalogMode" <%= if Map.has_key?(@params, "catalogMode") do "checked" end %>></input>
+      </div>
 
     <div class="filter filtertracker resizable">
       <header>Trackers</header>

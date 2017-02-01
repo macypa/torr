@@ -67,9 +67,10 @@ defmodule Torr.Parser do
 
     torrentInfo = %{}
 
-    torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
-                                                        |> String.replace(~r/\s*((S|E|С)\d+).*/us, "")
-                                                        |> String.replace(~r/\s*(Season|Сезон).*/us, "")
+    torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.downcase
+                                                        |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
+                                                        |> String.replace(~r/\s*((с|е|e|s)\d+).*/us, "")
+                                                        |> String.replace(~r/\s*(season|сезон).*/us, "")
                                                         |> String.trim)
 
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])

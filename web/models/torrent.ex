@@ -67,20 +67,11 @@ defmodule Torr.Torrent do
   end
 
   def catalogMode(query, searchParams) do
-    sortTerm = searchParams["catalog"]
+    sortTerm = searchParams["catalogMode"]
     unless is_nil(sortTerm) or sortTerm == "" do
-      from q in query,
-        distinct: fragment("json->'uniqName'"),
-        order_by: [asc: fragment("json->'uniqName'"), desc: q.json]
-#            |> distinct(true)
-#            |> distinct([t], fragment("json->'uniqName'"))
-#            |> group_by([t], fragment("json->'uniqName'"))
-#            |> order_by([t], fragment("json->>'uniqName' asc"))
-#            |> select([t],
-##                           t)
-#                            %{uniqName: fragment("DISTINCT t0.json->'uniqName'"),
-#                              id: t
-#                            })
+       query
+              |> join(:inner, [t], f in fragment("SELECT distinct on(f.json->>'uniqName') f.id, f.json->>'uniqName'  FROM torrents AS f
+                                                   GROUP BY f.json->>'uniqName', f.id ORDER BY f.json->>'uniqName'"), id: t.id)
     else
       query
     end
