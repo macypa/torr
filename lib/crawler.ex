@@ -32,12 +32,13 @@ defmodule Torr.Crawler do
       for _ <- Stream.cycle([:ok]) do
         tracker = Tracker |> Repo.get(tracker.id)
           Enum.each(0..tracker.pagesAtOnce, &(collectTorrentUrlsFromPage(tracker, tracker.lastPageNumber+&1)))
-          collectTorrents(tracker)
 
           if tracker.lastPageNumber+tracker.pagesAtOnce < 0 do
             #require IEx; IEx.pry
             raise "no more pages to search for torrents"
           end
+
+          collectTorrents(tracker)
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce })
       end
     rescue
@@ -56,22 +57,27 @@ defmodule Torr.Crawler do
       {:error, error} -> {:error, error}
     end
 
-    banans = Torr.Crawler.download(tracker, pageUrl) |> Floki.find("a")
-            |> Floki.attribute("href")
-            |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
-            |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-            |> Enum.uniq
-#if tracker.name == "zelka.org" do
-#        require IEx; IEx.pry
-#      end
-    Logger.debug "collectTorrentUrlsFromPage banans: #{banans}"
-    case banans do
-      [] -> #require IEx; IEx.pry
-            raise "no new torrents in page #{pageNumber}"
-      banans -> banans
-                      |> Enum.map(fn(torrUrl) ->
-                            Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
-                         end)
+    pageHtml = Torr.Crawler.download(tracker, pageUrl)
+    case runPattern(pageHtml, tracker.patterns["lastPagePattern"]) do
+      "" ->  banans = pageHtml |> Floki.find("a")
+                    |> Floki.attribute("href")
+                    |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
+                    |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+                    |> Enum.uniq
+        #if tracker.name == "zelka.org" do
+        #        require IEx; IEx.pry
+        #      end
+            Logger.debug "collectTorrentUrlsFromPage banans: #{banans}"
+            case banans do
+              [] -> #require IEx; IEx.pry
+                    raise "no new torrents in page #{pageNumber}"
+              banans -> banans
+                              |> Enum.map(fn(torrUrl) ->
+                                    Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
+                                 end)
+            end
+      _ -> #require IEx; IEx.pry
+            raise "no more pages to search for torrents"
     end
   end
 
@@ -122,27 +128,29 @@ defmodule Torr.Crawler do
       nil -> nil
       [] -> nil
       "" -> nil
-      name -> name = name |> Floki.text
+      name -> case name |> Floki.text do
+              "" -> nil
+              name ->
+                contentHtml = htmlString |> runPattern(tracker.htmlPattern)
+                contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
 
-              contentHtml = htmlString |> runPattern(tracker.htmlPattern)
-              contentHtml = :iconv.convert("utf-8", "utf-8", contentHtml)
+  #      if tracker.name == "arenabg.com" do
+  #        require IEx; IEx.pry
+  #      end
+                contentHtml = case runPattern(contentHtml, tracker.patterns["categoryPattern"]) do
+                  "" -> require IEx; IEx.pry
+                        raise "no category/type found on page ...probably wrong page is downloaded"
+                  _ -> contentHtml
+                end
 
-#      if tracker.name == "arenabg.com" do
-#        require IEx; IEx.pry
-#      end
-              contentHtml = case runPattern(contentHtml, tracker.patterns["categoryPattern"]) do
-                "" -> require IEx; IEx.pry
-                      raise "no category/type found on page ...probably wrong page is downloaded"
-                _ -> contentHtml
+                %{
+                  name: name,
+                  tracker_id: tracker.id,
+                  torrent_id: torrent_id,
+                  content_html: contentHtml,
+            #      json: updateJson(contentHtml, tracker)
+                }
               end
-
-              %{
-                name: name,
-                tracker_id: tracker.id,
-                torrent_id: torrent_id,
-                content_html: contentHtml,
-          #      json: updateJson(contentHtml, tracker)
-              }
     end
   end
 
@@ -278,6 +286,7 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
+                     "lastPagePattern": "~r/Sorry, nothing found/su",
                      "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "descriptionPattern": "#description",
@@ -308,6 +317,7 @@ defmodule Torr.Crawler do
         cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
         patterns: %{ "alternativeUrl": "http://pruc.org/",
                     "urlsuffix": "&filelist=1",
+                     "lastPagePattern": "~r/Нищо не е намерено/su",
                     "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                     "descriptionPattern": "#description",
@@ -336,6 +346,7 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "urlsuffix": "",
+                     "lastPagePattern": "~r/There are no results found/su",
                      "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
                      "genrePattern": "~r/<b>Category</b>.*?</a>.*?<a.*?>(?<genre>.*?)</a>/su",
                      "descriptionPattern": "~r/Torrent:(?<desc>.*?)id=\"comments\"/su",
@@ -363,6 +374,7 @@ defmodule Torr.Crawler do
         htmlPattern: "~r/>Name</td>.*?history.go|>Name</td>.*$/su",
         cookie: "_ga=GA1.2.1213498673.1485510803; _popfired=1; xbtit=lnlkrkmtt3qjms086pdtdqn1d6",
         patterns: %{ "urlsuffix": "#expand",
+                     "lastPagePattern": "~r/class=\"pagercurrent\"><b>\\d+</b></span>\\s*</form>/su",
                      "categoryPattern": "~r/<td[^>]*?>Category(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "descriptionPattern": "~r/<td[^>]*?>Description(?<genre>.*?)Screenshots/su",
