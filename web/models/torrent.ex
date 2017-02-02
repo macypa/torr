@@ -137,7 +137,9 @@ defmodule Torr.Torrent do
     unless is_nil(genre) or genre == "" do
       genre |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> where([c], fragment("json->>'Genre' ILIKE ?", ^("%#{x}%")))
+                      x = x |> String.split(":")
+                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x |> Enum.at(0)}%")))
+                          |> where([c], fragment("json->>'Genre' ILIKE ?", ^("%#{x |> Enum.at(1)}%")))
                   end)
     else
       query
@@ -164,8 +166,8 @@ defmodule Torr.Torrent do
 
       case result do
         {:ok, struct}  ->
-                          Torr.FilterData.updateFilterData("Type", Torr.UpdateFilter.convertType(struct.json["Type"]))
-                          Torr.FilterData.updateFilterData("Genre", struct.json["Genre"])
+                          Torr.FilterData.updateFilterType(struct.json["Type"])
+                          Torr.FilterData.updateFilterGenre(struct.json["Type"], struct.json["Genre"])
                           {:ok, struct}
         {:error, changeset} -> {:error, changeset}
       end

@@ -18,6 +18,22 @@ defmodule Torr.FilterData do
     save(filterData |> Map.from_struct)
   end
 
+  def updateFilterType(type) do
+    updateFilterData("Type", convertType(type))
+  end
+
+  def updateFilterType(acc, type) do
+    updateFilterData(acc, "Type", convertType(type))
+  end
+
+  def updateFilterGenre(type, genre) do
+    updateFilterData("Genre", convertGenre(type, genre))
+  end
+
+  def updateFilterGenre(acc, type, genre) do
+    updateFilterData(acc, "Genre", convertGenre(type, genre))
+  end
+
   def updateFilterData(filterData, key, values) do
     unless is_nil(key) or key |> String.trim == "" or is_nil(values) or values |> String.trim == "" do
       new_values = if is_nil(filterData.value) or filterData.value |> String.trim == "" do
@@ -41,6 +57,37 @@ defmodule Torr.FilterData do
       end
     else
       filterData
+    end
+  end
+
+  def convertType(type) do
+    unless is_nil(type) do
+      type |> String.trim
+          |> String.split(["/", "-", "#"])
+          |> Enum.at(0)
+          |> String.trim
+    end
+  end
+
+  def convertGenre(type, genre) do
+    case genre do
+      nil -> nil
+      "" -> nil
+      _ -> genre |> String.split(", ")
+                    |> Enum.uniq
+                    |> Enum.sort
+                    |> Enum.map(fn(genr) ->
+                      case genr do
+                        nil -> nil
+                        "" -> nil
+                        genr -> case convertType(type) do
+                                   nil -> genr
+                                   type -> type<>":"<>genr
+                                 end
+                      end
+                    end)
+                    |> Enum.join(", ")
+                    |> String.trim
     end
   end
 

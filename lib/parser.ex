@@ -85,7 +85,7 @@ defmodule Torr.Parser do
     torrentInfo = case category do
       "" -> torrentInfo
       cat ->
-              cat = cat |> Floki.text |> String.trim |> Torr.UpdateFilter.convertType
+              cat = cat |> Floki.text |> String.trim |> Torr.FilterData.convertType
               torrentInfo |> Map.put( "Type", cat)
     end
 
