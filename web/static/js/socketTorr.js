@@ -211,6 +211,26 @@ function updatePaginationUrls(urlParams) {
 $(function() {
 
   $('input[type="checkbox"]').change(checkboxChanged);
+  $('.filterChckbox').each(checkboxState);
+
+  function checkboxState() {
+    var $this = $(this),
+        checked = $this.prop("checked"),
+        container = $this.parent();
+
+    var label = $this.siblings('label')[0]
+    if (label) {
+        var params = getUrlParams({});
+        var paramName = params[label.getAttribute("name")];
+
+        if (paramName != null
+              && paramName != ""
+              && paramName.includes(label.getAttribute("filterId"))) {
+          $this.siblings('label').removeClass('custom-checked custom-unchecked custom-indeterminate')
+            .addClass('custom-checked');
+        }
+    }
+  }
 
   function checkboxChanged() {
     var $this = $(this),

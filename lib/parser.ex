@@ -36,8 +36,15 @@ defmodule Torr.Parser do
                 [] -> #require IEx; IEx.pry
                       raise "no new torrents to process"
                 notProcessed -> notProcessed |> Enum.each(fn torrentDBId ->
-                                                   data = processTorrentData(tracker, torrentDBId)
-                                                   Torr.Torrent.save(tracker, data)
+
+                                                    try do
+                                                       data = processTorrentData(tracker, torrentDBId)
+                                                       Torr.Torrent.save(tracker, data)
+                                                    rescue
+                                                      e -> Logger.error "processTorrentData error: #{inspect(e)}"
+                                                            :ok
+                                                    end
+
                                                 end)
           end
         end
@@ -80,7 +87,6 @@ defmodule Torr.Parser do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text |> String.trim)
                                   end)
 
-require IEx; IEx.pry
     category = Torr.Crawler.runPattern(contentHtml, tracker.patterns["categoryPattern"])
     torrentInfo = case category do
       "" -> torrentInfo
