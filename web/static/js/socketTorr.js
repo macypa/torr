@@ -58,14 +58,14 @@ let channel = socket.channel("torrent:"+window.userToken, {})
 let searchTerm         = document.querySelector("#searchTerm")
 let pageSize           = document.querySelector("#page_size")
 let imgSize           = document.querySelector("#img_size")
-let catalogMode           = document.querySelector("#catalogMode")
+//let catalogMode           = document.querySelector("#catalogMode")
 let torrentsContainer  = document.querySelector("#torrents")
 
 addEvent(document.querySelector("#searchTerm"), "keyup", keyEventDelay );
 addEvent(document.querySelector("#page_size"), "keyup", keyEventDelay );
 
-addEvent(document.querySelector("#searchDescription"), "click", clickEvent );
-addEvent(document.querySelector("#catalogMode"), "click", clickEvent );
+//addEvent(document.querySelector("#searchDescription"), "click", clickEvent );
+//addEvent(document.querySelector("#catalogMode"), "click", clickEvent );
 addEvent(document.querySelector("#sort_name"), "click", sortEvent );
 addEvent(document.querySelector("#sort_type"), "click", sortEvent );
 addEvent(document.querySelector("#sort_genre"), "click", sortEvent );
@@ -222,15 +222,15 @@ $(function() {
 
     var label = $this.siblings('label')[0]
     if (label) {
-        var params = getUrlParams({});
-        var paramName = params[label.getAttribute("name")];
-
-        if (paramName != null
-              && paramName != ""
-              && paramName.includes(label.getAttribute("filterId"))) {
-          $this.siblings('label').removeClass('custom-checked custom-unchecked custom-indeterminate')
-            .addClass('custom-checked');
-        }
+      var params = getUrlParams({});
+      var paramName = params[label.getAttribute("name")];
+      if (paramName != null
+            && paramName != ""
+            && paramName.includes(label.getAttribute("filterId"))) {
+            console.log(label)
+        $this.siblings('label').removeClass('custom-checked custom-unchecked custom-indeterminate')
+          .addClass('custom-checked');
+      }
     }
   }
 

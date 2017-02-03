@@ -5,17 +5,32 @@
         Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
       </div>
       <div>
-        <input type="checkbox" id="searchDescription"> in description
-      </div>
-      <div>
         Show: <input id="page_size" type="text" value="<%= if Map.has_key?(@params, "page_size") do @params["page_size"] end %>"></input> per page
       </div>
       <div>
         Image Size: <input id="img_size" type="text" value="<%= if Map.has_key?(@params, "img_size") do @params["img_size"] end %>"></input>
       </div>
-      <div>
-        Catalogue mode: <input type="checkbox" id="catalogMode" <%= if Map.has_key?(@params, "catalogMode") do "checked" end %>></input>
+      <div class="treeview">
+        <ul class="treeview">
+          <li>
+            <input type="checkbox" class="filterChckbox">
+            <label name="searchInDescription"
+                    id="searchInDescription"
+                    class="custom-unchecked"
+                    filterId="on"
+                 >Search in description </label>
+          </li>
+          <li>
+             <input type="checkbox" class="filterChckbox">
+             <label name="catalogMode"
+                     id="catalogMode"
+                     class="custom-unchecked"
+                     filterId="on"
+                  >Catalogue mode </label>
+          </li>
+        </ul>
       </div>
+
 
     <div class="filter filtertracker resizable">
       <header>Trackers</header>
