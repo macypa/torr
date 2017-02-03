@@ -95,11 +95,11 @@
           <div class="space_between">
             <span style="display: inline-block; width: 13em;">  </span>
             <span id="sort_name" class="fixed_size50">Name</span>
-            <span class="fixed_size5">Download</span>
-            <span id="sort_type" class="fixed_size5">Type</span>
-            <span id="sort_genre" class="fixed_size5">Genre</span>
-            <span id="sort_added" class="fixed_size5">Added</span>
-            <span id="sort_size" class="fixed_size5">Size</span>
+            <span class="fixed_size10">Download</span>
+            <span id="sort_type" class="fixed_size10">Type</span>
+            <span id="sort_genre" class="fixed_size10">Genre</span>
+            <span id="sort_added" class="fixed_size10">Added</span>
+            <span id="sort_size" class="fixed_size10">Size</span>
           </div>
         </li>
       </ul>

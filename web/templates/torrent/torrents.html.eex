@@ -17,7 +17,7 @@
       </span>
 
         <span class="fixed_size50"><%= torrent.name %></span>
-        <span class="fixed_size5">
+        <span class="fixed_size10">
             <%= unless is_nil(torrent.json["Download"]) or (torrent.json["Download"] |> String.trim == "") do %>
                   <a href="<%= torrent.tracker.url <> "download.php/"
                                <> torrent.torrent_id
@@ -30,10 +30,10 @@
                                <> ".torrent" %>">Download</a>
             <% end %>
         </span>
-        <span class="fixed_size5"><%= torrent.json["Type"] %></span>
-        <span class="fixed_size5"><%= torrent.json["Genre"] %></span>
-        <span class="fixed_size5"><%=case torrent.json["Added"] do nil -> torrent.inserted_at; added -> added end %></span>
-        <span class="fixed_size5"><%= case torrent.json["Size"] do nil -> torrent.json["Size:"]; size -> size end %></span>
+        <span class="fixed_size10"><%= torrent.json["Type"] %></span>
+        <span class="fixed_size10"><%= torrent.json["Genre"] %></span>
+        <span class="fixed_size10"><%=case torrent.json["Added"] do nil -> torrent.inserted_at; added -> added end %></span>
+        <span class="fixed_size10"><%= case torrent.json["Size"] do nil -> torrent.json["Size:"]; size -> size end %></span>
       </div>
     </div>
     <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">

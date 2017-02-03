@@ -86,7 +86,7 @@ ul {
   width:3em;
 }
 
-.fixed_size5 {
+.fixed_size10 {
   width:10%; /* or whatever width you want. */
   max-width:10%; /* or whatever width you want. */
   display: inline-block;
@@ -335,7 +335,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
 }
 
 .filtertracker {
-  height: 10%;
+  height: 7%;
 }
 
 .filtertype {
@@ -350,9 +350,9 @@ left: 60px; /*position where enlarged image should offset horizontally */
 
 .filter-bar {
   position: fixed;
-  height: 90vh;
-  max-height: 90vh;
-  min-height: 90vh;
+  height: 95vh;
+  max-height: 95vh;
+  min-height: 95vh;
   width: 15.56%;
   overflow: auto;
 }
