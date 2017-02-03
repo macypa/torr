@@ -32,8 +32,8 @@
         </span>
         <span class="fixed_size5"><%= torrent.json["Type"] %></span>
         <span class="fixed_size5"><%= torrent.json["Genre"] %></span>
-        <span class="fixed_size5"><%= torrent.json["Added"] %></span>
-        <span class="fixed_size5"><%= torrent.json["Size"] %></span>
+        <span class="fixed_size5"><%=case torrent.json["Added"] do nil -> torrent.inserted_at; added -> added end %></span>
+        <span class="fixed_size5"><%= case torrent.json["Size"] do nil -> torrent.json["Size:"]; size -> size end %></span>
       </div>
     </div>
     <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">
