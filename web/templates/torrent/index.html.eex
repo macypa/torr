@@ -21,16 +21,17 @@
       <header>Trackers</header>
       <ul class="treeview">
         <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
+          <% trackerID = tracker |> String.split(":") |> Enum.at(0) %>
           <li>
             <input type="checkbox">
             <label name="tracker"
                     id="<%= tracker %>"
-                    class="<%= if Map.has_key?(@params, "tracker") do
+                    class="<%= if Map.has_key?(@params, "tracker") and String.contains?(@params["tracker"], trackerID) do
                                     "custom-checked"
                                   else
                                     "custom-unchecked"
                                   end %>"
-                    filterId="<%= tracker |> String.split(":") |> Enum.at(0) %>"
+                    filterId="trackerID"
                  ><%= tracker |> String.split(":") |> Enum.at(1) %></label>
           </li>
         <% end %>

@@ -80,8 +80,8 @@ defmodule Torr.Parser do
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text |> String.trim)
                                   end)
 
-#require IEx; IEx.pry
-    category = Torr.Crawler.runPattern(contentHtml, tracker.patterns["categoryPattern"]) |> Floki.text
+require IEx; IEx.pry
+    category = Torr.Crawler.runPattern(contentHtml, tracker.patterns["categoryPattern"])
     torrentInfo = case category do
       "" -> torrentInfo
       cat ->
@@ -89,16 +89,16 @@ defmodule Torr.Parser do
               torrentInfo |> Map.put( "Type", cat)
     end
 
-    genre = Torr.Crawler.runPattern(contentHtml, tracker.patterns["genrePattern"]) |> Floki.text
+    genre = Torr.Crawler.runPattern(contentHtml, tracker.patterns["genrePattern"])
     torrentInfo = case genre do
       "" -> torrentInfo
       genr -> torrentInfo |> Map.put( "Genre", genr |> Floki.text |> String.trim)
     end
 
-    description = Torr.Crawler.runPattern(contentHtml, tracker.patterns["descriptionPattern"]) |> Floki.text
+    description = Torr.Crawler.runPattern(contentHtml, tracker.patterns["descriptionPattern"])
     torrentInfo = case description do
       "" -> torrentInfo
-      descr -> torrentInfo |> Map.put( "Description", descr |> Floki.text |> String.trim)
+      descr -> torrentInfo |> Map.put( "Description", descr |> String.trim)
     end
 
 
