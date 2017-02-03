@@ -52,33 +52,45 @@ defmodule Torr.Crawler do
     pageUrl = "#{tracker.url}#{tracker.pagePattern}#{pageNumber}"
     Logger.info "collectTorrentUrlsFromPage from: #{pageUrl}"
 
+    pageHtml = Torr.Crawler.download(tracker, pageUrl)
+
+    case runPattern(pageHtml, tracker.patterns["pageContainsTorrentsPattern"]) do
+      "" -> #require IEx; IEx.pry
+            raise "no more pages to search for torrents"
+      _ ->  saveTorrentUrlsFromPage(tracker, pageNumber, pageHtml)
+    end
+
+    case runPattern(pageHtml, tracker.patterns["lastPagePattern"]) do
+      "" -> saveTorrentUrlsFromPage(tracker, pageNumber, pageHtml)
+      _ -> #require IEx; IEx.pry
+            raise "no more pages to search for torrents"
+    end
+  end
+
+  def saveTorrentUrlsFromPage(tracker, pageNumber, pageHtml) do
+
     urlReg = case Regex.compile(tracker.urlPattern, "u") do
       {:ok, urlRexgex} -> urlRexgex
       {:error, error} -> {:error, error}
     end
 
-    pageHtml = Torr.Crawler.download(tracker, pageUrl)
-    case runPattern(pageHtml, tracker.patterns["lastPagePattern"]) do
-      "" ->  banans = pageHtml |> Floki.find("a")
-                    |> Floki.attribute("href")
-                    |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
-                    |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
-                    |> Enum.uniq
-        #if tracker.name == "zelka.org" do
-        #        require IEx; IEx.pry
-        #      end
-            Logger.debug "collectTorrentUrlsFromPage banans: #{banans}"
-            case banans do
-              [] -> #require IEx; IEx.pry
-                    raise "no new torrents in page #{pageNumber}"
-              banans -> banans
-                              |> Enum.map(fn(torrUrl) ->
-                                    Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
-                                 end)
-            end
-      _ -> #require IEx; IEx.pry
-            raise "no more pages to search for torrents"
-    end
+    banans = pageHtml |> Floki.find("a")
+                      |> Floki.attribute("href")
+                      |> Enum.filter(fn(torrUrl) -> String.match?(torrUrl, urlReg) end)
+                      |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
+                      |> Enum.uniq
+          #if tracker.name == "zelka.org" do
+          #        require IEx; IEx.pry
+          #      end
+              Logger.debug "collectTorrentUrlsFromPage banans: #{banans}"
+              case banans do
+                [] -> #require IEx; IEx.pry
+                      raise "no new torrents in page #{pageNumber}"
+                banans -> banans
+                                |> Enum.map(fn(torrUrl) ->
+                                      Torr.Tracker.saveTorrent(tracker, %{tracker_id: tracker.id, page: pageNumber, torrent_id: torrUrl})
+                                   end)
+              end
   end
 
   def collectTorrents(tracker) do
@@ -287,6 +299,7 @@ defmodule Torr.Crawler do
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
                      "lastPagePattern": "~r/Sorry, nothing found/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?banan?id=/su",
                      "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "descriptionPattern": "#description",
@@ -317,7 +330,8 @@ defmodule Torr.Crawler do
         cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
         patterns: %{ "alternativeUrl": "http://pruc.org/",
                     "urlsuffix": "&filelist=1",
-                     "lastPagePattern": "~r/Нищо не е намерено/su",
+                    "lastPagePattern": "~r/Нищо не е намерено/su",
+                    "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?details.php?id=/su",
                     "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                     "descriptionPattern": "#description",
@@ -347,6 +361,7 @@ defmodule Torr.Crawler do
         cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
         patterns: %{ "urlsuffix": "",
                      "lastPagePattern": "~r/There are no results found/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"search-button\".*?torrent-download/su",
                      "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
                      "genrePattern": "~r/<b>Category</b>.*?</a>.*?<a.*?>(?<genre>.*?)</a>/su",
                      "descriptionPattern": "~r/Torrent:(?<desc>.*?)id=\"comments\"/su",
@@ -375,6 +390,7 @@ defmodule Torr.Crawler do
         cookie: "_ga=GA1.2.1213498673.1485510803; _popfired=1; xbtit=lnlkrkmtt3qjms086pdtdqn1d6",
         patterns: %{ "urlsuffix": "#expand",
                      "lastPagePattern": "~r/class=\"pagercurrent\"><b>\\d+</b></span>\\s*</form>/su",
+                     "pageContainsTorrentsPattern": "~r/Name</a>.*?page=torrent-details/su",
                      "categoryPattern": "~r/<td[^>]*?>Category(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "descriptionPattern": "~r/<td[^>]*?>Description(?<genre>.*?)Screenshots/su",
