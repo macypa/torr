@@ -41,4 +41,6 @@ config :torr, Torr.Repo,
   database: "torr_dev",
   hostname: "localhost",
   pool_size: 10,
+  timeout: 60_000,
+  pool_timeout: 60_000,
   log_level: :debug
