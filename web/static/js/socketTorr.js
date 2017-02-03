@@ -211,7 +211,9 @@ function updatePaginationUrls(urlParams) {
 $(function() {
 
   $('input[type="checkbox"]').change(checkboxChanged);
-  $('.filterChckbox').each(checkboxState);
+  $( document ).ready(function() {
+    $('.filterChckbox').each(checkboxState);
+  });
 
   function checkboxState() {
     var $this = $(this),
@@ -238,22 +240,36 @@ $(function() {
         container = $this.parent(),
         siblings = container.siblings();
 
-    container.find('input[type="checkbox"]')
+    var label = container.find('input[type="checkbox"]')
     .prop({
         indeterminate: false,
         checked: checked
     })
     .siblings('label')
-    .removeClass('custom-checked custom-unchecked custom-indeterminate')
+
+    label.removeClass('custom-checked custom-unchecked custom-indeterminate')
     .addClass(checked ? 'custom-checked' : 'custom-unchecked');
 
 
-//    if (checked) {
-      var label = $this.siblings('label')[0]
-      var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
-      sendRequest(params)
-//    }
+    label = label[0];
+    if (label) {
+      var params = getUrlParams({});
+      var paramName = params[label.getAttribute("name")];
+      if (!checked && paramName != null
+            && paramName != ""
+            && paramName.includes(label.getAttribute("filterId"))) {
 
+        var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
+        sendRequest(params)
+      }
+      if (checked && !(paramName != null
+                && paramName != ""
+                && paramName.includes(label.getAttribute("filterId")))) {
+
+        var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
+        sendRequest(params)
+      }
+    }
     checkSiblings(container, checked);
   }
 
