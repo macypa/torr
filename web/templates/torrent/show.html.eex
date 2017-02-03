@@ -19,5 +19,6 @@
 
 </ul>
 
+<%= link "Delete", to: torrent_path(@conn, :delete, @torrent), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %>
 <%= link "Edit", to: torrent_path(@conn, :edit, @torrent) %>
 <%= link "Back", to: torrent_path(@conn, :index) %>

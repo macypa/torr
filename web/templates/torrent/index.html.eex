@@ -1,6 +1,7 @@
 <div>
   <div class="filter-bar fixed_size20">
 
+    <div class="filter filtermain resizable">
       <div>
         Search for: <input id="searchTerm" type="text" value="<%= if Map.has_key?(@params, "search") do @params["search"] end %>"></input>
       </div>
@@ -30,6 +31,7 @@
           </li>
         </ul>
       </div>
+    </div>
 
 
     <div class="filter filtertracker resizable">

@@ -91,7 +91,7 @@ defmodule Torr.Torrent do
 
       searchDesc = searchParams["searchDescription"]
       unless is_nil(searchDesc) or searchDesc == "" do
-        query = searchTerm |> Enum.reduce(query, fn x, acc ->
+        searchTerm |> Enum.reduce(query, fn x, acc ->
                                 acc |> where([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
                             end)
       else

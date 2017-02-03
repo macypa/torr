@@ -330,9 +330,22 @@ left: 60px; /*position where enlarged image should offset horizontally */
 */
 
 
-.filtertracker {
-  height: 10% !important;
+.filtermain {
+  height: 10%;
 }
+
+.filtertracker {
+  height: 10%;
+}
+
+.filtertype {
+  height: 33%;
+}
+
+.filtergenre {
+  height: 33%;
+}
+
 
 
 .filter-bar {
@@ -356,7 +369,6 @@ left: 60px; /*position where enlarged image should offset horizontally */
 }
 
 .resizable {
-  height: 30%;
   min-height: 50px;
   resize: vertical;
   overflow: auto;
