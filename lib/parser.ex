@@ -127,6 +127,14 @@ defmodule Torr.Parser do
     images = contentHtml |> Floki.find(tracker.patterns["imgSelector"])
                           |> Floki.attribute(tracker.patterns["imgAttrPattern"])
                           |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
+                          |> Enum.map(fn(imgUrl) ->
+                                          url = Torr.Crawler.runPattern(imgUrl, tracker.patterns["imgFromLinkReg"])
+                                          case url do
+                                            nil -> imgUrl
+                                            "" -> imgUrl
+                                            url -> tracker.patterns["imgFromLinkPrefix"] <> url
+                                          end
+                                      end)
                           |> Enum.uniq
 
       Logger.debug "getImages images: #{images}"
