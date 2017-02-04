@@ -125,7 +125,7 @@ defmodule Torr.Torrent do
     unless is_nil(type) or type == "" do
       type |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
+                      acc |> or_where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
                   end)
     else
       query
