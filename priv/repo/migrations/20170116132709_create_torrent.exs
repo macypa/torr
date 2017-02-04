@@ -15,6 +15,9 @@ defmodule Torr.Repo.Migrations.CreateTorrent do
     create index(:torrents, [:torrent_id])
     create index(:torrents, [:name])
 #    create index(:torrents, [:json])
+    execute("CREATE INDEX json_type_index ON torrents USING GIN ((json -> 'Type'))")
+    execute("CREATE INDEX json_genre_index ON torrents USING GIN ((json -> 'Genre'))")
+
     create unique_index(:torrents, [:tracker_id, :torrent_id])
   end
 end
