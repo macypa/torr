@@ -60,8 +60,33 @@ defmodule Torr.Parser do
     torrent = Torr.Tracker.getQuery(tracker) |> Torr.Repo.get(torrentDBId)
 
     Logger.info "processTorrentData tracker : #{inspect(tracker.url)} torrent id:#{inspect(torrent.id)}"
+require IEx; IEx.pry
+    category = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["categoryPattern"])
+                |> Floki.text
+                |> String.trim
+                |> Torr.FilterData.convertType
+
+    genre = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
+               |> Floki.text  |> String.replace(":", "")
+               |> String.replace(~r/,\s*,/su, "")
+               |> String.replace(~r/\//su, ",")
+               |> String.replace(~r/\./us, "")
+               |> String.replace(":ArenaBG.TV", "")
+               |> Floki.text
+               |> String.trim
+               |> String.split(",")
+               |> Enum.map(fn(genr) -> String.trim(genr) end)
+               |> Enum.uniq
+               |> Enum.sort
+               |> Enum.join(", ")
+               |> String.replace(~r/^, /us, "")
+               |> String.replace(~r/, $/us, "")
+               |> String.replace(~r/\./us, "")
+               |> String.trim
     %{
       name: torrent.name,
+      type: category,
+      genre: genre,
       tracker_id: tracker.id,
       torrent_id: torrent.torrent_id,
       json: updateJson(torrent.content_html, tracker, torrent.name)
@@ -88,20 +113,6 @@ defmodule Torr.Parser do
                                             Floki.find(x, tracker.patterns["torrentDescNamePattern"]) |> Floki.text |> String.replace(~r/\n|\r/, "") |> String.trim,
                                             Floki.find(x, tracker.patterns["torrentDescValuePattern"]) |> Floki.text |> String.trim)
                                   end)
-
-    category = Torr.Crawler.runPattern(contentHtml, tracker.patterns["categoryPattern"])
-    torrentInfo = case category do
-      "" -> torrentInfo
-      cat ->
-              cat = cat |> Floki.text |> String.trim |> Torr.FilterData.convertType
-              torrentInfo |> Map.put( "Type", cat)
-    end
-
-    genre = Torr.Crawler.runPattern(contentHtml, tracker.patterns["genrePattern"])
-    torrentInfo = case genre do
-      "" -> torrentInfo
-      genr -> torrentInfo |> Map.put( "Genre", genr |> Floki.text |> String.trim)
-    end
 
     description = Torr.Crawler.runPattern(contentHtml, tracker.patterns["descriptionPattern"]) |> Floki.text
     torrentInfo = case description do

@@ -7,6 +7,8 @@ defmodule Torr.Torrent do
 
   schema "torrents" do
     field :name, :string, default: ""
+    field :type, :string, default: ""
+    field :genre, :string, default: ""
     belongs_to :tracker, Torr.Tracker
     field :torrent_id, :string, default: ""
     field :json, :map, default: %{}
@@ -36,29 +38,24 @@ defmodule Torr.Torrent do
                           field = x |> String.replace(~r/_.*/, "")
                           order = x |> String.replace(~r/.*_/, "")
 
-                          case field do
-                            "name" -> case order do
-                                        "asc" -> acc |> order_by([t], [asc: :name])
-                                        "desc" -> acc |> order_by([t], [desc: :name])
+                          case order do
+                             "asc" -> case field do
+                                       "name" -> acc |> order_by([t], [asc: :name])
+                                       "type" -> acc |> order_by([t], [asc: :type])
+                                       "genre" -> acc |> order_by([t], [asc: :genre])
+                                       "added" -> acc |> order_by([t], fragment("json->>'Added' asc"))
+                                       "size" -> acc |> order_by([t], fragment("json->>'Size' asc"))
+                                        _ -> acc
+                                     end
+                             "desc" -> case field do
+                                        "name" -> acc |> order_by([t], [desc: :name])
+                                        "type" -> acc |> order_by([t], [desc: :type])
+                                        "genre" -> acc |> order_by([t], [desc: :genre])
+                                        "added" -> acc |> order_by([t], fragment("json->>'Added' desc"))
+                                        "size" -> acc |> order_by([t], fragment("json->>'Size' desc"))
                                         _ -> acc
                                       end
-                            field -> case order do
-                                       "asc" -> case field do
-                                                 "type" -> acc |> order_by([t], fragment("json->>'Type' asc"))
-                                                 "genre" -> acc |> order_by([t], fragment("json->>'Genre' asc"))
-                                                 "added" -> acc |> order_by([t], fragment("json->>'Added' asc"))
-                                                 "size" -> acc |> order_by([t], fragment("json->>'Size' asc"))
-                                                  _ -> acc
-                                               end
-                                       "desc" -> case field do
-                                                  "type" -> acc |> order_by([t], fragment("json->>'Type' desc"))
-                                                  "genre" -> acc |> order_by([t], fragment("json->>'Genre' desc"))
-                                                  "added" -> acc |> order_by([t], fragment("json->>'Added' desc"))
-                                                  "size" -> acc |> order_by([t], fragment("json->>'Size' desc"))
-                                                  _ -> acc
-                                                end
-                                       _ -> acc
-                                     end
+                             _ -> acc
                           end
                       end)
     else
@@ -125,7 +122,7 @@ defmodule Torr.Torrent do
     unless is_nil(type) or type == "" do
       type |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
-                      acc |> or_where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x}%")))
+                      acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{x}%")))
                   end)
     else
       query
@@ -138,8 +135,8 @@ defmodule Torr.Torrent do
       genre |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
                       x = x |> String.split(":")
-                      acc |> where([c], fragment("json->>'Type' ILIKE ?", ^("%#{x |> Enum.at(0)}%")))
-                          |> where([c], fragment("json->>'Genre' ILIKE ?", ^("%#{x |> Enum.at(1)}%")))
+                      acc |> where([t], fragment("? ILIKE ?", t.type, ^("%#{x |> Enum.at(0)}%")))
+                          |> where([t], fragment("? ILIKE ?", t.genre, ^("%#{x |> Enum.at(1)}%")))
                   end)
     else
       query
@@ -178,10 +175,7 @@ defmodule Torr.Torrent do
 
     from t in query,
       distinct: true,
-      select:  %{
-        type: fragment("json->'Type'"),
-        genre: fragment("json->'Genre'")
-      }
+      select: [t.type, t.genre]
   end
 
   @doc """
@@ -189,7 +183,7 @@ defmodule Torr.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :tracker_id, :torrent_id, :json])
+    |> cast(params, [:name, :genre, :type, :tracker_id, :torrent_id, :json])
     |> unique_constraint(:torrent_id)
     |> foreign_key_constraint(:tracker_id)
     |> validate_required([:tracker_id, :torrent_id])
