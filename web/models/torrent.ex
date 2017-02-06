@@ -135,8 +135,7 @@ defmodule Torr.Torrent do
       genre |> String.split(",")
                |> Enum.reduce(query, fn x, acc ->
                       x = x |> String.split(":")
-                      acc |> where([t], fragment("? ILIKE ?", t.type, ^("%#{x |> Enum.at(0)}%")))
-                          |> where([t], fragment("? ILIKE ?", t.genre, ^("%#{x |> Enum.at(1)}%")))
+                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{x |> Enum.at(0)}%"), t.genre, ^("%#{x |> Enum.at(1)}%")))
                   end)
     else
       query
