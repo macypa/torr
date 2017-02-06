@@ -60,7 +60,7 @@ defmodule Torr.Parser do
     torrent = Torr.Tracker.getQuery(tracker) |> Torr.Repo.get(torrentDBId)
 
     Logger.info "processTorrentData tracker : #{inspect(tracker.url)} torrent id:#{inspect(torrent.id)}"
-require IEx; IEx.pry
+
     category = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["categoryPattern"])
                 |> Floki.text
                 |> String.trim
@@ -68,9 +68,10 @@ require IEx; IEx.pry
 
     genre = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
                |> Floki.text  |> String.replace(":", "")
-               |> String.replace(~r/,\s*,/su, "")
                |> String.replace(~r/\//su, ",")
+               |> String.replace(~r/\|/su, ",")
                |> String.replace(~r/\./us, "")
+               |> String.replace(~r/,\s*,/su, "")
                |> String.replace(":ArenaBG.TV", "")
                |> Floki.text
                |> String.trim
@@ -82,7 +83,10 @@ require IEx; IEx.pry
                |> String.replace(~r/^, /us, "")
                |> String.replace(~r/, $/us, "")
                |> String.replace(~r/\./us, "")
+               |> String.replace(~r/-/us, "")
                |> String.trim
+
+#require IEx; IEx.pry
     %{
       name: torrent.name,
       type: category,
