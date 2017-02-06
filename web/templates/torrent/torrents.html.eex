@@ -10,14 +10,16 @@
 
       <span width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" id="thumbpopup<%= torrent.torrent_id %>">
 
-        <%= unless torrent.json["Type"] != nil and (is_nil(@params["showAll"]) and String.contains?(torrent.json["Type"], "XXX")) do %>
           <img width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" class="lazy img_listing"
-            src="images/remote/<%= decodeImgFirst(torrent.json["images"]) %>" />
-        <% end %>
+            src="images/remote/<%= unless torrent.json["Type"] != nil and (is_nil(@params["showAll"]) and String.contains?(torrent.json["Type"], "XXX")) do
+                decodeImgFirst(torrent.json["images"])
+                else "forbid"
+             end %>" />
+
       </span>
 
         <span class="fixed_size50"><%= torrent.name %></span>
-        <span class="fixed_size10">
+        <span class="fixed_size13">
             <%= unless is_nil(torrent.json["Download"]) or (torrent.json["Download"] |> String.trim == "") do %>
                   <a href="<%= torrent.tracker.url <> "download.php/"
                                <> torrent.torrent_id
@@ -30,10 +32,10 @@
                                <> ".torrent" %>">Download</a>
             <% end %>
         </span>
-        <span class="fixed_size10"><%= torrent.type %></span>
-        <span class="fixed_size10"><%= torrent.genre %></span>
-        <span class="fixed_size10"><%=case torrent.json["Added"] do nil -> torrent.inserted_at; added -> added end %></span>
-        <span class="fixed_size10"><%= case torrent.json["Size"] do nil -> torrent.json["Size:"]; size -> size end %></span>
+        <span class="fixed_size13"><%= torrent.type %></span>
+        <span class="fixed_size13"><%= torrent.genre %></span>
+        <span class="fixed_size13"><%=case torrent.json["Added"] do nil -> torrent.inserted_at; added -> added end %></span>
+        <span class="fixed_size13"><%= case torrent.json["Size"] do nil -> torrent.json["Size:"]; size -> size end %></span>
       </div>
     </div>
     <div class="torrentContent" id="torrent<%= torrent.torrent_id %>">

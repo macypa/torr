@@ -1,4 +1,9 @@
 /* This file is for your main application css. */
+.container {
+  width: 95%;
+  margin-right: 2em;
+  margin-left: 2em;
+}
 
 ul {
   list-style: none;
@@ -86,8 +91,25 @@ ul {
   width:3em;
 }
 
+.fixed_size13 {
+  width:13%; /* or whatever width you want. */
+  min-width:80px; /* or whatever width you want. */
+  max-width:13%; /* or whatever width you want. */
+  display: inline-block;
+  text-align: left;
+}
+
+.fixed_size15 {
+  width:15%; /* or whatever width you want. */
+  min-width:80px; /* or whatever width you want. */
+  max-width:15%; /* or whatever width you want. */
+  display: inline-block;
+  text-align: left;
+}
+
 .fixed_size10 {
   width:10%; /* or whatever width you want. */
+  min-width:80px; /* or whatever width you want. */
   max-width:10%; /* or whatever width you want. */
   display: inline-block;
   text-align: left;
@@ -95,18 +117,21 @@ ul {
 
 .fixed_size50 {
   width:50%; /* or whatever width you want. */
+  min-width:200px; /* or whatever width you want. */
   max-width:50%; /* or whatever width you want. */
   display: inline-block;
 }
 
 .fixed_size80 {
   width:80%; /* or whatever width you want. */
+  min-width:200px; /* or whatever width you want. */
   max-width:80%; /* or whatever width you want. */
   display: inline-block;
 }
 
 .fixed_size20 {
   width:20%; /* or whatever width you want. */
+  min-width:80px; /* or whatever width you want. */
   max-width:20%; /* or whatever width you want. */
   display: inline-block;
 }
@@ -339,7 +364,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
 }
 
 .filtertype {
-  height: 33%;
+  height: 60%;
 }
 
 .filtergenre {
@@ -347,13 +372,16 @@ left: 60px; /*position where enlarged image should offset horizontally */
 }
 
 
+.filter-bar-width {
+  width: 15.56%;
+  min-width: 300px;
+}
 
 .filter-bar {
   position: fixed;
   height: 95vh;
   max-height: 95vh;
   min-height: 95vh;
-  width: 15.56%;
   overflow: auto;
 }
 

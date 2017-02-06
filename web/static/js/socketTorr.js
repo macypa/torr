@@ -228,6 +228,8 @@ $(function() {
             && paramName != ""
             && paramName.includes(label.getAttribute("filterId"))) {
             console.log(label)
+//          checkboxChanged()
+        checkSiblings($this, checked);
         $this.siblings('label').removeClass('custom-checked custom-unchecked custom-indeterminate')
           .addClass('custom-checked');
       }

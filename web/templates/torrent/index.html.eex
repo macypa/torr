@@ -1,5 +1,5 @@
 <div>
-  <div class="filter-bar fixed_size20">
+  <div class="filter-bar fixed_size20 filter-bar-width">
 
     <div class="filter filtermain resizable">
       <div>
@@ -60,23 +60,21 @@
             <label name="type"
                     filterId="<%= type %>"
                     class="custom-unchecked"
+                    onclick="toggle_display('genreUl<%= type %>');"
                  ><%= type %></label>
+               <ul class="treeview" style="display:none;" id="genreUl<%= type %>">
+                       <%= for genre <- @filterData["Genre"] |> String.split(", ")
+                                                             |> Enum.filter(fn(genr) -> String.starts_with?(genr, type) end)do %>
+                          <li>
+                            <input class="filterChckbox" type="checkbox">
+                            <label name="genre"
+                                   filterId="<%= genre %>"
+                                   class="custom-unchecked"
+                                 ><%= String.replace(genre, type <> ":", "") %></label>
+                          </li>
+                       <% end %>
+                     </ul>
           </li>
-        <% end %>
-      </ul>
-    </div>
-
-    <div class="filter filtergenre resizable">
-      <header>Genre</header>
-      <ul class="treeview">
-        <%= for genre <- @filterData["Genre"] |> String.split(", ") do %>
-           <li>
-             <input class="filterChckbox" type="checkbox">
-             <label name="genre"
-                    filterId="<%= genre %>"
-                    class="custom-unchecked"
-                  ><%= genre %></label>
-           </li>
         <% end %>
       </ul>
     </div>
@@ -84,7 +82,7 @@
   </div>
 
   <div class="space_between">
-    <div class="resizable fixed_size20">
+    <div class="resizable fixed_size20 filter-bar-width">
     </div>
     <div class="fixed_size80">
       <h2>Listing torrents</h2>
@@ -95,11 +93,11 @@
           <div class="space_between">
             <span style="display: inline-block; width: 13em;">  </span>
             <span id="sort_name" class="fixed_size50">Name</span>
-            <span class="fixed_size10">Download</span>
-            <span id="sort_type" class="fixed_size10">Type</span>
-            <span id="sort_genre" class="fixed_size10">Genre</span>
-            <span id="sort_added" class="fixed_size10">Added</span>
-            <span id="sort_size" class="fixed_size10">Size</span>
+            <span class="fixed_size13">Download</span>
+            <span id="sort_type" class="fixed_size13">Type</span>
+            <span id="sort_genre" class="fixed_size13">Genre</span>
+            <span id="sort_added" class="fixed_size13">Added</span>
+            <span id="sort_size" class="fixed_size13">Size</span>
           </div>
         </li>
       </ul>
