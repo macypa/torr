@@ -72,6 +72,11 @@ defmodule Torr.Parser do
                |> String.replace(~r/\|/su, ",")
                |> String.replace(~r/\./us, "")
                |> String.replace(~r/,\s*,/su, "")
+               |> String.replace(~r/\d+/su, "")
+               |> String.replace(~r/[\w]+:.*/su, "")
+               |> String.replace(~r/\*.*/su, "")
+               |> String.replace(~r/•.*/su, "")
+               |> String.replace(~r/td>.*/su, "")
                |> String.replace(":ArenaBG.TV", "")
                |> Floki.text
                |> String.trim
@@ -83,7 +88,9 @@ defmodule Torr.Parser do
                |> String.replace(~r/^, /us, "")
                |> String.replace(~r/, $/us, "")
                |> String.replace(~r/\./us, "")
-               |> String.replace(~r/-/us, "")
+               |> String.replace(~r/^\s*-+\s*/us, "")
+               |> String.replace(~r/^\s*#+\s*/us, "")
+               |> String.replace(~r/^\s*-\s*/us, "")
                |> String.trim
 
 #require IEx; IEx.pry

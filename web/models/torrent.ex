@@ -175,7 +175,7 @@ defmodule Torr.Torrent do
 
     from t in query,
       distinct: true,
-      select: [t.type, t.genre]
+      select: %{type: t.type, genre: t.genre}
   end
 
   @doc """
