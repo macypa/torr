@@ -74,6 +74,8 @@ defmodule Torr.Parser do
 
     torrentInfo = %{}
 
+    contentHtml = contentHtml |> String.replace(">>>", "") |> String.replace("<<<", "")
+
     torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.downcase
                                                         |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
                                                         |> String.replace(~r/\s*((с|е|e|s)\d+).*/us, "")
@@ -101,7 +103,7 @@ defmodule Torr.Parser do
       genr -> torrentInfo |> Map.put( "Genre", genr |> Floki.text |> String.trim)
     end
 
-    description = Torr.Crawler.runPattern(contentHtml, tracker.patterns["descriptionPattern"])
+    description = Torr.Crawler.runPattern(contentHtml, tracker.patterns["descriptionPattern"]) |> Floki.text
     torrentInfo = case description do
       "" -> torrentInfo
       descr -> torrentInfo |> Map.put( "Description", descr |> String.trim)
