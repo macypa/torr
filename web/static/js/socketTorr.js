@@ -169,19 +169,33 @@ function updateParams(params, key, value) {
   var urlParams = ""
 
   if (params.hasOwnProperty(key)) {
-    if (params[key].includes(value)) {
-      var reg = new RegExp(',*'+value, 'i')
-      params[key] = params[key].replace(reg, "")
+    if (includesParams(params[key], value)) {
+      params[key] = params[key].replace(getUrlParamsReg(value), "")
     } else {
       params[key] = params[key] + "," + value
     }
     params[key] = params[key].replace(/^,/i, "")
+    params[key] = params[key].replace(/,$/i, "")
   } else {
     params[key] = value;
   }
   return params
 }
 
+function includesParams(stringValues, value) {
+  var m = getUrlParamsReg(value).exec(stringValues)
+  if (m == null) {
+    return false
+  }
+  return true
+}
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+function getUrlParamsReg(value) {
+  var regexStr = escapeRegExp(encodeURI(value)) + '(,|$)'
+  return new RegExp(regexStr, 'i')
+}
 function composeUrlParams(params) {
   var urlParams = ""
   for (var key in params) {
@@ -226,8 +240,7 @@ $(function() {
       var paramName = params[label.getAttribute("name")];
       if (paramName != null
             && paramName != ""
-            && paramName.includes(label.getAttribute("filterId"))) {
-            console.log(label)
+            && includesParams(paramName, label.getAttribute("filterId"))) {
 //          checkboxChanged()
         checkSiblings($this, checked);
         $this.siblings('label').removeClass('custom-checked custom-unchecked custom-indeterminate')
@@ -259,14 +272,14 @@ $(function() {
       var paramName = params[label.getAttribute("name")];
       if (!checked && paramName != null
             && paramName != ""
-            && paramName.includes(label.getAttribute("filterId"))) {
+            && includesParams(paramName, label.getAttribute("filterId"))) {
 
         var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
         sendRequest(params)
       }
       if (checked && !(paramName != null
                 && paramName != ""
-                && paramName.includes(label.getAttribute("filterId")))) {
+                && includesParams(paramName, label.getAttribute("filterId")))) {
 
         var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
         sendRequest(params)
