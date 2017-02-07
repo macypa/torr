@@ -165,6 +165,16 @@ function getUrlParams(payload) {
   return params
 }
 
+function removeFromParams(params, key) {
+  if (params.hasOwnProperty("genre")) {
+    var regexStr = escapeRegExp(encodeURI(key)) + ':.*?(,|$)'
+    params["genre"] = params["genre"].replace(new RegExp(regexStr, 'g'), "")
+    params["genre"] = params["genre"].replace(/^,/i, "")
+    params["genre"] = params["genre"].replace(/,$/i, "")
+  }
+  return params
+}
+
 function updateParams(params, key, value) {
   var urlParams = ""
 
@@ -274,14 +284,20 @@ $(function() {
             && paramName != ""
             && includesParams(paramName, label.getAttribute("filterId"))) {
 
-        var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
+        var params = updateParams(params, label.getAttribute("name"), label.getAttribute("filterId"))
+        if (label.getAttribute("name") == "type") {
+          params = removeFromParams(params, label.getAttribute("filterId"))
+        }
         sendRequest(params)
       }
       if (checked && !(paramName != null
                 && paramName != ""
                 && includesParams(paramName, label.getAttribute("filterId")))) {
 
-        var params = updateParams(getUrlParams({}), label.getAttribute("name"), label.getAttribute("filterId"))
+        var params = updateParams(params, label.getAttribute("name"), label.getAttribute("filterId"))
+        if (label.getAttribute("name") == "type") {
+          params = removeFromParams(params, label.getAttribute("filterId"))
+        }
         sendRequest(params)
       }
     }
