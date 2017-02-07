@@ -3,22 +3,6 @@
 
 <ul id="torrentsList">
 <%= for torrent <- @torrents do %>
-<% images = if is_nil(@params["showAll"]) do
-  if torrent.json["Type"] != nil and String.contains?(torrent.json["Type"], "XXX") do
-    nil
-  else
-    torrent.json["images"]
-  end
-else
-  unless is_nil(torrent.json["imagesHidden"]) do
-    Enum.concat(unless is_nil(torrent.json["images"]) do
-                  torrent.json["images"] else [] end,
-                  torrent.json["imagesHidden"] |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, ~r/\.php/us) end)
-                )
-  else
-    torrent.json["images"]
-  end
-end %>
   <li>
     <div class="thumbnail link" onclick="toggle_display('torrent<%= torrent.torrent_id %>');toggle_displayBasedOn('torrent<%= torrent.torrent_id %>', 'thumbpopup<%= torrent.torrent_id %>');" >
 
@@ -27,7 +11,7 @@ end %>
       <span width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" id="thumbpopup<%= torrent.torrent_id %>">
 
           <img width="<%= if is_nil(@params["img_size"]) or @params["img_size"] == "" do 150 else @params["img_size"] end %>em" class="lazy img_listing"
-            src="images/remote/<%= decodeImgFirst(images) %>" />
+            src="images/remote/<%= decodeOneImage(@params, torrent) %>" />
 
       </span>
 
