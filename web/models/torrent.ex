@@ -128,11 +128,18 @@ defmodule Torr.Torrent do
     type = params["type"]
     unless is_nil(type) or type == "" do
       type |> String.split(",")
-           |> Enum.reduce(query, fn x, acc ->
+           |> Enum.reduce(query, fn genr, acc ->
                 unless is_nil(trackers) or trackers == "" do
-                  acc |> or_where([t], fragment("? ILIKE ? and ? in (?) ", t.type, ^("%#{x}%"), t.tracker_id, ^trackers))
+                  genr = genr |> String.split(":")
+                  acc = trackers |> String.split(",")
+                                |> Enum.reduce(query, fn track, acc ->
+                                  {intTrack, _} = Integer.parse(track)
+                                  acc |> or_where([t], fragment("? ILIKE ? and ? = ? ",
+                                                                t.type, ^("%#{genr}%"),
+                                                                t.tracker_id, ^intTrack))
+                                end)
                 else
-                  acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{x}%")))
+                  acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
                 end
               end)
     else
@@ -145,13 +152,20 @@ defmodule Torr.Torrent do
     genre = params["genre"]
     unless is_nil(genre) or genre == "" do
       genre  |> String.split(",")
-             |> Enum.reduce(query, fn x, acc ->
+             |> Enum.reduce(query, fn genr, acc ->
                     unless is_nil(trackers) or trackers == "" do
-                      x = x |> String.split(":")
-                                            acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? and ? in (?) ", t.type, ^("%#{x |> Enum.at(0)}%"), t.genre, ^("%#{x |> Enum.at(1)}%"), t.tracker_id, ^trackers))
+                      genr = genr |> String.split(":")
+                      acc = trackers |> String.split(",")
+                                    |> Enum.reduce(query, fn track, acc ->
+                                      {intTrack, _} = Integer.parse(track)
+                                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
+                                                                    t.type, ^("%#{genr |> Enum.at(0)}%"),
+                                                                    t.genre, ^("%#{genr |> Enum.at(1)}%"),
+                                                                    t.tracker_id, ^intTrack))
+                                    end)
                     else
-                      x = x |> String.split(":")
-                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{x |> Enum.at(0)}%"), t.genre, ^("%#{x |> Enum.at(1)}%")))
+                      genr = genr |> String.split(":")
+                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
                     end
                 end)
     else
