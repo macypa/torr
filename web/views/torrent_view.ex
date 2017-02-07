@@ -40,7 +40,7 @@ defmodule Torr.TorrentView do
       end
     else
       unless is_nil(torrent.json["imagesHidden"]) do
-        images = Enum.concat(unless is_nil(torrent.json["images"]) do
+        Enum.concat(unless is_nil(torrent.json["images"]) do
                       torrent.json["images"] else [] end,
                       torrent.json["imagesHidden"] |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, ~r/\.php/us) end)
                     )
