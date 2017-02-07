@@ -92,6 +92,9 @@ defmodule Torr.Parser do
                |> String.replace(~r/^\s*-+\s*/us, "")
                |> String.replace(~r/^\s*#+\s*/us, "")
                |> String.replace(~r/^\s*-\s*/us, "")
+               |> String.replace(~r/\s*-\s*;/us, ",")
+               |> String.slice(0, 255)
+               |> String.replace(~r/,\s*\w+$/us, "")
                |> String.trim
 
 #require IEx; IEx.pry
