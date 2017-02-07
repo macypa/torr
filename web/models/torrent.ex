@@ -109,11 +109,16 @@ defmodule Torr.Torrent do
     trackers = params["tracker"]
     type = params["type"]
     genre = params["genre"]
+    search = params["search"]
     if is_nil(type) or type == "" or is_nil(genre) or genre == "" do
       unless is_nil(trackers) or trackers == "" do
         trackers |> String.split(",")
                  |> Enum.reduce(query, fn x, acc ->
-                        acc |> or_where([c], c.tracker_id == ^x)
+                        case search do
+                          nil -> acc |> or_where([c], c.tracker_id == ^x)
+                          _ -> acc |> where([c], c.tracker_id == ^x)
+                        end
+
                     end)
       else
         query
@@ -126,6 +131,7 @@ defmodule Torr.Torrent do
   def filterByType(query, params) do
     trackers = params["tracker"]
     type = params["type"]
+    search = params["search"]
     unless is_nil(type) or type == "" do
       type |> String.split(",")
            |> Enum.reduce(query, fn genr, acc ->
@@ -134,12 +140,21 @@ defmodule Torr.Torrent do
                   acc = trackers |> String.split(",")
                                 |> Enum.reduce(query, fn track, acc ->
                                   {intTrack, _} = Integer.parse(track)
-                                  acc |> or_where([t], fragment("? ILIKE ? and ? = ? ",
-                                                                t.type, ^("%#{genr}%"),
-                                                                t.tracker_id, ^intTrack))
+                                  case search do
+                                    nil -> acc |> or_where([t], fragment("? ILIKE ? and ? = ? ",
+                                                                 t.type, ^("%#{genr}%"),
+                                                                 t.tracker_id, ^intTrack))
+                                    _ -> acc |> where([t], fragment("? ILIKE ? and ? = ? ",
+                                                            t.type, ^("%#{genr}%"),
+                                                            t.tracker_id, ^intTrack))
+                                  end
                                 end)
                 else
-                  acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
+                  case search do
+                    nil -> acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
+                    _ -> acc |> where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
+                  end
+
                 end
               end)
     else
@@ -150,6 +165,7 @@ defmodule Torr.Torrent do
   def filterByGenre(query, params) do
     trackers = params["tracker"]
     genre = params["genre"]
+    search = params["search"]
     unless is_nil(genre) or genre == "" do
       genre  |> String.split(",")
              |> Enum.reduce(query, fn genr, acc ->
@@ -158,14 +174,23 @@ defmodule Torr.Torrent do
                       acc = trackers |> String.split(",")
                                     |> Enum.reduce(query, fn track, acc ->
                                       {intTrack, _} = Integer.parse(track)
-                                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
+                                      case search do
+                                        nil -> acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
                                                                     t.type, ^("%#{genr |> Enum.at(0)}%"),
                                                                     t.genre, ^("%#{genr |> Enum.at(1)}%"),
                                                                     t.tracker_id, ^intTrack))
+                                        _ -> acc |> where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
+                                                               t.type, ^("%#{genr |> Enum.at(0)}%"),
+                                                               t.genre, ^("%#{genr |> Enum.at(1)}%"),
+                                                               t.tracker_id, ^intTrack))
+                                      end
                                     end)
                     else
                       genr = genr |> String.split(":")
-                      acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
+                      case search do
+                        nil -> acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
+                        _ -> acc |> where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
+                      end
                     end
                 end)
     else

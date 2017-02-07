@@ -97,7 +97,7 @@ defmodule Torr.Parser do
                |> String.replace(~r/,\s*\w+$/us, "")
                |> String.trim
 
-#require IEx; IEx.pry
+
     %{
       name: torrent.name,
       type: category,
@@ -115,6 +115,7 @@ defmodule Torr.Parser do
     torrentInfo = %{}
 
     contentHtml = contentHtml |> String.replace(">>>", "") |> String.replace("<<<", "")
+                              |> String.replace("?>", "") |> String.replace("<?", "")
 
     torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.downcase
                                                         |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")

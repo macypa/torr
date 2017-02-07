@@ -370,7 +370,7 @@ defmodule Torr.Crawler do
                      "pageContainsTorrentsPattern": "~r/id=\"search-button\".*?torrent-download/su",
                      "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
                      "genrePattern": "~r/<b>Category</b>.*?</a>.*?<a.*?>(?<genre>.*?)</a>/su",
-                     "genrePattern2": "~r/(Жанр:|Genre:)(?<genre>.*?)(<br|</td|</li)/su",
+                     "genrePattern2": "~r/(Жанр:|Genre:)(?<genre>.*?)(\t|<br|</td|</li)/su",
                      "descriptionPattern": "~r/Torrent:(?<desc>.*?)id=\"comments\"/su",
                      "torrentDescNameValuePattern": ".table-details tr",
                      "torrentDescNamePattern": "td.hidden-xs",
