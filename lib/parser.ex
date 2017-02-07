@@ -67,7 +67,8 @@ defmodule Torr.Parser do
                 |> Torr.FilterData.convertType
 
     genre = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
-               |> Floki.text  |> String.replace(":", "")
+               |> Floki.text
+               |> String.replace(":", "")
                |> String.replace(~r/\//su, ",")
                |> String.replace(~r/\|/su, ",")
                |> String.replace(~r/\./us, "")
@@ -76,7 +77,7 @@ defmodule Torr.Parser do
                |> String.replace(~r/[\w]+:.*/su, "")
                |> String.replace(~r/\*.*/su, "")
                |> String.replace(~r/•.*/su, "")
-               |> String.replace(~r/td>.*/su, "")
+               |> String.replace(~r/[^>]+>.*/su, "")
                |> String.replace(":ArenaBG.TV", "")
                |> Floki.text
                |> String.trim
