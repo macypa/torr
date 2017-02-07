@@ -364,7 +364,7 @@ defmodule Torr.Crawler do
         urlPattern: "en/torrent-download-(?<url>.*?)(#|$)",
         namePattern: "~r/<h3.*?<\/h3>/su",
         htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
-        cookie: "lang=en; __utma=232206415.1112305381.1480870454.1485560022.1485564408.6; __utmz=232206415.1480870454.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __auc=7336a9dd158cac1e4fcaa7dd034; skin=black; SESSID=rjbdsl6trs2p7j9e6fsvc86nr6; __utmb=232206415.1.10.1485564408; __utmc=232206415; __utmt=1; __asc=506ca636159e289f08a443e6944",
+        cookie: "SESSID=as1u48f7vaf1502sistemkhdt0; __utmt=1; uid=4168172; pass=1bace4536e356ab55f2c53f433959c29; lang=en; __utma=232206415.1053523969.1485765746.1486370541.1486462957.9; __utmb=232206415.22.10.1486462957; __utmc=232206415; __utmz=232206415.1486462957.9.8.utmcsr=localhost:4000|utmccn=(referral)|utmcmd=referral|utmcct=/torrents",
         patterns: %{ "urlsuffix": "",
                      "lastPagePattern": "~r/There are no results found/su",
                      "pageContainsTorrentsPattern": "~r/id=\"search-button\".*?torrent-download/su",
