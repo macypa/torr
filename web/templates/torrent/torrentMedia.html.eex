@@ -7,7 +7,10 @@
   end
 else
   unless is_nil(torrent.json["imagesHidden"]) do
-    Enum.concat(torrent.json["images"], torrent.json["imagesHidden"])
+    Enum.concat(unless is_nil(torrent.json["images"]) do
+                  torrent.json["images"] else [] end,
+                  torrent.json["imagesHidden"] |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, ~r/\.php/us) end)
+               )
   else
     torrent.json["images"]
   end
