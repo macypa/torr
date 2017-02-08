@@ -20,7 +20,7 @@ defmodule Torr.Torrent do
     torrents = Torrent
 #            |> Map.from_struct
             |> search(params)
-            |> filter(params)
+#            |> filter(params)
             |> sort(params)
             |> catalogMode(params)
             |> with_tracker()
@@ -76,125 +76,101 @@ defmodule Torr.Torrent do
 
   def search(query, searchParams) do
     searchTerm = searchParams["search"]
-    unless is_nil(searchTerm) or searchTerm == "" do
+    dynamic = unless is_nil(searchTerm) or searchTerm == "" do
       searchTerm = Regex.scan(~r/"(?:\.|[^\"])*"|\S+/,searchTerm)
                    |> Enum.reduce([], fn(x, list) -> list ++ [x |> Enum.at(0)
                                                        |> String.replace_leading("\"", "")
                                                        |> String.replace_trailing("\"", "")] end)
 
-      query = searchTerm |> Enum.reduce(query, fn x, acc ->
-                          acc |> where([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
+      dynamic = searchTerm |> Enum.reduce(nil, fn x, acc ->
+#                          acc |> where([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
+                            case acc do
+                              nil -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
+                              acc -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")) and ^acc)
+                            end
                       end)
 
       searchDesc = searchParams["searchDescription"]
       unless is_nil(searchDesc) or searchDesc == "" do
-        searchTerm |> Enum.reduce(query, fn x, acc ->
-                                acc |> where([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
-                            end)
-      else
-        query
-      end
-    else
-      query
-    end
-  end
-
-  def filter(query, params) do
-    query |> filterByTracker(params)
-          |> filterByType(params)
-          |> filterByGenre(params)
-  end
-
-  def filterByTracker(query, params) do
-    trackers = params["tracker"]
-    type = params["type"]
-    genre = params["genre"]
-    search = params["search"]
-    if is_nil(type) or type == "" or is_nil(genre) or genre == "" do
-      unless is_nil(trackers) or trackers == "" do
-        trackers |> String.split(",")
-                 |> Enum.reduce(query, fn x, acc ->
-                        case search do
-                          nil -> acc |> or_where([c], c.tracker_id == ^x)
-                          _ -> acc |> where([c], c.tracker_id == ^x)
-                        end
-
-                    end)
-      else
-        query
-      end
-    else
-      query
-    end
-  end
-
-  def filterByType(query, params) do
-    trackers = params["tracker"]
-    type = params["type"]
-    search = params["search"]
-    unless is_nil(type) or type == "" do
-      type |> String.split(",")
-           |> Enum.reduce(query, fn genr, acc ->
-                unless is_nil(trackers) or trackers == "" do
-                  genr = genr |> String.split(":")
-                  acc = trackers |> String.split(",")
-                                |> Enum.reduce(query, fn track, acc ->
-                                  {intTrack, _} = Integer.parse(track)
-                                  case search do
-                                    nil -> acc |> or_where([t], fragment("? ILIKE ? and ? = ? ",
-                                                                 t.type, ^("%#{genr}%"),
-                                                                 t.tracker_id, ^intTrack))
-                                    _ -> acc |> where([t], fragment("? ILIKE ? and ? = ? ",
-                                                            t.type, ^("%#{genr}%"),
-                                                            t.tracker_id, ^intTrack))
+        searchTerm |> Enum.reduce(dynamic, fn x, acc ->
+#                                acc |> where([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
+                                  case acc do
+                                    nil -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
+                                    acc -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")) and ^acc)
                                   end
-                                end)
-                else
-                  case search do
-                    nil -> acc |> or_where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
-                    _ -> acc |> where([t], fragment("? ILIKE ?", t.type, ^("%#{genr}%")))
-                  end
+                            end)
+      end
+    end
 
-                end
-              end)
+    dynamic = filter(dynamic, searchParams)
+
+    case dynamic do
+      nil -> query
+      dynamic -> from query, where: ^dynamic
+    end
+
+  end
+
+  def filter(dynamic, params) do
+    dynamic |> filterByTracker(params)
+            |> filterByType(params)
+            |> filterByGenre(params)
+  end
+
+  def filterByTracker(dynamic, params) do
+    trackers = params["tracker"]
+    unless is_nil(trackers) or trackers == "" do
+      dynamicToAdd = trackers |> String.split(",")
+               |> Enum.reduce(nil, fn x, acc ->
+                      case acc do
+                        nil -> dynamic([c], c.tracker_id == ^x)
+                        acc -> dynamic([c], c.tracker_id == ^x or ^acc)
+                      end
+                  end)
+      case dynamic do
+        nil -> dynamicToAdd
+        dynamic -> dynamic([d], ^dynamicToAdd and ^dynamic)
+      end
     else
-      query
+      dynamic
     end
   end
 
-  def filterByGenre(query, params) do
-    trackers = params["tracker"]
-    genre = params["genre"]
-    search = params["search"]
-    unless is_nil(genre) or genre == "" do
-      genre  |> String.split(",")
-             |> Enum.reduce(query, fn genr, acc ->
-                    unless is_nil(trackers) or trackers == "" do
-                      genr = genr |> String.split(":")
-                      acc = trackers |> String.split(",")
-                                    |> Enum.reduce(query, fn track, acc ->
-                                      {intTrack, _} = Integer.parse(track)
-                                      case search do
-                                        nil -> acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
-                                                                    t.type, ^("%#{genr |> Enum.at(0)}%"),
-                                                                    t.genre, ^("%#{genr |> Enum.at(1)}%"),
-                                                                    t.tracker_id, ^intTrack))
-                                        _ -> acc |> where([t], fragment("? ILIKE ? and ? ILIKE ? and ? = ? ",
-                                                               t.type, ^("%#{genr |> Enum.at(0)}%"),
-                                                               t.genre, ^("%#{genr |> Enum.at(1)}%"),
-                                                               t.tracker_id, ^intTrack))
-                                      end
-                                    end)
-                    else
-                      genr = genr |> String.split(":")
-                      case search do
-                        nil -> acc |> or_where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
-                        _ -> acc |> where([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{genr |> Enum.at(0)}%"), t.genre, ^("%#{genr |> Enum.at(1)}%")))
-                      end
-                    end
-                end)
+  def filterByType(dynamic, params) do
+    type = params["type"]
+    unless is_nil(type) or type == "" do
+      dynamicToAdd = type |> String.split(",")
+                         |> Enum.reduce(nil, fn x, acc ->
+                                case acc do
+                                  nil -> dynamic([t], fragment("? ILIKE ?", t.type, ^("%#{x}%")))
+                                  acc -> dynamic([t], fragment("? ILIKE ?", t.type, ^("%#{x}%")) or ^acc)
+                                end
+                            end)
+      case dynamic do
+        nil -> dynamicToAdd
+        dynamic -> dynamic([d], ^dynamicToAdd and ^dynamic)
+      end
     else
-      query
+      dynamic
+    end
+  end
+
+  def filterByGenre(dynamic, params) do
+    genre = params["genre"]
+    unless is_nil(genre) or genre == "" do
+      dynamicToAdd = genre  |> String.split(",")
+             |> Enum.reduce(nil, fn genr, acc ->
+                        case acc do
+                          nil -> dynamic([t], fragment("? ILIKE ? ", t.genre, ^("%#{genr |> String.split(":") |> Enum.at(1)}%")))
+                          acc -> dynamic([t], fragment("? ILIKE ? ", t.genre, ^("%#{genr |> String.split(":") |> Enum.at(1)}%")) or ^acc)
+                        end
+                end)
+      case dynamic do
+        nil -> dynamicToAdd
+        dynamic -> dynamic([d], ^dynamicToAdd and ^dynamic)
+      end
+    else
+      dynamic
     end
   end
 
