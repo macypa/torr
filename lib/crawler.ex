@@ -315,7 +315,7 @@ defmodule Torr.Crawler do
                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
                      "imgHiddenAttr": "style",
                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
                      "videoSelector": "#youtube_video",
                      "videoAttrPattern": "code"}
       },
@@ -350,7 +350,7 @@ defmodule Torr.Crawler do
                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
                      "imgHiddenAttr": "style",
                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
                      "videoSelector": "#youtube_video",
                      "videoAttrPattern": "code"}
       },
@@ -383,7 +383,7 @@ defmodule Torr.Crawler do
                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
                      "imgHiddenAttr": "style",
                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|valid_css|valid_html).*",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|valid_css|valid_html|\.php).*",
                      "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
       },
       %{
@@ -415,7 +415,7 @@ defmodule Torr.Crawler do
                      "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
                      "imgHiddenAttr": "style",
                      "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png).*",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
                      "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
       }
 # http://energy-torrent.com/browse.php

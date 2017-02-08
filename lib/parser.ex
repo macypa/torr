@@ -203,11 +203,6 @@ defmodule Torr.Parser do
                               |> Enum.filter(fn(imgUrl) -> String.match?(imgUrl, imgLinkReg) end)
 
     if is_nil(imagesLink) or imagesLink == [] do
-      imgReg = case Regex.compile(tracker.patterns["imgFilterPattern"], "u") do
-            {:ok, imgRexgex} -> imgRexgex
-            {:error, error} -> {:error, error}
-          end
-
       contentHtml |> Floki.find("a")
                             |> Floki.attribute("href")
                             |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
