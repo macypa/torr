@@ -22,9 +22,9 @@ config :scrivener_html,
 
 config :logger,
   backends: [{LoggerFileBackend, :file_log}, :console]
-config :logger, :file_log,
-  path: "debug.log",
-  level: :info
+#config :logger, :file_log,
+#  path: "debug.log",
+#  level: :info
 
 # Configures Elixir's Logger
 config :logger, :console,
