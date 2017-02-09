@@ -84,27 +84,42 @@ defmodule Torr.Torrent do
                                                        |> String.replace_trailing("\"", "")] end)
 
       dynamic = searchTerm |> Enum.reduce(nil, fn x, acc ->
-#                          acc |> where([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
-                            case acc do
-                              nil -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
-                              acc -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")) and ^acc)
+                            if String.starts_with?(x, "-") do
+                              x = String.slice(x, 1..-1)
+                              case acc do
+                                nil -> dynamic([t], fragment("? NOT ILIKE ?", t.name, ^("%#{x}%")))
+                                acc -> dynamic([t], fragment("? NOT ILIKE ?", t.name, ^("%#{x}%")) and ^acc)
+                              end
+                            else
+                              case acc do
+                                nil -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")))
+                                acc -> dynamic([t], fragment("? ILIKE ?", t.name, ^("%#{x}%")) and ^acc)
+                              end
                             end
                       end)
 
       searchDesc = searchParams["searchDescription"]
       unless is_nil(searchDesc) or searchDesc == "" do
-        searchTerm |> Enum.reduce(dynamic, fn x, acc ->
-#                                acc |> where([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
-                                  case acc do
-                                    nil -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
-                                    acc -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")) and ^acc)
-                                  end
-                            end)
-      end
+                    searchTerm |> Enum.reduce(dynamic, fn x, acc ->
+                                      if String.starts_with?(x, "-") do
+                                        x = String.slice(x, 1..-1)
+                                        case acc do
+                                          nil -> dynamic([t], fragment("json->>'Description' NOT ILIKE ?", ^("%#{x}%")))
+                                          acc -> dynamic([t], fragment("json->>'Description' NOT ILIKE ?", ^("%#{x}%")) and ^acc)
+                                        end
+                                      else
+                                        case acc do
+                                          nil -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")))
+                                          acc -> dynamic([t], fragment("json->>'Description' ILIKE ?", ^("%#{x}%")) and ^acc)
+                                        end
+                                      end
+                                end)
+                else
+                    dynamic
+                end
     end
 
     dynamic = filter(dynamic, searchParams)
-
     case dynamic do
       nil -> query
       dynamic -> from query, where: ^dynamic
@@ -163,9 +178,17 @@ defmodule Torr.Torrent do
              |> Enum.reduce(nil, fn genre, acc ->
                         type = genre |> String.split(":") |> Enum.at(0)
                         genr = genre |> String.split(":") |> Enum.at(1)
-                        case acc do
-                          nil -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")))
-                          acc -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")) or ^acc)
+                        if String.starts_with?(genr, "-") do
+                          genr = String.slice(genr, 1..-1)
+                          case acc do
+                            nil -> dynamic([t], fragment("? ILIKE ? and ? NOT ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")))
+                            acc -> dynamic([t], fragment("? ILIKE ? and ? NOT ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")) or ^acc)
+                          end
+                        else
+                          case acc do
+                            nil -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")))
+                            acc -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")) or ^acc)
+                          end
                         end
                 end)
       case dynamic do
