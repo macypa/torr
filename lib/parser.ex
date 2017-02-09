@@ -114,7 +114,8 @@ defmodule Torr.Parser do
                       |> String.replace(~r/\[[^\[\]]*?\]/us, "")
                       |> String.replace(~r/\s*((с|е|e|s)\d+).*/us, "")
                       |> String.replace(~r/\s*(season|сезон).*/us, "")
-                      |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
+                      |> String.replace(~r/\s*(\s\w{2,3}rip\s|\sxvid\s|\shdtv\s|\sx264\s|\sdvd\s).*/us, "")
+                      |> String.replace(~r/[^\\(\\)0-9 A-Z a-z а-я А-Я]/us, "")
                       |> String.split(" / ") |> Enum.at(0)
                       |> String.trim
   end
