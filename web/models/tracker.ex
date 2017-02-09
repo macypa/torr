@@ -65,15 +65,19 @@ defmodule Torr.Tracker do
     end
   end
 
+  def get_torrent_by_torrent_id(tracker, torrentMap) do
+    kind = getKind(tracker)
+    case Torr.Repo.get_by(getQuery(tracker), torrent_id: torrentMap.torrent_id) do
+      nil  -> to_struct(kind, %{torrent_id: torrentMap.torrent_id})
+      torrent -> torrent
+    end
+  end
+
   def saveTorrent(tracker, torrentMap) do
       kind = getKind(tracker)
-      result =
-        case Torr.Repo.get_by(getQuery(tracker), torrent_id: torrentMap.torrent_id) do
-          nil  -> to_struct(kind, %{torrent_id: torrentMap.torrent_id})
-          torrent -> torrent
-        end
-        |> kind.changeset(torrentMap)
-        |> Torr.Repo.insert_or_update
+      result = get_torrent_by_torrent_id(tracker, torrentMap)
+                  |> kind.changeset(torrentMap)
+                  |> Torr.Repo.insert_or_update
 
       case result do
         {:ok, struct}  -> {:ok, struct}

@@ -9,6 +9,7 @@ defmodule Torr.Torrent do
     field :name, :string, default: ""
     field :type, :string, default: ""
     field :genre, :string, default: ""
+    field :uniq_name, :string, default: ""
     belongs_to :tracker, Torr.Tracker
     field :torrent_id, :string, default: ""
     field :json, :map, default: %{}
@@ -159,10 +160,12 @@ defmodule Torr.Torrent do
     genre = params["genre"]
     unless is_nil(genre) or genre == "" do
       dynamicToAdd = genre  |> String.split(",")
-             |> Enum.reduce(nil, fn genr, acc ->
+             |> Enum.reduce(nil, fn genre, acc ->
+                        type = genre |> String.split(":") |> Enum.at(0)
+                        genr = genre |> String.split(":") |> Enum.at(1)
                         case acc do
-                          nil -> dynamic([t], fragment("? ILIKE ? ", t.genre, ^("%#{genr |> String.split(":") |> Enum.at(1)}%")))
-                          acc -> dynamic([t], fragment("? ILIKE ? ", t.genre, ^("%#{genr |> String.split(":") |> Enum.at(1)}%")) or ^acc)
+                          nil -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")))
+                          acc -> dynamic([t], fragment("? ILIKE ? and ? ILIKE ? ", t.type, ^("%#{type}%"), t.genre, ^("%#{genr}%")) or ^acc)
                         end
                 end)
       case dynamic do
@@ -183,14 +186,17 @@ defmodule Torr.Torrent do
     order_by: [desc: p.name]
   end
 
-  def save(_tracker, torrentMap) do
-      result =
-        case Torr.Repo.get_by(Torr.Torrent, [tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id]) do
-          nil  ->  %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}
-          torrent -> torrent
-        end
-        |> Torr.Torrent.changeset(torrentMap)
-        |> Torr.Repo.insert_or_update
+  def get_by(torrentMap) do
+    case Torr.Repo.get_by(Torr.Torrent, [tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id]) do
+      nil  ->  %Torr.Torrent{tracker_id: torrentMap.tracker_id, torrent_id: torrentMap.torrent_id}
+      torrent -> torrent
+    end
+  end
+
+  def save(torrentMap) do
+      result = Torr.Torrent.get_by(torrentMap)
+                  |> Torr.Torrent.changeset(torrentMap)
+                  |> Torr.Repo.insert_or_update
 
       case result do
         {:ok, struct}  ->
@@ -199,6 +205,12 @@ defmodule Torr.Torrent do
                           {:ok, struct}
         {:error, changeset} -> {:error, changeset}
       end
+  end
+
+  def allWithEmptyType(query) do
+    from t in query,
+      where: t.type == ^"",
+      select: %{tracker_id: t.tracker_id, torrent_id: t.torrent_id}
   end
 
   def typeGenres do
@@ -214,7 +226,7 @@ defmodule Torr.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :genre, :type, :tracker_id, :torrent_id, :json])
+    |> cast(params, [:name, :uniq_name, :genre, :type, :tracker_id, :torrent_id, :json])
     |> unique_constraint(:torrent_id)
     |> foreign_key_constraint(:tracker_id)
     |> validate_required([:tracker_id, :torrent_id])

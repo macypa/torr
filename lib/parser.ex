@@ -21,6 +21,8 @@ defmodule Torr.Parser do
       processTorrents(tracker)
     end
 
+    processEmptyTypeGenre()
+
     Logger.info "Parser done"
   end
 
@@ -39,7 +41,8 @@ defmodule Torr.Parser do
 
                                                     try do
                                                        data = processTorrentData(tracker, torrentDBId)
-                                                       Torr.Torrent.save(tracker, data)
+                                                       require IEx; IEx.pry
+                                                       Torr.Torrent.save(data)
                                                     rescue
                                                       e -> Logger.error "processTorrentData error: #{inspect(e)}"
                                                             :ok
@@ -55,73 +58,137 @@ defmodule Torr.Parser do
 
   end
 
+  def processEmptyTypeGenre() do
+    Logger.info "processTorrentsTypeGenre..."
+    try do
+        for _ <- Stream.cycle([:ok]) do
+          notProcessed = Torr.Torrent
+                          |> Torr.Torrent.allWithEmptyType()
+                          |> Repo.all
+
+          case notProcessed do
+                [] -> #require IEx; IEx.pry
+                      raise "no torrents with empty type"
+                notProcessed -> notProcessed |> Enum.each(fn torrent ->
+
+                                                    try do
+                                                       tracker = Repo.get(Torr.Tracker, torrent.tracker_id)
+                                                       data = processTorrentTypeGenre(tracker, torrent)
+                                                       Torr.Torrent.save(data)
+                                                    rescue
+                                                      e -> Logger.error "processTorrentTypeGenre error: #{inspect(e)}"
+                                                            :ok
+                                                    end
+
+                                                end)
+          end
+        end
+      rescue
+        e -> Logger.error "processTorrentTypeGenre error: #{inspect(e)}"
+              :ok
+      end
+
+  end
+
+  def processTorrentTypeGenre(tracker, torrent) do
+    torrent = Torr.Tracker.get_torrent_by_torrent_id(tracker, torrent)
+
+    Logger.info "processTorrentTypeGenre : torrent id:#{inspect(torrent.id)}"
+
+    uniq_name = getUniqName(torrent.name)
+    category = getType(torrent, tracker)
+    genre = getGenre(torrent, tracker)
+
+    %{
+      uniq_name: uniq_name,
+      type: category,
+      genre: genre,
+      tracker_id: torrent.tracker_id,
+      torrent_id: torrent.torrent_id,
+    }
+
+  end
+
+  def getUniqName(name) do
+    name |> String.downcase
+                      |> String.replace(~r/\[[^\[\]]*?\]/us, "")
+                      |> String.replace(~r/\s*((с|е|e|s)\d+).*/us, "")
+                      |> String.replace(~r/\s*(season|сезон).*/us, "")
+                      |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
+                      |> String.split(" / ") |> Enum.at(0)
+                      |> String.trim
+  end
+
+  def getType(torrent, tracker) do
+    Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["categoryPattern"])
+                    |> Floki.text
+                    |> String.trim
+                    |> Torr.FilterData.convertType
+  end
+
+  def getGenre(torrent, tracker) do
+    Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
+                   |> Floki.text
+                   |> String.replace(":", "")
+                   |> String.replace(~r/\//su, ",")
+                   |> String.replace(~r/\|/su, ",")
+                   |> String.replace(~r/\./us, "")
+                   |> String.replace(~r/,\s*,/su, "")
+                   |> String.replace(~r/\d+/su, "")
+                   |> String.replace(~r/[\w]+:.*/su, "")
+                   |> String.replace(~r/\*.*/su, "")
+                   |> String.replace(~r/•.*/su, "")
+                   |> String.replace(~r/[^>]+>.*/su, "")
+                   |> String.replace(":ArenaBG.TV", "")
+                   |> Floki.text
+                   |> String.trim
+                   |> String.split(",")
+                   |> Enum.filter(fn(genr) -> String.length(genr) > 2 end)
+                   |> Enum.map(fn(genr) -> String.trim(genr) end)
+                   |> Enum.uniq
+                   |> Enum.sort
+                   |> Enum.join(", ")
+                   |> String.replace(~r/^, /us, "")
+                   |> String.replace(~r/, $/us, "")
+                   |> String.replace(~r/\./us, "")
+                   |> String.replace(~r/^\s*-+\s*/us, "")
+                   |> String.replace(~r/^\s*#+\s*/us, "")
+                   |> String.replace(~r/^\s*-\s*/us, "")
+                   |> String.replace(~r/\s*-\s*;/us, ",")
+                   |> String.slice(0, 55)
+                   |> String.replace(~r/,\s*\w+$/us, "")
+                   |> String.trim
+  end
+
   def processTorrentData(tracker, torrentDBId) do
 
     torrent = Torr.Tracker.getQuery(tracker) |> Torr.Repo.get(torrentDBId)
 
     Logger.info "processTorrentData tracker : #{inspect(tracker.url)} torrent id:#{inspect(torrent.id)}"
 
-    category = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["categoryPattern"])
-                |> Floki.text
-                |> String.trim
-                |> Torr.FilterData.convertType
-
-    genre = Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
-               |> Floki.text
-               |> String.replace(":", "")
-               |> String.replace(~r/\//su, ",")
-               |> String.replace(~r/\|/su, ",")
-               |> String.replace(~r/\./us, "")
-               |> String.replace(~r/,\s*,/su, "")
-               |> String.replace(~r/\d+/su, "")
-               |> String.replace(~r/[\w]+:.*/su, "")
-               |> String.replace(~r/\*.*/su, "")
-               |> String.replace(~r/•.*/su, "")
-               |> String.replace(~r/[^>]+>.*/su, "")
-               |> String.replace(":ArenaBG.TV", "")
-               |> Floki.text
-               |> String.trim
-               |> String.split(",")
-               |> Enum.map(fn(genr) -> String.trim(genr) end)
-               |> Enum.uniq
-               |> Enum.sort
-               |> Enum.join(", ")
-               |> String.replace(~r/^, /us, "")
-               |> String.replace(~r/, $/us, "")
-               |> String.replace(~r/\./us, "")
-               |> String.replace(~r/^\s*-+\s*/us, "")
-               |> String.replace(~r/^\s*#+\s*/us, "")
-               |> String.replace(~r/^\s*-\s*/us, "")
-               |> String.replace(~r/\s*-\s*;/us, ",")
-               |> String.slice(0, 255)
-               |> String.replace(~r/,\s*\w+$/us, "")
-               |> String.trim
-
+    uniq_name = getUniqName(torrent.name)
+    category = getType(torrent, tracker)
+    genre = getGenre(torrent, tracker)
 
     %{
       name: torrent.name,
+      uniq_name: uniq_name,
       type: category,
       genre: genre,
       tracker_id: tracker.id,
       torrent_id: torrent.torrent_id,
-      json: updateJson(torrent.content_html, tracker, torrent.name)
+      json: updateJson(torrent.content_html, tracker)
     }
 
   end
 
-  def updateJson(contentHtml, tracker, name) do
+  def updateJson(contentHtml, tracker) do
     Logger.debug "updateJson"
 
     torrentInfo = %{}
 
     contentHtml = contentHtml |> String.replace(">>>", "") |> String.replace("<<<", "")
                               |> String.replace("?>", "") |> String.replace("<?", "")
-
-    torrentInfo = Map.put(torrentInfo, "uniqName", name |> String.downcase
-                                                        |> String.replace(~r/[^\\(\\)1-9 A-Z a-z а-я А-Я]/us, "")
-                                                        |> String.replace(~r/\s*((с|е|e|s)\d+).*/us, "")
-                                                        |> String.replace(~r/\s*(season|сезон).*/us, "")
-                                                        |> String.trim)
 
     torrentInfo = contentHtml |> Floki.find(tracker.patterns["torrentDescNameValuePattern"])
                               |> Enum.reduce(torrentInfo, fn x, acc ->
