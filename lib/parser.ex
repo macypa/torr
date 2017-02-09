@@ -21,7 +21,7 @@ defmodule Torr.Parser do
       processTorrents(tracker)
     end
 
-    processEmptyTypeGenre()
+#    processEmptyTypeGenre()
 
     Logger.info "Parser done"
   end

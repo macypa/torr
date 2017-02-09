@@ -105,6 +105,10 @@ defmodule Torr.Tracker do
     getQuery(tracker) |> where([t], t.name == ^"")
   end
 
+  def allWithEmptyHtml(tracker) do
+    getQuery(tracker) |> where([t], t.content_html == ^"")
+  end
+
   def notProcessed(tracker) do
     query = getQuery(tracker)
 

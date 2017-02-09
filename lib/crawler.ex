@@ -95,7 +95,7 @@ defmodule Torr.Crawler do
 
   def collectTorrents(tracker) do
     Logger.debug "collectTorrents tracker id: #{inspect(tracker.id)}"
-    Torr.Tracker.allWithEmptyName(tracker)
+    Torr.Tracker.allWithEmptyHtml(tracker)
                 |> Repo.all
       #                  |> Enum.map(fn(torrUrl) -> Regex.named_captures(urlReg, torrUrl)["url"] end)
                 |> Enum.each(fn torrent ->
