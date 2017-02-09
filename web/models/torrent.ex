@@ -68,8 +68,8 @@ defmodule Torr.Torrent do
     sortTerm = searchParams["catalogMode"]
     unless is_nil(sortTerm) or sortTerm == "" do
        query
-              |> join(:inner, [t], f in fragment("SELECT distinct on(f.json->>'uniqName') f.id, f.json->>'uniqName'  FROM torrents AS f
-                                                   GROUP BY f.json->>'uniqName', f.id ORDER BY f.json->>'uniqName'"), id: t.id)
+               |> join(:inner, [t], f in fragment("SELECT distinct on(f.uniq_name) f.id, f.uniq_name FROM torrents AS f
+                                                          GROUP BY f.uniq_name, f.id ORDER BY f.uniq_name"), id: t.id)
     else
       query
     end
