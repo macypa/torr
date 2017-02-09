@@ -42,7 +42,7 @@ defmodule Torr.Crawler do
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce })
       end
     rescue
-      e -> Logger.info "no more pages to download #{inspect(tracker.id)} : #{inspect(e)}"
+      e -> Logger.warn "no more pages to download #{inspect(tracker.id)} : #{inspect(e)}"
             collectTorrents(tracker)
     end
   end
@@ -299,7 +299,7 @@ defmodule Torr.Crawler do
         cookie: "PHPSESSID=b2en7vbfb02e2a6l86q2l4vsh0; cookieconsent_dismissed=yes; uid=4656705; pass=2e47932cbb4cf7a6bca4766fb98e4c5f; cats=7; periods=7; statuses=1; howmanys=1; a=22; __utmt=1; ismobile=no; swidth=1920; sheight=1055; russian_lang=no; g=m; __utma=100172053.259253342.1483774748.1483988651.1484001975.4; __utmb=100172053.2.10.1484001975; __utmc=100172053; __utmz=100172053.1483774748.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)",
         patterns: %{ "urlsuffix": "&filelist=1",
                      "lastPagePattern": "~r/Sorry, nothing found/su",
-                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?banan?id=/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?banan\\?id=/su",
                      "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "genrePattern2": "~r/(Жанр[^\w]{1}|Genre[^\w]{1})(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",
@@ -334,7 +334,7 @@ defmodule Torr.Crawler do
         patterns: %{ "alternativeUrl": "http://pruc.org/",
                      "urlsuffix": "&filelist=1",
                      "lastPagePattern": "~r/Нищо не е намерено/su",
-                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?details.php?id=/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?details.php\\?id=/su",
                      "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
                      "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
                      "genrePattern2": "~r/(Жанр[^\w]{1}|Genre[^\w]{1})(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",

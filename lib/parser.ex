@@ -41,10 +41,9 @@ defmodule Torr.Parser do
 
                                                     try do
                                                        data = processTorrentData(tracker, torrentDBId)
-                                                       require IEx; IEx.pry
                                                        Torr.Torrent.save(data)
                                                     rescue
-                                                      e -> Logger.error "processTorrentData error: #{inspect(e)}"
+                                                      e -> Logger.warn "processTorrentData warn: #{inspect(e)}"
                                                             :ok
                                                     end
 
@@ -52,7 +51,7 @@ defmodule Torr.Parser do
           end
         end
       rescue
-        e -> Logger.error "processTorrents error: #{inspect(e)}"
+        e -> Logger.warn "processTorrents warn: #{inspect(e)}"
               :ok
       end
 
@@ -76,7 +75,7 @@ defmodule Torr.Parser do
                                                        data = processTorrentTypeGenre(tracker, torrent)
                                                        Torr.Torrent.save(data)
                                                     rescue
-                                                      e -> Logger.error "processTorrentTypeGenre error: #{inspect(e)}"
+                                                      e -> Logger.warn "processTorrentTypeGenre warn: #{inspect(e)}"
                                                             :ok
                                                     end
 
@@ -84,7 +83,7 @@ defmodule Torr.Parser do
           end
         end
       rescue
-        e -> Logger.error "processTorrentTypeGenre error: #{inspect(e)}"
+        e -> Logger.warn "processTorrentTypeGenre warn: #{inspect(e)}"
               :ok
       end
 
