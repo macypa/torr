@@ -15,7 +15,7 @@ defmodule Torr.UpdateFilter do
 
     Torr.Tracker |> Torr.Repo.all
                  |> Enum.each(fn(tracker) ->
-                        Torr.FilterData.updateFilterData("trackers", "#{tracker.id}:#{tracker.name}")
+                        Torr.FilterData.updateFilterData("trackers", "#{tracker.name}")
                   end)
 
     typesGenres = Torr.Torrent.typeGenres |> Torr.Repo.all

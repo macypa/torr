@@ -38,14 +38,14 @@
       <header>Trackers</header>
       <ul class="treeview">
         <%= for tracker <- @filterData["trackers"] |> String.split(", ") do %>
-          <% trackerID = tracker |> String.split(":") |> Enum.at(0) %>
+          <% trackerID = tracker %>
           <li>
             <input class="filterChckbox" type="checkbox">
             <label name="tracker"
                     id="<%= tracker %>"
                     class="custom-unchecked"
                     filterId="<%= trackerID %>"
-                 ><%= tracker |> String.split(":") |> Enum.at(1) %></label>
+                 ><%= tracker %></label>
           </li>
         <% end %>
       </ul>

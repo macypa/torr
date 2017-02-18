@@ -139,8 +139,8 @@ defmodule Torr.Torrent do
       dynamicToAdd = trackers |> String.split(",")
                |> Enum.reduce(nil, fn x, acc ->
                       case acc do
-                        nil -> dynamic([c], c.tracker_id == ^x)
-                        acc -> dynamic([c], c.tracker_id == ^x or ^acc)
+                        nil -> dynamic([c], fragment("? = (select id from trackers where name = ?)", c.tracker_id, ^x))
+                        acc -> dynamic([c], fragment("? = (select id from trackers where name = ?)", c.tracker_id, ^x) or ^acc)
                       end
                   end)
       case dynamic do
