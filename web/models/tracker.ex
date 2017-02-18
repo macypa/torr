@@ -115,7 +115,7 @@ defmodule Torr.Tracker do
 #    torrSubQuery = from torr in Torr.Torrent, select: torr.torrent_id
 
     from z in query,
-      where: fragment(" NOT EXISTS (SELECT * FROM torrents AS t  WHERE ? = t.torrent_id and ? = t.tracker_id )", z.torrent_id, ^tracker.id),
+      where: fragment(" ? = ? and NOT EXISTS (SELECT * FROM torrents AS t  WHERE ? = t.torrent_id and ? = t.tracker_id )", z.tracker_id, ^tracker.id, z.torrent_id, ^tracker.id),
       select: z.id,
       order_by: [z.id]
   end

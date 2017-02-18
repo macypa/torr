@@ -35,7 +35,7 @@ defmodule Torr.Crawler do
 
           if tracker.lastPageNumber+tracker.pagesAtOnce < 0 do
             #require IEx; IEx.pry
-            raise "no more pages to search for torrents"
+            raise "no more pages to search for torrents...page number less than 0"
           end
 
           collectTorrents(tracker)
@@ -56,14 +56,16 @@ defmodule Torr.Crawler do
 
     case runPattern(pageHtml, tracker.patterns["pageContainsTorrentsPattern"]) do
       "" -> #require IEx; IEx.pry
-            raise "no more pages to search for torrents"
+            if tracker.pagesAtOnce > 0 or tracker.lastPageNumber < 0 do
+              raise "no more pages to search for torrents...page doesn't contain new torrents"
+            end
       _ ->  saveTorrentUrlsFromPage(tracker, pageNumber, pageHtml)
     end
 
     case runPattern(pageHtml, tracker.patterns["lastPagePattern"]) do
       "" -> saveTorrentUrlsFromPage(tracker, pageNumber, pageHtml)
       _ -> #require IEx; IEx.pry
-            raise "no more pages to search for torrents"
+            raise "no more pages to search for torrents...seems this is the last page"
     end
   end
 
@@ -355,6 +357,41 @@ defmodule Torr.Crawler do
                      "videoAttrPattern": "code"}
       },
       %{
+        url: "http://pruc.org/",
+        name: "zelka.org",
+        pagesAtOnce: -2,
+#        lastPageNumber: 199,
+        delayOnFail: 1000,
+        pagePattern: "browse.php?sort=6&type=desc&page=",
+        infoUrl: "details.php?id=",
+        urlPattern: "(^|javascript)details\\.php\\?id=(?<url>\\d+)",
+        namePattern: "~r/<h1.*?<\/h1>/su",
+        htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
+        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
+        patterns: %{ "alternativeUrl": "http://pruc.org/",
+                     "urlsuffix": "&filelist=1",
+                     "lastPagePattern": "~r/Нищо не е намерено/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?details.php\\?id=/su",
+                     "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
+                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
+                     "genrePattern2": "~r/(Жанр[^\w]{1}|Genre[^\w]{1})(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",
+                     "descriptionPattern": "#description",
+                     "torrentDescNameValuePattern": "tr",
+                     "torrentDescNamePattern": "td.heading[align=right]",
+                     "torrentDescValuePattern": "td.heading[align=right]+td",
+                     "imgSelector": "#description img",
+                     "imgAttrPattern": "src",
+                     "imgFromLinkReg": "~r/.*/su",
+                     "imgFromLinkPrefix": "",
+                     "imgLinkPattern": "previewimg.php",
+                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                     "imgHiddenAttr": "style",
+                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
+                     "videoSelector": "#youtube_video",
+                     "videoAttrPattern": "code"}
+      },
+      %{
         url: "http://arenabg.com/",
         name: "arenabg.com",
         pagesAtOnce: 2,
@@ -387,11 +424,75 @@ defmodule Torr.Crawler do
                      "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
       },
       %{
+        url: "http://arenabg.com//",
+        name: "arenabg.com",
+        pagesAtOnce: 2,
+        delayOnFail: 1000,
+        pagePattern: "en/torrents/type:xxx/sort:date/dir:asc/page:",
+        infoUrl: "en/torrent-download-",
+        urlPattern: "en/torrent-download-(?<url>.*?)(#|$)",
+        namePattern: "~r/<h3.*?<\/h3>/su",
+        htmlPattern: "~r/<h2.*?You must login before post comments</div>|<h2.*$/su",
+        cookie: "SESSID=as1u48f7vaf1502sistemkhdt0; __utmt=1; uid=4168172; pass=1bace4536e356ab55f2c53f433959c29; lang=en; __utma=232206415.1053523969.1485765746.1486370541.1486462957.9; __utmb=232206415.22.10.1486462957; __utmc=232206415; __utmz=232206415.1486462957.9.8.utmcsr=localhost:4000|utmccn=(referral)|utmcmd=referral|utmcct=/torrents",
+        patterns: %{ "urlsuffix": "",
+                     "lastPagePattern": "~r/There are no results found/su",
+                     "pageContainsTorrentsPattern": "~r/id=\"search-button\".*?torrent-download/su",
+                     "categoryPattern": "~r/<b>Category</b>:(?<type>.*?)</a>/su",
+                     "genrePattern": "~r/<b>Category</b>.*?</a>.*?<a.*?>(?<genre>.*?)</a>/su",
+                     "genrePattern2": "~r/(Жанр:|Genre:)(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",
+                     "descriptionPattern": "~r/Torrent:(?<desc>.*?)id=\"comments\"/su",
+                     "torrentDescNameValuePattern": ".table-details tr",
+                     "torrentDescNamePattern": "td.hidden-xs",
+                     "torrentDescValuePattern": "td.hidden-xs+td",
+                     "imgSelector": "img.lazy, a[rel='nofollow'] img",
+                     "imgAttrPattern": "src",
+                     "imgFromLinkReg": "~r/.*/su",
+                     "imgFromLinkPrefix": "",
+                     "imgLinkPattern": "previewimg.php",
+                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                     "imgHiddenAttr": "style",
+                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|valid_css|valid_html|\.php).*",
+                     "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
+      },
+      %{
         url: "http://alein.org/",
         name: "alein.org",
         pagesAtOnce: 2,
         delayOnFail: 1000,
         pagePattern: "index.php?page=torrents&active=1&order=3&by=1&pages=",
+        infoUrl: "index.php?page=torrent-details&id=",
+        urlPattern: "page=torrent-details&id=(?<url>.*?)(#|$)",
+        namePattern: "~r/>Name</td>(?<name>.*?)</td>/su",
+        htmlPattern: "~r/>Name</td>.*?history.go|>Name</td>.*$/su",
+        cookie: "_ga=GA1.2.1213498673.1485510803; _popfired=1; xbtit=lnlkrkmtt3qjms086pdtdqn1d6",
+        patterns: %{ "urlsuffix": "#expand",
+                     "lastPagePattern": "~r/class=\"pagercurrent\"><b>\\d+</b></span>\\s*</form>/su",
+                     "pageContainsTorrentsPattern": "~r/Name</a>.*?page=torrent-details/su",
+                     "categoryPattern": "~r/<td[^>]*?>Category(?<type></.*?)</td>/su",
+                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
+                     "genrePattern2": "~r/(Жанр:|Genre:)(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",
+                     "descriptionPattern": "~r/<td[^>]*?>Description(?<genre>.*?)Screenshots/su",
+                     "torrentDescNameValuePattern": ".table-details tr",
+                     "torrentDescNamePattern": "td.header",
+                     "torrentDescValuePattern": "td.header+td",
+                     "imgSelector": "a[title='view image'] img",
+                     "imgAttrPattern": "src",
+                     "imgFromLinkReg": "~r/image=(?<img>.*)/su",
+                     "imgFromLinkPrefix": "torrentimg/",
+                     "imgLinkPattern": "previewimg.php",
+                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
+                     "imgHiddenAttr": "style",
+                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
+                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
+                     "videoPattern": "~r/youtube.com/embed/(?<tubeid>.*?)\"/su"}
+      },
+      %{
+        url: "http://alein.org//",
+        name: "alein.org",
+        pagesAtOnce: 2,
+        delayOnFail: 1000,
+        pagePattern: "index.php?page=xxx&active=1&order=3&by=1&pages=",
         infoUrl: "index.php?page=torrent-details&id=",
         urlPattern: "page=torrent-details&id=(?<url>.*?)(#|$)",
         namePattern: "~r/>Name</td>(?<name>.*?)</td>/su",

@@ -33,7 +33,7 @@ defmodule Torr.TorrentView do
 
   def getImages(params, torrent) do
     if is_nil(params["showAll"]) do
-      if torrent.json["Type"] != nil and String.contains?(torrent.json["Type"], "XXX") do
+      if torrent.type != nil and String.contains?(torrent.type, "XXX") do
         nil
       else
         torrent.json["images"]
