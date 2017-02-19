@@ -23,7 +23,7 @@ defmodule Torr.Crawler do
     end
 
     Process.send_after(Torr.Parser, :work, 1)
-    Logger.info "Crawler done"
+    Logger.warn "Crawler done"
   end
 
   def collectTorrentUrls(tracker) do

@@ -23,7 +23,9 @@ defmodule Torr.Parser do
 
 #    processEmptyTypeGenre()
 
-    Logger.info "Parser done"
+#    Torr.Torrent.save(Torr.Parser.processTorrentData(Torr.Repo.get(Torr.Tracker, 8), 10783))
+
+    Logger.warn "Parser done"
   end
 
   def processTorrents(tracker) do
@@ -203,8 +205,6 @@ defmodule Torr.Parser do
       descr -> torrentInfo |> Map.put( "Description", descr |> String.trim)
     end
 
-
-
     images = getImages(contentHtml, tracker)
     torrentInfo = if torrentInfo["Type"] != nil and String.contains?(torrentInfo["Type"], "XXX") do
       torrentInfo |> Map.put("imagesHidden", images)
@@ -228,7 +228,6 @@ defmodule Torr.Parser do
 
     images = contentHtml |> Floki.find(tracker.patterns["imgSelector"])
                           |> Floki.attribute(tracker.patterns["imgAttrPattern"])
-                          |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
                           |> Enum.map(fn(imgUrl) ->
                                           url = Torr.Crawler.runPattern(imgUrl, tracker.patterns["imgFromLinkReg"])
                                           case url do
@@ -237,6 +236,7 @@ defmodule Torr.Parser do
                                             url -> tracker.patterns["imgFromLinkPrefix"] <> url
                                           end
                                       end)
+                          |> Enum.filter(fn(imgUrl) -> not String.match?(imgUrl, imgReg) end)
                           |> Enum.uniq
 
       Logger.debug "getImages images: #{images}"
