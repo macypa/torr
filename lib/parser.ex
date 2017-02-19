@@ -53,7 +53,7 @@ defmodule Torr.Parser do
           end
         end
       rescue
-        e -> Logger.warn "processTorrents warn: #{inspect(e)}"
+        e -> Logger.warn "processTorrents warn #{inspect(tracker.url)} : #{inspect(e)}"
               :ok
       end
 

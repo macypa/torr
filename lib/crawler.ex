@@ -42,7 +42,7 @@ defmodule Torr.Crawler do
           Tracker.save(%{url: tracker.url, lastPageNumber: tracker.lastPageNumber+tracker.pagesAtOnce })
       end
     rescue
-      e -> Logger.warn "no more pages to download #{inspect(tracker.id)} : #{inspect(e)}"
+      e -> Logger.warn "no more pages to download #{inspect(tracker.url)} : #{inspect(e)}"
             collectTorrents(tracker)
     end
   end
@@ -323,41 +323,6 @@ defmodule Torr.Crawler do
       },
       %{
         url: "http://zelka.org/",
-        name: "zelka.org",
-        pagesAtOnce: -2,
-#        lastPageNumber: 199,
-        delayOnFail: 1000,
-        pagePattern: "browse.php?sort=6&type=desc&page=",
-        infoUrl: "details.php?id=",
-        urlPattern: "(^|javascript)details\\.php\\?id=(?<url>\\d+)",
-        namePattern: "~r/<h1.*?<\/h1>/su",
-        htmlPattern: "~r/<h1.*?(Add|Show)\s*comment.*?<\/table>|<h1.*$/su",
-        cookie: "uid=3296682; pass=cf2c4af26d3d19b8ebab768f209152a5; accag=ccage",
-        patterns: %{ "alternativeUrl": "http://pruc.org/",
-                     "urlsuffix": "&filelist=1",
-                     "lastPagePattern": "~r/Нищо не е намерено/su",
-                     "pageContainsTorrentsPattern": "~r/id=\"submitsearch\".*?details.php\\?id=/su",
-                     "categoryPattern": "~r/<td[^>]*?>Type(?<type></.*?)</td>/su",
-                     "genrePattern": "~r/<td[^>]*?>Genre(?<genre></.*?)</td>/su",
-                     "genrePattern2": "~r/(Жанр[^\w]{1}|Genre[^\w]{1})(?<genre>.*?)(##|:|\t|<br|</td|</li)/su",
-                     "descriptionPattern": "#description",
-                     "torrentDescNameValuePattern": "tr",
-                     "torrentDescNamePattern": "td.heading[align=right]",
-                     "torrentDescValuePattern": "td.heading[align=right]+td",
-                     "imgSelector": "#description img",
-                     "imgAttrPattern": "src",
-                     "imgFromLinkReg": "~r/.*/su",
-                     "imgFromLinkPrefix": "",
-                     "imgLinkPattern": "previewimg.php",
-                     "imgHiddenSelector": "td.td_clear div, td.td_clear a img",
-                     "imgHiddenAttr": "style",
-                     "imgHiddenPattern": "background-image: url\\('(?<url>.*)'\\);",
-                     "imgFilterPattern": ".*(fullr.png|halfr.png|blankr.png|spacer.gif|arrow_hover.png|\.php).*",
-                     "videoSelector": "#youtube_video",
-                     "videoAttrPattern": "code"}
-      },
-      %{
-        url: "http://pruc.org/",
         name: "zelka.org",
         pagesAtOnce: -2,
 #        lastPageNumber: 199,
