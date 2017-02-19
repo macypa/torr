@@ -23,7 +23,7 @@
         <div class="modal-viewer">
           <%= for img <- images do %>
             <div class="mySlides">
-              <img class="visibleImage lazy" data-src="images/remote/<%= decodeImg(img) %>" width="100%"/>
+              <img class="visibleImage lazy" data-src="images/remote/<%= decodeImg(img) %>"/>
             </div>
           <% end %>
 
