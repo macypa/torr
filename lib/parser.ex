@@ -17,7 +17,7 @@ defmodule Torr.Parser do
     trackers = Torr.Crawler.trackers()
 
     for tracker <- trackers do
-#    tracker = Repo.get(Tracker, 1)
+#    tracker = Torr.Repo.get(Torr.Tracker, 7)
       processTorrents(tracker)
     end
 
@@ -128,6 +128,18 @@ defmodule Torr.Parser do
                     |> Torr.FilterData.convertType
   end
 
+  def getAddedDate(torrent, tracker) do
+    Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["datePattern"])
+                    |> Floki.text
+                    |> String.trim
+  end
+
+  def getSize(torrent, tracker) do
+    Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["sizePattern"])
+                    |> Floki.text
+                    |> String.trim
+  end
+
   def getGenre(torrent, tracker) do
     Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern"]) <> ", " <> Torr.Crawler.runPattern(torrent.content_html, tracker.patterns["genrePattern2"])
                    |> Floki.text
@@ -179,14 +191,14 @@ defmodule Torr.Parser do
       genre: genre,
       tracker_id: tracker.id,
       torrent_id: torrent.torrent_id,
-      json: updateJson(torrent.content_html, tracker)
+      json: updateJson(torrent, tracker)
     }
 
   end
 
-  def updateJson(contentHtml, tracker) do
+  def updateJson(torrent, tracker) do
     Logger.debug "updateJson"
-
+    contentHtml = torrent.content_html
     torrentInfo = %{}
 
     contentHtml = contentHtml |> String.replace(">>>", "") |> String.replace("<<<", "")
@@ -203,6 +215,18 @@ defmodule Torr.Parser do
     torrentInfo = case description do
       "" -> torrentInfo
       descr -> torrentInfo |> Map.put( "Description", descr |> String.trim)
+    end
+
+    added = getAddedDate(torrent, tracker)
+    torrentInfo = case added do
+      "" -> torrentInfo
+      added -> torrentInfo |> Map.put( "Added", added |> String.trim)
+    end
+
+    size = getSize(torrent, tracker)
+    torrentInfo = case size do
+      "" -> torrentInfo
+      size -> torrentInfo |> Map.put( "Size", size |> String.trim)
     end
 
     images = getImages(contentHtml, tracker)
