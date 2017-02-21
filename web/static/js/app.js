@@ -67,6 +67,14 @@ window.openModal = function(idModal) {
   document.getElementById(idModal).style.display = "block";
 }
 
+window.zoomImg = function(idModal) {
+  $("#"+idModal).ezPlus({
+    scrollZoom: true,
+    zoomType: 'inner',
+    cursor: 'crosshair'
+  });
+}
+
 window.closeModal = function(idModal) {
   document.getElementById(idModal).style.display = "none";
 }
